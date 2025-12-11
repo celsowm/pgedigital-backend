@@ -66,6 +66,7 @@ export function RegisterRoutes(app: Router) {
 
     
         const argsNotaVersaoController_list: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
                 sprint: {"in":"query","name":"sprint","dataType":"double"},
                 ativo: {"in":"query","name":"ativo","dataType":"boolean"},
                 includeInactive: {"in":"query","name":"includeInactive","dataType":"boolean"},
@@ -98,6 +99,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotaVersaoController_find: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
                 id: {"in":"path","name":"id","required":true,"dataType":"double"},
         };
         app.get('/api/nota-versao/:id',
@@ -128,6 +130,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotaVersaoController_create: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
                 payload: {"in":"body","name":"payload","required":true,"ref":"NotaVersaoCreateInput"},
         };
         app.post('/api/nota-versao',
@@ -158,6 +161,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotaVersaoController_update: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
                 id: {"in":"path","name":"id","required":true,"dataType":"double"},
                 payload: {"in":"body","name":"payload","required":true,"ref":"NotaVersaoUpdateInput"},
         };
@@ -189,6 +193,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsNotaVersaoController_remove: Record<string, TsoaRoute.ParameterSchema> = {
+                request: {"in":"request","name":"request","required":true,"dataType":"object"},
                 id: {"in":"path","name":"id","required":true,"dataType":"double"},
         };
         app.delete('/api/nota-versao/:id',

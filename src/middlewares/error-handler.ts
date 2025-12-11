@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { ValidateError } from 'tsoa';
+import { ValidateError } from 'tsoa';
 import { HttpError } from '../errors/http-error.js';
 
 export const errorHandler = (
