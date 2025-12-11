@@ -12,11 +12,11 @@
   "type": "module",
   "dependencies": {
     "@types/tedious": "^4.0.14",
-    "metal-orm": "^1.0.18",
+    "metal-orm": "^1.0.25",
     "tedious": "^16.7.1"
   },
   "devDependencies": {
-    "@types/node": "^24.10.2",
+    "@types/node": "^24.10.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
