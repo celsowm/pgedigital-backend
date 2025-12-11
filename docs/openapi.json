@@ -1,0 +1,277 @@
+{
+	"basePath": "/api",
+	"consumes": [
+		"application/json"
+	],
+	"definitions": {
+		"NotaVersaoResponse": {
+			"properties": {
+				"id": {
+					"type": "number",
+					"format": "double"
+				},
+				"data": {
+					"type": "string"
+				},
+				"sprint": {
+					"type": "number",
+					"format": "double"
+				},
+				"ativo": {
+					"type": "boolean"
+				},
+				"mensagem": {
+					"type": "string"
+				},
+				"data_exclusao": {
+					"type": "string"
+				},
+				"data_inativacao": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"data",
+				"sprint",
+				"ativo",
+				"mensagem"
+			],
+			"type": "object",
+			"additionalProperties": false
+		},
+		"NotaVersaoCreateInput": {
+			"properties": {
+				"data": {
+					"type": "string"
+				},
+				"sprint": {
+					"type": "number",
+					"format": "double"
+				},
+				"mensagem": {
+					"type": "string"
+				},
+				"ativo": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"data",
+				"sprint",
+				"mensagem"
+			],
+			"type": "object",
+			"additionalProperties": false
+		},
+		"NotaVersaoUpdateInput": {
+			"properties": {
+				"data": {
+					"type": "string"
+				},
+				"sprint": {
+					"type": "number",
+					"format": "double"
+				},
+				"mensagem": {
+					"type": "string"
+				},
+				"ativo": {
+					"type": "boolean"
+				}
+			},
+			"type": "object",
+			"additionalProperties": false
+		}
+	},
+	"info": {
+		"title": "pgedigital-backend",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"paths": {
+		"/nota-versao": {
+			"get": {
+				"operationId": "List",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"items": {
+								"$ref": "#/definitions/NotaVersaoResponse"
+							},
+							"type": "array"
+						}
+					}
+				},
+				"tags": [
+					"NotaVersao"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "sprint",
+						"required": false,
+						"format": "double",
+						"type": "number"
+					},
+					{
+						"in": "query",
+						"name": "ativo",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"in": "query",
+						"name": "includeInactive",
+						"required": false,
+						"type": "boolean"
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"201": {
+						"description": "Created",
+						"schema": {
+							"$ref": "#/definitions/NotaVersaoResponse"
+						}
+					}
+				},
+				"consumes": [
+					"application/json"
+				],
+				"tags": [
+					"NotaVersao"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "payload",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/NotaVersaoCreateInput"
+						}
+					}
+				]
+			}
+		},
+		"/nota-versao/{id}": {
+			"get": {
+				"operationId": "Find",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/NotaVersaoResponse"
+						}
+					},
+					"404": {
+						"description": "NotaVersao not found"
+					}
+				},
+				"tags": [
+					"NotaVersao"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"format": "double",
+						"type": "number"
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/NotaVersaoResponse"
+						}
+					},
+					"404": {
+						"description": "NotaVersao not found"
+					}
+				},
+				"consumes": [
+					"application/json"
+				],
+				"tags": [
+					"NotaVersao"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"format": "double",
+						"type": "number"
+					},
+					{
+						"in": "body",
+						"name": "payload",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/NotaVersaoUpdateInput"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "Remove",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"404": {
+						"description": "NotaVersao not found"
+					}
+				},
+				"tags": [
+					"NotaVersao"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"format": "double",
+						"type": "number"
+					}
+				]
+			}
+		}
+	},
+	"produces": [
+		"application/json"
+	],
+	"swagger": "2.0",
+	"securityDefinitions": {}
+}

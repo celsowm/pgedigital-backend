@@ -23,15 +23,19 @@ foreach ($var in $requiredEnv) {
 
 ## --- 2. URL Construction ---
 
-# Determine SSL/TLS parameters from environment variables (defaulting to 'false')
-$encrypt = if ($env:PGE_DIGITAL_ENCRYPT -eq 'true') { 'true' } else { 'false' }
-$trust = if ($env:PGE_DIGITAL_TRUST_CERT -eq 'true') { 'true' } else { 'false' }
+# Prefer a fully-qualified DATABASE_URL, otherwise fall back to the legacy env vars.
+if ($env:DATABASE_URL) {
+    $databaseUrl = $env:DATABASE_URL
+    Write-Host "Database URL (from DATABASE_URL): $databaseUrl"
+} else {
+    # Determine SSL/TLS parameters from environment variables (defaulting to 'false')
+    $encrypt = if ($env:PGE_DIGITAL_ENCRYPT -eq 'true') { 'true' } else { 'false' }
+    $trust = if ($env:PGE_DIGITAL_TRUST_CERT -eq 'true') { 'true' } else { 'false' }
 
-# NOTE: We construct the URL without immediate quotes, but will ensure it is quoted
-# in the final command string to correctly handle the '&' character in the query string.
-$databaseUrl = "mssql://$($env:PGE_DIGITAL_USER):$($env:PGE_DIGITAL_PASSWORD)@$($env:PGE_DIGITAL_HOST)/PGE_DIGITAL?encrypt=$encrypt&trustServerCertificate=$trust"
+    $databaseUrl = "mssql://$($env:PGE_DIGITAL_USER):$($env:PGE_DIGITAL_PASSWORD)@$($env:PGE_DIGITAL_HOST)/PGE_DIGITAL?encrypt=$encrypt&trustServerCertificate=$trust"
+    Write-Host "Database URL (for review): mssql://$($env:PGE_DIGITAL_USER):***masked***@$($env:PGE_DIGITAL_HOST)/PGE_DIGITAL?encrypt=$encrypt&trustServerCertificate=$trust"
+}
 
-Write-Host "Database URL (for review): mssql://$($env:PGE_DIGITAL_USER):***masked***@$($env:PGE_DIGITAL_HOST)/PGE_DIGITAL?encrypt=$encrypt&trustServerCertificate=$trust"
 Write-Host "Generating entities for schema '$Schema' and table(s) '$Include'."
 
 ## --- 3. Command Execution (Corrected for PowerShell) ---

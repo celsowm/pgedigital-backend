@@ -21,15 +21,34 @@ const toMssqlConfig = (connection: string) => {
       database: url.pathname.replace(/^\//, ''),
       port: url.port ? Number(url.port) : undefined,
       encrypt: url.searchParams.get('encrypt') === 'true',
+      trustServerCertificate: url.searchParams.get('trustServerCertificate') === 'true',
     },
   };
+};
+
+const buildDatabaseUrl = () => {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+
+  const host = process.env.PGE_DIGITAL_HOST;
+  const user = process.env.PGE_DIGITAL_USER;
+  const password = process.env.PGE_DIGITAL_PASSWORD;
+
+  if (!host || !user || !password) {
+    throw new Error('Database connection details are missing');
+  }
+
+  const encrypt = process.env.PGE_DIGITAL_ENCRYPT === 'true' ? 'true' : 'false';
+  const trust = process.env.PGE_DIGITAL_TRUST_CERT === 'true' ? 'true' : 'false';
+  return `mssql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}/PGE_DIGITAL?encrypt=${encrypt}&trustServerCertificate=${trust}`;
 };
 
 export const openSession = createSessionFactory(
   new SqlServerDialect(),
   async () => {
     const connection = new Connection(
-      toMssqlConfig(process.env.DATABASE_URL!),
+      toMssqlConfig(buildDatabaseUrl()),
     );
 
     await new Promise<void>((resolve, reject) => {
