@@ -1,5 +1,11 @@
-import { OrmSession, createEntityFromRow, esel, eq, isNull } from 'metal-orm';
-import { selectFromEntity } from 'metal-orm/decorators';
+import {
+  OrmSession,
+  createEntityFromRow,
+  esel,
+  eq,
+  isNull,
+  selectFromEntity,
+} from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
 import { notaVersaoTable } from '../entities/index.js';
 
