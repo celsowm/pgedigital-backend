@@ -3,7 +3,7 @@
 param(
     [string]$Schema = "dbo",
     [string]$Include = "nota_versao",
-    [string]$Out = "src/entities.ts"
+    [string]$Out = "src/entities/entities.ts"
 )
 
 ## --- 1. Environment Variable Check ---
