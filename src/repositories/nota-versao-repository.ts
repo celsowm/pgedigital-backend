@@ -51,10 +51,6 @@ export interface NotaVersaoUpdatePayload {
 }
 
 const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
-  // Type note:
-  // Metal-ORM's `EntityInstance<TTable>` infers DATE/DATETIME columns as `string`.
-  // With Tedious (MSSQL), these values are typically hydrated as `Date` at runtime.
-  // We use the entity mapper to handle the type boundary cleanly.
   let builder = selectFromEntity<typeof notaVersaoTable>(NotaVersao);
 
   if (options?.sprint !== undefined) {

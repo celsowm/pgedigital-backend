@@ -14,7 +14,7 @@ export class NotaVersao {
   @PrimaryKey(col.notNull(col.autoIncrement(col.int())))
   id!: number;
 
-  @Column(col.notNull(col.date()))
+  @Column(col.notNull(col.date<Date>()))
   data!: Date;
 
   @Column(col.notNull(col.int()))
@@ -26,10 +26,10 @@ export class NotaVersao {
   @Column(col.notNull(col.varchar(255)))
   mensagem!: string;
 
-  @Column(col.datetime())
+  @Column(col.datetime<Date>())
   data_exclusao?: Date;
 
-  @Column(col.datetime())
+  @Column(col.datetime<Date>())
   data_inativacao?: Date;
 
 }
