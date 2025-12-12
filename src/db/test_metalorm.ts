@@ -5,7 +5,7 @@ import {
   SelectQueryBuilder,
   SqlServerDialect,
 } from "metal-orm";
-import { dbConfig } from "./connection";
+import { dbConfig } from "./connection.js";
 
 function buildConfigFromEnv(): ConnectionConfig {
   const {

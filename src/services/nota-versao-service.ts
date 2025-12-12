@@ -2,13 +2,17 @@ import { OrmSession } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
 import {
   listNotaVersaoEntities,
+  countNotaVersaoEntities,
   findNotaVersaoById,
   createNotaVersaoRecord,
   NotaVersaoCreatePayload,
 } from '../repositories/nota-versao-repository.js';
 import { BadRequestError, NotFoundError } from '../errors/http-error.js';
+import type { PaginationMeta, PaginationQuery } from '../models/pagination.js';
 
 const MAX_MESSAGE_LENGTH = 255;
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 100;
 
 export interface NotaVersaoCreateInput {
   data: string;
@@ -24,7 +28,7 @@ export interface NotaVersaoUpdateInput {
   ativo?: boolean;
 }
 
-export interface NotaVersaoListQuery {
+export interface NotaVersaoListQuery extends PaginationQuery {
   sprint?: number;
   ativo?: boolean;
   includeInactive?: boolean;
@@ -38,6 +42,11 @@ export interface NotaVersaoResponse {
   mensagem: string;
   data_exclusao?: string;
   data_inativacao?: string;
+}
+
+export interface NotaVersaoListResponse {
+  items: NotaVersaoResponse[];
+  pagination: PaginationMeta;
 }
 
 const toResponse = (entity: NotaVersao): NotaVersaoResponse => ({
@@ -76,17 +85,72 @@ const ensureSprintNumber = (sprint: number) => {
   }
 };
 
+const normalizePage = (page?: number) => {
+  if (page === undefined) {
+    return 1;
+  }
+
+  if (!Number.isInteger(page) || page <= 0) {
+    throw new BadRequestError('page must be a positive integer');
+  }
+
+  return page;
+};
+
+const normalizePageSize = (pageSize?: number) => {
+  if (pageSize === undefined) {
+    return DEFAULT_PAGE_SIZE;
+  }
+
+  if (!Number.isInteger(pageSize) || pageSize <= 0) {
+    throw new BadRequestError('pageSize must be a positive integer');
+  }
+
+  if (pageSize > MAX_PAGE_SIZE) {
+    throw new BadRequestError(`pageSize cannot exceed ${MAX_PAGE_SIZE}`);
+  }
+
+  return pageSize;
+};
+
+const buildPaginationMeta = (
+  page: number,
+  pageSize: number,
+  totalItems: number,
+): PaginationMeta => ({
+  page,
+  pageSize,
+  totalItems,
+  totalPages: totalItems === 0 ? 0 : Math.ceil(totalItems / pageSize),
+  hasNextPage: page * pageSize < totalItems,
+  hasPreviousPage: page > 1,
+});
+
 export async function listNotaVersao(
   session: OrmSession,
   query?: NotaVersaoListQuery,
-): Promise<NotaVersaoResponse[]> {
-  const rows = await listNotaVersaoEntities(session, {
+): Promise<NotaVersaoListResponse> {
+  const page = normalizePage(query?.page);
+  const pageSize = normalizePageSize(query?.pageSize);
+  const baseFilters = {
     sprint: query?.sprint,
     ativo: query?.ativo,
     includeDeleted: query?.includeInactive,
-  });
+  };
 
-  return rows.map(toResponse);
+  const [rows, totalItems] = await Promise.all([
+    listNotaVersaoEntities(session, {
+      ...baseFilters,
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    }),
+    countNotaVersaoEntities(session, baseFilters),
+  ]);
+
+  return {
+    items: rows.map(toResponse),
+    pagination: buildPaginationMeta(page, pageSize, totalItems),
+  };
 }
 
 export async function getNotaVersao(

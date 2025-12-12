@@ -5,7 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import { RegisterRoutes } from './routes/routes.js';
 import { openSession } from './db/session-mssql.js';
 import { errorHandler } from './middlewares/error-handler.js';
-import openapiDocument from '../docs/openapi.json' assert { type: 'json' };
+import openapiDocument from '../docs/openapi.json' with { type: 'json' };
 
 const app = express();
 

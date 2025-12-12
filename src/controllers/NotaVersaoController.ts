@@ -18,6 +18,7 @@ import type { OrmSession } from 'metal-orm';
 import {
   NotaVersaoCreateInput,
   NotaVersaoResponse,
+  NotaVersaoListResponse,
   NotaVersaoUpdateInput,
   NotaVersaoListQuery,
   createNotaVersao,
@@ -45,8 +46,16 @@ export class NotaVersaoController extends Controller {
     @Query() sprint?: number,
     @Query() ativo?: boolean,
     @Query() includeInactive?: boolean,
-  ): Promise<NotaVersaoResponse[]> {
-    const query: NotaVersaoListQuery = { sprint, ativo, includeInactive };
+    @Query() page?: number,
+    @Query() pageSize?: number,
+  ): Promise<NotaVersaoListResponse> {
+    const query: NotaVersaoListQuery = {
+      sprint,
+      ativo,
+      includeInactive,
+      page,
+      pageSize,
+    };
     return listNotaVersao(this.requireSession(request), query);
   }
 

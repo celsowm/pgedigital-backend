@@ -1,5 +1,5 @@
 import { Connection, Request, ConnectionConfig } from "tedious";
-import { dbConfig } from "./connection";
+import { dbConfig } from "./connection.js";
 
 function buildConfigFromEnv(): ConnectionConfig {
   const { host, user, password, database, options = {} as { encrypt?: boolean; trustServerCertificate?: boolean } } = dbConfig;

@@ -4,7 +4,7 @@
 import type { TsoaRoute } from '@tsoa/runtime';
 import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { NotaVersaoController } from './../controllers/NotaVersaoController';
+import { NotaVersaoController } from './../controllers/NotaVersaoController.js';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -22,6 +22,28 @@ const models: TsoaRoute.Models = {
             "mensagem": {"dataType":"string","required":true},
             "data_exclusao": {"dataType":"string"},
             "data_inativacao": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PaginationMeta": {
+        "dataType": "refObject",
+        "properties": {
+            "page": {"dataType":"double","required":true},
+            "pageSize": {"dataType":"double","required":true},
+            "totalItems": {"dataType":"double","required":true},
+            "totalPages": {"dataType":"double","required":true},
+            "hasNextPage": {"dataType":"boolean","required":true},
+            "hasPreviousPage": {"dataType":"boolean","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "NotaVersaoListResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "items": {"dataType":"array","array":{"dataType":"refObject","ref":"NotaVersaoResponse"},"required":true},
+            "pagination": {"ref":"PaginationMeta","required":true},
         },
         "additionalProperties": false,
     },
@@ -70,6 +92,8 @@ export function RegisterRoutes(app: Router) {
                 sprint: {"in":"query","name":"sprint","dataType":"double"},
                 ativo: {"in":"query","name":"ativo","dataType":"boolean"},
                 includeInactive: {"in":"query","name":"includeInactive","dataType":"boolean"},
+                page: {"in":"query","name":"page","dataType":"double"},
+                pageSize: {"in":"query","name":"pageSize","dataType":"double"},
         };
         app.get('/api/nota-versao',
             ...(fetchMiddlewares<RequestHandler>(NotaVersaoController)),

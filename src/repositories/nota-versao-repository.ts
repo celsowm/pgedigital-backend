@@ -4,6 +4,7 @@ import {
   esel,
   eq,
   isNull,
+  count,
   selectFromEntity,
 } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
@@ -25,6 +26,8 @@ export interface NotaVersaoListOptions {
   sprint?: number;
   ativo?: boolean;
   includeDeleted?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export interface NotaVersaoCreatePayload {
@@ -34,13 +37,8 @@ export interface NotaVersaoCreatePayload {
   ativo: boolean;
 }
 
-export async function listNotaVersaoEntities(
-  session: OrmSession,
-  options?: NotaVersaoListOptions,
-) {
-  let builder = selectFromEntity(NotaVersao)
-    .select(getSelection())
-    .orderBy(notaVersaoTable.columns.data, 'DESC');
+const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
+  let builder = selectFromEntity(NotaVersao);
 
   if (options?.sprint !== undefined) {
     builder = builder.where(eq(notaVersaoTable.columns.sprint, options.sprint));
@@ -56,23 +54,53 @@ export async function listNotaVersaoEntities(
     builder = builder.where(isNull(notaVersaoTable.columns.data_exclusao));
   }
 
-  return builder.execute(session);
+  return builder;
+};
+
+export async function listNotaVersaoEntities(
+  session: OrmSession,
+  options?: NotaVersaoListOptions,
+): Promise<NotaVersao[]> {
+  let builder = buildFilteredQuery(options)
+    .select(getSelection())
+    .orderBy(notaVersaoTable.columns.data, 'DESC');
+
+  if (options?.limit !== undefined) {
+    builder = builder.limit(options.limit);
+  }
+
+  if (options?.offset !== undefined) {
+    builder = builder.offset(options.offset);
+  }
+
+  return builder.execute(session) as unknown as Promise<NotaVersao[]>;
+}
+
+export async function countNotaVersaoEntities(
+  session: OrmSession,
+  options?: NotaVersaoListOptions,
+) {
+  const [row] = await buildFilteredQuery(options)
+    .select({ total: count(notaVersaoTable.columns.id) })
+    .execute(session);
+
+  return Number(row?.total ?? 0);
 }
 
 export async function findNotaVersaoById(
   session: OrmSession,
   id: number,
-) {
+): Promise<NotaVersao | null> {
   const [entity] = await selectFromEntity(NotaVersao)
     .select(getSelection())
     .where(eq(notaVersaoTable.columns.id, id))
     .execute(session);
-  return entity ?? null;
+  return (entity ?? null) as unknown as NotaVersao | null;
 }
 
 export function createNotaVersaoRecord(
   session: OrmSession,
   payload: NotaVersaoCreatePayload,
 ) {
-  return createEntityFromRow(session, notaVersaoTable, payload);
+  return createEntityFromRow(session, notaVersaoTable, payload) as unknown as NotaVersao;
 }

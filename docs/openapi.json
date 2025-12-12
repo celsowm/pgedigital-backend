@@ -40,6 +40,61 @@
 			"type": "object",
 			"additionalProperties": false
 		},
+		"PaginationMeta": {
+			"properties": {
+				"page": {
+					"type": "number",
+					"format": "double"
+				},
+				"pageSize": {
+					"type": "number",
+					"format": "double"
+				},
+				"totalItems": {
+					"type": "number",
+					"format": "double"
+				},
+				"totalPages": {
+					"type": "number",
+					"format": "double"
+				},
+				"hasNextPage": {
+					"type": "boolean"
+				},
+				"hasPreviousPage": {
+					"type": "boolean"
+				}
+			},
+			"required": [
+				"page",
+				"pageSize",
+				"totalItems",
+				"totalPages",
+				"hasNextPage",
+				"hasPreviousPage"
+			],
+			"type": "object",
+			"additionalProperties": false
+		},
+		"NotaVersaoListResponse": {
+			"properties": {
+				"items": {
+					"items": {
+						"$ref": "#/definitions/NotaVersaoResponse"
+					},
+					"type": "array"
+				},
+				"pagination": {
+					"$ref": "#/definitions/PaginationMeta"
+				}
+			},
+			"required": [
+				"items",
+				"pagination"
+			],
+			"type": "object",
+			"additionalProperties": false
+		},
 		"NotaVersaoCreateInput": {
 			"properties": {
 				"data": {
@@ -103,10 +158,7 @@
 					"200": {
 						"description": "Ok",
 						"schema": {
-							"items": {
-								"$ref": "#/definitions/NotaVersaoResponse"
-							},
-							"type": "array"
+							"$ref": "#/definitions/NotaVersaoListResponse"
 						}
 					}
 				},
@@ -133,6 +185,20 @@
 						"name": "includeInactive",
 						"required": false,
 						"type": "boolean"
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"format": "double",
+						"type": "number"
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"format": "double",
+						"type": "number"
 					}
 				]
 			},
