@@ -5,14 +5,20 @@ import {
   countNotaVersaoEntities,
   findNotaVersaoById,
   createNotaVersaoRecord,
+  updateNotaVersaoEntity,
+  deactivateNotaVersaoEntity,
+  softDeleteNotaVersaoEntity,
+  deactivateOtherVersionsForSprint,
   NotaVersaoCreatePayload,
 } from '../repositories/nota-versao-repository.js';
-import { BadRequestError, NotFoundError } from '../errors/http-error.js';
+import {
+  normalizePage,
+  normalizePageSize,
+  validateNotaVersaoCreateInput,
+  validateNotaVersaoUpdateInput,
+} from '../validators/nota-versao-validators.js';
+import { NotFoundError } from '../errors/http-error.js';
 import type { PaginationMeta, PaginationQuery } from '../models/pagination.js';
-
-const MAX_MESSAGE_LENGTH = 255;
-const DEFAULT_PAGE_SIZE = 20;
-const MAX_PAGE_SIZE = 100;
 
 export interface NotaVersaoCreateInput {
   data: string;
@@ -59,60 +65,6 @@ const toResponse = (entity: NotaVersao): NotaVersaoResponse => ({
   data_exclusao: entity.data_exclusao?.toISOString(),
   data_inativacao: entity.data_inativacao?.toISOString(),
 });
-
-const parseDate = (value: string, field: string) => {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    throw new BadRequestError(`${field} must be a valid ISO date`);
-  }
-  return parsed;
-};
-
-const sanitizeMensagem = (value: string) => value.trim();
-
-const validateMensagem = (mensagem: string) => {
-  if (!mensagem) {
-    throw new BadRequestError('Mensagem is required');
-  }
-
-  if (mensagem.length > MAX_MESSAGE_LENGTH) {
-    throw new BadRequestError(`Mensagem cannot exceed ${MAX_MESSAGE_LENGTH} characters`);
-  }
-};
-
-const ensureSprintNumber = (sprint: number) => {
-  if (!Number.isFinite(sprint) || sprint <= 0) {
-    throw new BadRequestError('Sprint must be a positive number');
-  }
-};
-
-const normalizePage = (page?: number) => {
-  if (page === undefined) {
-    return 1;
-  }
-
-  if (!Number.isInteger(page) || page <= 0) {
-    throw new BadRequestError('page must be a positive integer');
-  }
-
-  return page;
-};
-
-const normalizePageSize = (pageSize?: number) => {
-  if (pageSize === undefined) {
-    return DEFAULT_PAGE_SIZE;
-  }
-
-  if (!Number.isInteger(pageSize) || pageSize <= 0) {
-    throw new BadRequestError('pageSize must be a positive integer');
-  }
-
-  if (pageSize > MAX_PAGE_SIZE) {
-    throw new BadRequestError(`pageSize cannot exceed ${MAX_PAGE_SIZE}`);
-  }
-
-  return pageSize;
-};
 
 const buildPaginationMeta = (
   page: number,
@@ -170,32 +122,17 @@ export async function createNotaVersao(
   session: OrmSession,
   input: NotaVersaoCreateInput,
 ): Promise<NotaVersaoResponse> {
-  const mensagem = sanitizeMensagem(input.mensagem);
-  validateMensagem(mensagem);
-  ensureSprintNumber(input.sprint);
-  const data = parseDate(input.data, 'data');
+  const validated = validateNotaVersaoCreateInput(input);
 
-  const shouldActivate = input.ativo ?? true;
-  if (shouldActivate) {
-    const activeForSprint = await listNotaVersaoEntities(session, {
-      sprint: input.sprint,
-      ativo: true,
-      includeDeleted: true,
-    });
-    const now = new Date();
-    activeForSprint.forEach((entity) => {
-      if (entity.ativo) {
-        entity.ativo = false;
-        entity.data_inativacao = now;
-      }
-    });
+  if (validated.ativo) {
+    await deactivateOtherVersionsForSprint(session, validated.sprint);
   }
 
   const entity = createNotaVersaoRecord(session, {
-    data,
-    sprint: input.sprint,
-    mensagem,
-    ativo: shouldActivate,
+    data: validated.data,
+    sprint: validated.sprint,
+    mensagem: validated.mensagem,
+    ativo: validated.ativo,
   } satisfies NotaVersaoCreatePayload);
   return toResponse(entity);
 }
@@ -210,42 +147,26 @@ export async function updateNotaVersao(
     throw new NotFoundError(`NotaVersao ${id} not found`);
   }
 
-  if (input.mensagem !== undefined) {
-    const mensagem = sanitizeMensagem(input.mensagem);
-    validateMensagem(mensagem);
-    entity.mensagem = mensagem;
-  }
+  const validated = validateNotaVersaoUpdateInput(input);
+  const targetSprint = validated.sprint ?? entity.sprint;
+  const intendedActive = validated.ativo ?? entity.ativo;
 
-  let targetSprint = entity.sprint;
-  if (input.sprint !== undefined) {
-    ensureSprintNumber(input.sprint);
-    targetSprint = input.sprint;
-    entity.sprint = targetSprint;
-  }
-
-  if (input.data !== undefined) {
-    entity.data = parseDate(input.data, 'data');
-  }
-
-  const intendedActive = input.ativo ?? entity.ativo;
+  // Handle activation logic - deactivate other versions for the sprint
   if (intendedActive && !entity.ativo) {
-    const activeForSprint = await listNotaVersaoEntities(session, {
-      sprint: targetSprint,
-      ativo: true,
-      includeDeleted: true,
-    });
-    const now = new Date();
-    activeForSprint.forEach((item) => {
-      if (item.id !== entity.id && item.ativo) {
-        item.ativo = false;
-        item.data_inativacao = now;
-      }
-    });
+    await deactivateOtherVersionsForSprint(session, targetSprint, entity.id);
   }
 
-  entity.ativo = intendedActive;
+  // Apply updates through repository
+  updateNotaVersaoEntity(entity, {
+    data: validated.data,
+    sprint: validated.sprint,
+    mensagem: validated.mensagem,
+    ativo: intendedActive,
+  });
+
+  // Handle inactivation timestamp
   if (!intendedActive && !entity.data_inativacao) {
-    entity.data_inativacao = new Date();
+    deactivateNotaVersaoEntity(entity);
   }
 
   return toResponse(entity);
@@ -260,9 +181,5 @@ export async function deleteNotaVersao(
     throw new NotFoundError(`NotaVersao ${id} not found`);
   }
 
-  entity.ativo = false;
-  const now = new Date();
-  entity.data_exclusao = now;
-  entity.data_inativacao ??= now;
-
+  softDeleteNotaVersaoEntity(entity);
 }

@@ -1,12 +1,8 @@
-import type { OrmSession } from 'metal-orm';
 import type { NotaVersao } from '../../src/entities/index.js';
 import * as repository from '../../src/repositories/nota-versao-repository.js';
 import { BadRequestError } from '../../src/errors/http-error.js';
 import { createNotaVersao, listNotaVersao } from '../../src/services/nota-versao-service.js';
-
-const createSession = (): OrmSession =>
-({
-} as unknown as OrmSession);
+import { createMockSession, createMockNotaVersao } from '../mocks/index.js';
 
 describe('nota-versao service', () => {
   beforeEach(() => {
@@ -14,7 +10,7 @@ describe('nota-versao service', () => {
   });
 
   it('rejects oversized mensagem values', async () => {
-    const session = createSession();
+    const session = createMockSession();
     await expect(
       createNotaVersao(session, {
         data: '2025-01-01T00:00:00.000Z',
@@ -25,28 +21,33 @@ describe('nota-versao service', () => {
   });
 
   it('deactivates other active versions before creating a new one', async () => {
-    const session = createSession();
-    const existing = {
+    const session = createMockSession();
+    const existing = createMockNotaVersao({
       id: 1,
-      data: new Date(),
       sprint: 42,
       ativo: true,
       mensagem: 'old note',
       data_inativacao: undefined,
-    } as unknown as NotaVersao;
-    const listSpy = vi
-      .spyOn(repository, 'listNotaVersaoEntities')
-      .mockResolvedValue([existing]);
+    });
+
+    // Mock deactivateOtherVersionsForSprint to simulate its behavior
+    const deactivateOthersSpy = vi
+      .spyOn(repository, 'deactivateOtherVersionsForSprint')
+      .mockImplementation(async () => {
+        // Simulate what the real function does
+        existing.ativo = false;
+        existing.data_inativacao = new Date();
+      });
+
     const createSpy = vi
       .spyOn(repository, 'createNotaVersaoRecord')
       .mockImplementation(() =>
-      ({
-        id: 2,
-        data: new Date(),
-        sprint: 42,
-        ativo: true,
-        mensagem: 'new message',
-      } as unknown as NotaVersao),
+        createMockNotaVersao({
+          id: 2,
+          sprint: 42,
+          ativo: true,
+          mensagem: 'new message',
+        }),
       );
 
     const result = await createNotaVersao(session, {
@@ -55,25 +56,22 @@ describe('nota-versao service', () => {
       mensagem: 'new message',
     });
 
+    // deactivateOtherVersionsForSprint should have been called
+    expect(deactivateOthersSpy).toHaveBeenCalledWith(session, 42);
     expect(existing.ativo).toBe(false);
     expect(existing.data_inativacao).toBeInstanceOf(Date);
-    expect(listSpy).toHaveBeenCalledWith(
-      session,
-      expect.objectContaining({ sprint: 42 }),
-    );
     expect(createSpy).toHaveBeenCalled();
     expect(result.mensagem).toBe('new message');
   });
 
   it('paginates nota-versao list with defaults', async () => {
-    const session = createSession();
-    const entity = {
+    const session = createMockSession();
+    const entity = createMockNotaVersao({
       id: 1,
       data: new Date('2025-01-01T00:00:00.000Z'),
       sprint: 10,
-      ativo: true,
       mensagem: 'teste',
-    } as unknown as NotaVersao;
+    });
     const listSpy = vi
       .spyOn(repository, 'listNotaVersaoEntities')
       .mockResolvedValue([entity]);
@@ -106,14 +104,14 @@ describe('nota-versao service', () => {
   });
 
   it('rejects invalid pageSize values', async () => {
-    const session = createSession();
+    const session = createMockSession();
     await expect(
       listNotaVersao(session, { pageSize: 0 }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
 
   it('applies explicit page and pageSize when provided', async () => {
-    const session = createSession();
+    const session = createMockSession();
     const listSpy = vi
       .spyOn(repository, 'listNotaVersaoEntities')
       .mockResolvedValue([]);

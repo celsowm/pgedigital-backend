@@ -8,8 +8,10 @@ import {
   selectFromEntity,
 } from 'metal-orm';
 import { NotaVersao, getNotaVersaoTable } from '../entities/index.js';
+import { createEntityMapper } from '../db/entity-mapper.js';
 
 const notaVersaoTable = getNotaVersaoTable();
+const notaVersaoMapper = createEntityMapper<NotaVersao>();
 
 const getSelection = () =>
   esel(
@@ -41,11 +43,18 @@ export interface NotaVersaoCreatePayload {
   ativo: boolean;
 }
 
+export interface NotaVersaoUpdatePayload {
+  data?: Date;
+  sprint?: number;
+  mensagem?: string;
+  ativo?: boolean;
+}
+
 const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
   // Type note:
   // Metal-ORM's `EntityInstance<TTable>` infers DATE/DATETIME columns as `string`.
   // With Tedious (MSSQL), these values are typically hydrated as `Date` at runtime.
-  // We keep the domain entity type (`NotaVersao`) and isolate casting at the repository boundary.
+  // We use the entity mapper to handle the type boundary cleanly.
   let builder = selectFromEntity<typeof notaVersaoTable>(NotaVersao);
 
   if (options?.sprint !== undefined) {
@@ -83,7 +92,7 @@ export async function listNotaVersaoEntities(
   }
 
   const rows = await builder.execute(session);
-  return rows as unknown as NotaVersao[];
+  return notaVersaoMapper.mapMany(rows);
 }
 
 export async function countNotaVersaoEntities(
@@ -105,12 +114,80 @@ export async function findNotaVersaoById(
     .select(getSelection())
     .where(eq(notaVersaoTable.columns.id, id))
     .execute(session);
-  return (entity ?? null) as unknown as NotaVersao | null;
+  return notaVersaoMapper.mapOne(entity);
 }
 
 export function createNotaVersaoRecord(
   session: OrmSession,
   payload: NotaVersaoCreatePayload,
-) {
-  return createEntityFromRow(session, notaVersaoTable, payload) as unknown as NotaVersao;
+): NotaVersao {
+  const entity = createEntityFromRow(session, notaVersaoTable, payload);
+  return notaVersaoMapper.mapOneOrThrow(entity, 'Failed to create NotaVersao');
+}
+
+/**
+ * Updates a NotaVersao entity with the provided changes.
+ * The entity must be a tracked entity from findNotaVersaoById.
+ */
+export function updateNotaVersaoEntity(
+  entity: NotaVersao,
+  changes: NotaVersaoUpdatePayload,
+): void {
+  if (changes.data !== undefined) {
+    entity.data = changes.data;
+  }
+  if (changes.sprint !== undefined) {
+    entity.sprint = changes.sprint;
+  }
+  if (changes.mensagem !== undefined) {
+    entity.mensagem = changes.mensagem;
+  }
+  if (changes.ativo !== undefined) {
+    entity.ativo = changes.ativo;
+  }
+}
+
+/**
+ * Deactivates a NotaVersao entity (sets ativo = false).
+ * The entity must be a tracked entity from findNotaVersaoById.
+ */
+export function deactivateNotaVersaoEntity(entity: NotaVersao): void {
+  if (entity.ativo) {
+    entity.ativo = false;
+    entity.data_inativacao = new Date();
+  }
+}
+
+/**
+ * Soft-deletes a NotaVersao entity.
+ * Sets ativo = false and records deletion timestamp.
+ * The entity must be a tracked entity from findNotaVersaoById.
+ */
+export function softDeleteNotaVersaoEntity(entity: NotaVersao): void {
+  const now = new Date();
+  entity.ativo = false;
+  entity.data_exclusao = now;
+  entity.data_inativacao ??= now;
+}
+
+/**
+ * Batch deactivate all active NotaVersao entities for a given sprint.
+ * Used when activating a new version to ensure only one active per sprint.
+ */
+export async function deactivateOtherVersionsForSprint(
+  session: OrmSession,
+  sprint: number,
+  excludeId?: number,
+): Promise<void> {
+  const activeForSprint = await listNotaVersaoEntities(session, {
+    sprint,
+    ativo: true,
+    includeDeleted: true,
+  });
+
+  for (const entity of activeForSprint) {
+    if (excludeId === undefined || entity.id !== excludeId) {
+      deactivateNotaVersaoEntity(entity);
+    }
+  }
 }

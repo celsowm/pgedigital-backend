@@ -27,6 +27,7 @@ import {
   listNotaVersao,
   updateNotaVersao,
 } from '../services/nota-versao-service.js';
+import { logger } from '../services/logger.js';
 
 type RequestWithSession = ExpressRequest & { ormSession?: OrmSession };
 
@@ -40,36 +41,6 @@ export class NotaVersaoController extends Controller {
     return request.ormSession;
   }
 
-  private async runInUnitOfWork<T>(
-    request: RequestWithSession,
-    action: (session: OrmSession) => Promise<T>,
-  ): Promise<T> {
-    const session = this.requireSession(request);
-    const debug = process.env.PGE_DIGITAL_UOW_DEBUG === 'true';
-
-    try {
-      const result = await action(session);
-      if (debug) {
-        console.log('[uow] commit', {
-          controller: 'NotaVersaoController',
-          status: this.getStatus(),
-        });
-      }
-      await session.commit();
-      return result;
-    } catch (err) {
-      if (debug) {
-        console.warn('[uow] rollback', {
-          controller: 'NotaVersaoController',
-          status: this.getStatus(),
-          error: err,
-        });
-      }
-      await session.rollback();
-      throw err;
-    }
-  }
-
   @Get()
   public async list(
     @Request() request: ExpressRequest,
@@ -80,16 +51,14 @@ export class NotaVersaoController extends Controller {
     @Query() page?: number,
     @Query() pageSize?: number,
   ): Promise<NotaVersaoListResponse> {
-    if (process.env.PGE_DIGITAL_QUERY_DEBUG === 'true') {
-      console.log('[query] nota-versao list', {
-        sprint,
-        ativo,
-        includeInactive,
-        includeDeleted,
-        page,
-        pageSize,
-      });
-    }
+    logger.debug('query', 'nota-versao list', {
+      sprint,
+      ativo,
+      includeInactive,
+      includeDeleted,
+      page,
+      pageSize,
+    });
 
     const query: NotaVersaoListQuery = {
       sprint,
@@ -118,7 +87,8 @@ export class NotaVersaoController extends Controller {
     @Body() payload: NotaVersaoCreateInput,
   ): Promise<NotaVersaoResponse> {
     this.setStatus(201);
-    return this.runInUnitOfWork(request, (session) => createNotaVersao(session, payload));
+    // Transaction commit/rollback handled by unitOfWork middleware
+    return createNotaVersao(this.requireSession(request), payload);
   }
 
   @Put('{id}')
@@ -128,7 +98,8 @@ export class NotaVersaoController extends Controller {
     @Path() id: number,
     @Body() payload: NotaVersaoUpdateInput,
   ): Promise<NotaVersaoResponse> {
-    return this.runInUnitOfWork(request, (session) => updateNotaVersao(session, id, payload));
+    // Transaction commit/rollback handled by unitOfWork middleware
+    return updateNotaVersao(this.requireSession(request), id, payload);
   }
 
   @Delete('{id}')
@@ -138,7 +109,8 @@ export class NotaVersaoController extends Controller {
     @Request() request: ExpressRequest,
     @Path() id: number,
   ): Promise<void> {
-    await this.runInUnitOfWork(request, (session) => deleteNotaVersao(session, id));
+    // Transaction commit/rollback handled by unitOfWork middleware
+    await deleteNotaVersao(this.requireSession(request), id);
     this.setStatus(204);
   }
 }

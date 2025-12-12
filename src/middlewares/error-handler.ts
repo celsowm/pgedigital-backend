@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import { HttpError } from '../errors/http-error.js';
+import { logger } from '../services/logger.js';
 
 export const errorHandler = (
   err: unknown,
@@ -21,6 +22,6 @@ export const errorHandler = (
     return;
   }
 
-  console.error(err);
+  logger.error('Unhandled error', err);
   res.status(500).json({ message: 'Internal Server Error' });
 };
