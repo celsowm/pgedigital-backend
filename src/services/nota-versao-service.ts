@@ -32,6 +32,7 @@ export interface NotaVersaoListQuery extends PaginationQuery {
   sprint?: number;
   ativo?: boolean;
   includeInactive?: boolean;
+  includeDeleted?: boolean;
 }
 
 export interface NotaVersaoResponse {
@@ -135,7 +136,8 @@ export async function listNotaVersao(
   const baseFilters = {
     sprint: query?.sprint,
     ativo: query?.ativo,
-    includeDeleted: query?.includeInactive,
+    includeInactive: query?.includeInactive,
+    includeDeleted: query?.includeDeleted,
   };
 
   // Execute sequentially to avoid concurrent requests on a single connection/session (Tedious).
@@ -195,8 +197,6 @@ export async function createNotaVersao(
     mensagem,
     ativo: shouldActivate,
   } satisfies NotaVersaoCreatePayload);
-
-  await session.commit();
   return toResponse(entity);
 }
 
@@ -248,7 +248,6 @@ export async function updateNotaVersao(
     entity.data_inativacao = new Date();
   }
 
-  await session.commit();
   return toResponse(entity);
 }
 
@@ -266,5 +265,4 @@ export async function deleteNotaVersao(
   entity.data_exclusao = now;
   entity.data_inativacao ??= now;
 
-  await session.commit();
 }

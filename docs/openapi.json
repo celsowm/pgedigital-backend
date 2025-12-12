@@ -188,6 +188,12 @@
 					},
 					{
 						"in": "query",
+						"name": "includeDeleted",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"in": "query",
 						"name": "page",
 						"required": false,
 						"format": "double",

@@ -40,19 +40,62 @@ export class NotaVersaoController extends Controller {
     return request.ormSession;
   }
 
+  private async runInUnitOfWork<T>(
+    request: RequestWithSession,
+    action: (session: OrmSession) => Promise<T>,
+  ): Promise<T> {
+    const session = this.requireSession(request);
+    const debug = process.env.PGE_DIGITAL_UOW_DEBUG === 'true';
+
+    try {
+      const result = await action(session);
+      if (debug) {
+        console.log('[uow] commit', {
+          controller: 'NotaVersaoController',
+          status: this.getStatus(),
+        });
+      }
+      await session.commit();
+      return result;
+    } catch (err) {
+      if (debug) {
+        console.warn('[uow] rollback', {
+          controller: 'NotaVersaoController',
+          status: this.getStatus(),
+          error: err,
+        });
+      }
+      await session.rollback();
+      throw err;
+    }
+  }
+
   @Get()
   public async list(
     @Request() request: ExpressRequest,
     @Query() sprint?: number,
     @Query() ativo?: boolean,
     @Query() includeInactive?: boolean,
+    @Query() includeDeleted?: boolean,
     @Query() page?: number,
     @Query() pageSize?: number,
   ): Promise<NotaVersaoListResponse> {
+    if (process.env.PGE_DIGITAL_QUERY_DEBUG === 'true') {
+      console.log('[query] nota-versao list', {
+        sprint,
+        ativo,
+        includeInactive,
+        includeDeleted,
+        page,
+        pageSize,
+      });
+    }
+
     const query: NotaVersaoListQuery = {
       sprint,
       ativo,
       includeInactive,
+      includeDeleted,
       page,
       pageSize,
     };
@@ -75,7 +118,7 @@ export class NotaVersaoController extends Controller {
     @Body() payload: NotaVersaoCreateInput,
   ): Promise<NotaVersaoResponse> {
     this.setStatus(201);
-    return createNotaVersao(this.requireSession(request), payload);
+    return this.runInUnitOfWork(request, (session) => createNotaVersao(session, payload));
   }
 
   @Put('{id}')
@@ -85,7 +128,7 @@ export class NotaVersaoController extends Controller {
     @Path() id: number,
     @Body() payload: NotaVersaoUpdateInput,
   ): Promise<NotaVersaoResponse> {
-    return updateNotaVersao(this.requireSession(request), id, payload);
+    return this.runInUnitOfWork(request, (session) => updateNotaVersao(session, id, payload));
   }
 
   @Delete('{id}')
@@ -95,7 +138,7 @@ export class NotaVersaoController extends Controller {
     @Request() request: ExpressRequest,
     @Path() id: number,
   ): Promise<void> {
-    await deleteNotaVersao(this.requireSession(request), id);
+    await this.runInUnitOfWork(request, (session) => deleteNotaVersao(session, id));
     this.setStatus(204);
   }
 }

@@ -6,7 +6,6 @@ import { createNotaVersao, listNotaVersao } from '../../src/services/nota-versao
 
 const createSession = (): OrmSession =>
 ({
-  commit: vi.fn().mockResolvedValue(undefined),
 } as unknown as OrmSession);
 
 describe('nota-versao service', () => {
@@ -63,7 +62,6 @@ describe('nota-versao service', () => {
       expect.objectContaining({ sprint: 42 }),
     );
     expect(createSpy).toHaveBeenCalled();
-    expect(session.commit).toHaveBeenCalled();
     expect(result.mensagem).toBe('new message');
   });
 

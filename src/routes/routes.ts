@@ -92,6 +92,7 @@ export function RegisterRoutes(app: Router) {
                 sprint: {"in":"query","name":"sprint","dataType":"double"},
                 ativo: {"in":"query","name":"ativo","dataType":"boolean"},
                 includeInactive: {"in":"query","name":"includeInactive","dataType":"boolean"},
+                includeDeleted: {"in":"query","name":"includeDeleted","dataType":"boolean"},
                 page: {"in":"query","name":"page","dataType":"double"},
                 pageSize: {"in":"query","name":"pageSize","dataType":"double"},
         };

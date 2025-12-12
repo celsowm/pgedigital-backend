@@ -26,6 +26,9 @@ const getSelection = () =>
 export interface NotaVersaoListOptions {
   sprint?: number;
   ativo?: boolean;
+  /** Include `ativo = false` rows (still excludes soft-deleted rows unless `includeDeleted` is true). */
+  includeInactive?: boolean;
+  /** Include soft-deleted rows (where `data_exclusao` is not null). */
   includeDeleted?: boolean;
   limit?: number;
   offset?: number;
@@ -39,7 +42,11 @@ export interface NotaVersaoCreatePayload {
 }
 
 const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
-  let builder = selectFromEntity(NotaVersao);
+  // Type note:
+  // Metal-ORM's `EntityInstance<TTable>` infers DATE/DATETIME columns as `string`.
+  // With Tedious (MSSQL), these values are typically hydrated as `Date` at runtime.
+  // We keep the domain entity type (`NotaVersao`) and isolate casting at the repository boundary.
+  let builder = selectFromEntity<typeof notaVersaoTable>(NotaVersao);
 
   if (options?.sprint !== undefined) {
     builder = builder.where(eq(notaVersaoTable.columns.sprint, options.sprint));
@@ -47,7 +54,8 @@ const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
 
   if (options?.ativo !== undefined) {
     builder = builder.where(eq(notaVersaoTable.columns.ativo, options.ativo));
-  } else if (!options?.includeDeleted) {
+  } else if (!options?.includeInactive) {
+    // Default behavior: only active records
     builder = builder.where(eq(notaVersaoTable.columns.ativo, true));
   }
 
@@ -74,7 +82,8 @@ export async function listNotaVersaoEntities(
     builder = builder.offset(options.offset);
   }
 
-  return builder.execute(session) as unknown as Promise<NotaVersao[]>;
+  const rows = await builder.execute(session);
+  return rows as unknown as NotaVersao[];
 }
 
 export async function countNotaVersaoEntities(
@@ -92,7 +101,7 @@ export async function findNotaVersaoById(
   session: OrmSession,
   id: number,
 ): Promise<NotaVersao | null> {
-  const [entity] = await selectFromEntity(NotaVersao)
+  const [entity] = await selectFromEntity<typeof notaVersaoTable>(NotaVersao)
     .select(getSelection())
     .where(eq(notaVersaoTable.columns.id, id))
     .execute(session);

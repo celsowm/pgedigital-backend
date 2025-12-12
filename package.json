@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "tsoa:routes": "tsoa routes --config tsoa.json",
+    "tsoa:routes": "tsoa routes --config tsoa.json && node scripts/fix-tsoa-routes.mjs",
     "tsoa:spec": "tsoa spec --config tsoa.json",
     "generate:entities": "pwsh -File scripts/generate-entities.ps1",
     "db:test-connection": "tsx scripts/db/test-connection.ts",
