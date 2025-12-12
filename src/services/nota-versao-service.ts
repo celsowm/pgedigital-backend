@@ -138,14 +138,13 @@ export async function listNotaVersao(
     includeDeleted: query?.includeInactive,
   };
 
-  const [rows, totalItems] = await Promise.all([
-    listNotaVersaoEntities(session, {
-      ...baseFilters,
-      limit: pageSize,
-      offset: (page - 1) * pageSize,
-    }),
-    countNotaVersaoEntities(session, baseFilters),
-  ]);
+  // Execute sequentially to avoid concurrent requests on a single connection/session (Tedious).
+  const rows = await listNotaVersaoEntities(session, {
+    ...baseFilters,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  });
+  const totalItems = await countNotaVersaoEntities(session, baseFilters);
 
   return {
     items: rows.map(toResponse),

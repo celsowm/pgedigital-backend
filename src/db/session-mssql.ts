@@ -1,72 +1,48 @@
-// src/session-mssql.ts
+/**
+ * MSSQL request-scoped session factory.
+ *
+ * NOTE: This currently opens/closes a physical connection per request.
+ * Pooling is planned as a later refactor step.
+ */
 import { Connection, Request, TYPES } from 'tedious';
-import {
-  SqlServerDialect,
-  createTediousExecutor,
-} from 'metal-orm';
+import { SqlServerDialect, createTediousExecutor } from 'metal-orm';
+import { getDbDebugSummary, getTediousConfig } from '../config/db.js';
 import { createSessionFactory } from './session-factory.js';
 
-const toMssqlConfig = (connection: string) => {
-  const url = new URL(connection);
-  return {
-    server: url.hostname,
-    authentication: {
-      type: 'default',
-      options: {
-        userName: decodeURIComponent(url.username || ''),
-        password: decodeURIComponent(url.password || ''),
-      },
-    },
-    options: {
-      database: url.pathname.replace(/^\//, ''),
-      port: url.port ? Number(url.port) : undefined,
-      encrypt: url.searchParams.get('encrypt') === 'true',
-      trustServerCertificate: url.searchParams.get('trustServerCertificate') === 'true',
-    },
-  };
-};
-
-const buildDatabaseUrl = () => {
-  if (process.env.DATABASE_URL) {
-    return process.env.DATABASE_URL;
+export const openSession = createSessionFactory(new SqlServerDialect(), async () => {
+  const dbDebug = process.env.PGE_DIGITAL_DB_DEBUG === 'true';
+  if (dbDebug) {
+    // Safe-to-log summary (no plaintext password)
+    console.log('[db] debug summary:', getDbDebugSummary());
   }
 
-  const host = process.env.PGE_DIGITAL_HOST;
-  const user = process.env.PGE_DIGITAL_USER;
-  const password = process.env.PGE_DIGITAL_PASSWORD;
+  const connection = new Connection(getTediousConfig());
 
-  if (!host || !user || !password) {
-    throw new Error('Database connection details are missing');
-  }
-
-  const encrypt = process.env.PGE_DIGITAL_ENCRYPT === 'true' ? 'true' : 'false';
-  const trust = process.env.PGE_DIGITAL_TRUST_CERT === 'true' ? 'true' : 'false';
-  return `mssql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}/PGE_DIGITAL?encrypt=${encrypt}&trustServerCertificate=${trust}`;
-};
-
-export const openSession = createSessionFactory(
-  new SqlServerDialect(),
-  async () => {
-    const connection = new Connection(
-      toMssqlConfig(buildDatabaseUrl()),
-    );
-
+  try {
     await new Promise<void>((resolve, reject) => {
-      connection.once('connect', err => (err ? reject(err) : resolve()));
+      connection.once('connect', (err) => (err ? reject(err) : resolve()));
       connection.once('error', reject);
       connection.connect();
     });
+  } catch (err) {
+    if (dbDebug) {
+      console.error('[db] connect failed with:', {
+        summary: getDbDebugSummary(),
+        error: err,
+      });
+    }
+    throw err;
+  }
 
-    const executor = createTediousExecutor(connection, { Request, TYPES });
+  const executor = createTediousExecutor(connection, { Request, TYPES });
 
-    return {
-      executor,
-      cleanup: () =>
-        new Promise<void>((resolve, reject) => {
-          connection.once('end', resolve);
-          connection.once('error', reject);
-          connection.close();
-        }),
-    };
-  },
-);
+  return {
+    executor,
+    cleanup: () =>
+      new Promise<void>((resolve, reject) => {
+        connection.once('end', resolve);
+        connection.once('error', reject);
+        connection.close();
+      }),
+  };
+});

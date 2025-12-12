@@ -1,8 +1,20 @@
 import { NotaVersao, bootstrapEntityTables } from './entities.js';
 
-const entityTables = bootstrapEntityTables();
+type EntityTables = ReturnType<typeof bootstrapEntityTables>;
 
-export const notaVersaoTable = entityTables.NotaVersao;
-export const allEntityTables = () => entityTables;
+let entityTables: EntityTables | undefined;
+
+export function initEntityTables(): EntityTables {
+    entityTables ??= bootstrapEntityTables();
+    return entityTables;
+}
+
+export function getEntityTables(): EntityTables {
+    return initEntityTables();
+}
+
+export function getNotaVersaoTable() {
+    return getEntityTables().NotaVersao;
+}
 
 export { NotaVersao };

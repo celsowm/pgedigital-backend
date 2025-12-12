@@ -9,6 +9,8 @@
     "tsoa:routes": "tsoa routes --config tsoa.json",
     "tsoa:spec": "tsoa spec --config tsoa.json",
     "generate:entities": "pwsh -File scripts/generate-entities.ps1",
+    "db:test-connection": "tsx scripts/db/test-connection.ts",
+    "db:test-metalorm": "tsx scripts/db/test-metalorm.ts",
     "test": "vitest run",
     "lint": "tsc --noEmit",
     "check": "npm run lint && npm run test"

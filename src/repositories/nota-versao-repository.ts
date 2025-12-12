@@ -7,8 +7,9 @@ import {
   count,
   selectFromEntity,
 } from 'metal-orm';
-import { NotaVersao } from '../entities/index.js';
-import { notaVersaoTable } from '../entities/index.js';
+import { NotaVersao, getNotaVersaoTable } from '../entities/index.js';
+
+const notaVersaoTable = getNotaVersaoTable();
 
 const getSelection = () =>
   esel(

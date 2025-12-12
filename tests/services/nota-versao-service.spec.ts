@@ -1,17 +1,13 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type { OrmSession } from 'metal-orm';
 import type { NotaVersao } from '../../src/entities/index.js';
 import * as repository from '../../src/repositories/nota-versao-repository.js';
 import { BadRequestError } from '../../src/errors/http-error.js';
-import {
-  createNotaVersao,
-  listNotaVersao,
-} from '../../src/services/nota-versao-service.js';
+import { createNotaVersao, listNotaVersao } from '../../src/services/nota-versao-service.js';
 
 const createSession = (): OrmSession =>
-  ({
-    commit: vi.fn().mockResolvedValue(undefined),
-  } as unknown as OrmSession);
+({
+  commit: vi.fn().mockResolvedValue(undefined),
+} as unknown as OrmSession);
 
 describe('nota-versao service', () => {
   beforeEach(() => {
@@ -45,13 +41,13 @@ describe('nota-versao service', () => {
     const createSpy = vi
       .spyOn(repository, 'createNotaVersaoRecord')
       .mockImplementation(() =>
-        ({
-          id: 2,
-          data: new Date(),
-          sprint: 42,
-          ativo: true,
-          mensagem: 'new message',
-        } as unknown as NotaVersao),
+      ({
+        id: 2,
+        data: new Date(),
+        sprint: 42,
+        ativo: true,
+        mensagem: 'new message',
+      } as unknown as NotaVersao),
       );
 
     const result = await createNotaVersao(session, {

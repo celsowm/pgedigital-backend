@@ -20,8 +20,22 @@ app.use(async (req, res, next) => {
   try {
     const { session, cleanup } = await openSession();
     req.ormSession = session;
-    res.on('finish', cleanup);
-    res.on('close', cleanup);
+
+    let cleanedUp = false;
+    const safeCleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+
+      // fire-and-forget cleanup; errors should not crash the process
+      void cleanup().catch((err) => {
+        console.error('Error cleaning up ORM session:', err);
+      });
+    };
+
+    // `finish` for normal completion, `close` for aborted connections.
+    res.once('finish', safeCleanup);
+    res.once('close', safeCleanup);
+
     next();
   } catch (error) {
     next(error);
