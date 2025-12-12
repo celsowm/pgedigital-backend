@@ -11,7 +11,7 @@ MetalORM is a TypeScript-first, AST-driven SQL toolkit you can dial up or down d
 - **Level 2 – ORM runtime (entities + Unit of Work 🧠)**
   Let `OrmSession` (created from `Orm`) turn rows into tracked entities with lazy relations, cascades, and a [Unit of Work](https://en.wikipedia.org/wiki/Unit_of_work) that flushes changes with `session.commit()`.
 - **Level 3 – Decorator entities (classes + metadata ✨)**
-  Use `@Entity`, `@Column`, `@PrimaryKey`, relation decorators, `bootstrapEntities()` and `selectFromEntity()` to describe your model classes. MetalORM bootstraps schema & relations from metadata and plugs them into the same runtime and query builder.
+  Use `@Entity`, `@Column`, `@PrimaryKey`, relation decorators, `bootstrapEntities()` (or the lazy bootstrapping in `getTableDefFromEntity` / `selectFromEntity`) to describe your model classes. MetalORM bootstraps schema & relations from metadata and plugs them into the same runtime and query builder.
 
 Use only the layer you need in each part of your codebase.
 
@@ -51,6 +51,7 @@ Full docs live in the `docs/` folder:
 - [Multi-Dialect Support](https://github.com/celsowm/metal-orm/blob/main/docs/multi-dialect-support.md)
 - [Schema Generation (DDL)](https://github.com/celsowm/metal-orm/blob/main/docs/schema-generation.md)
 - [API Reference](https://github.com/celsowm/metal-orm/blob/main/docs/api-reference.md)
+- [DB ➜ TS Type Mapping](https://github.com/celsowm/metal-orm/blob/main/docs/db-to-ts-types.md)
 
 ---
 
@@ -60,6 +61,7 @@ Full docs live in the `docs/` folder:
 ### Level 1 – Query builder & hydration
 
 - **Declarative schema definition** with `defineTable`, `col.*`, and typed relations.
+- **Typed temporal columns**: `col.date()` / `col.datetime()` / `col.timestamp()` default to `string` but accept a generic when your driver returns `Date` (e.g. `col.date<Date>()`).
 - **Fluent query builder** over a real SQL AST  
   (`SelectQueryBuilder`, `InsertQueryBuilder`, `UpdateQueryBuilder`, `DeleteQueryBuilder`).
 - **Advanced SQL**: CTEs, aggregates, window functions, subqueries, JSON, CASE, EXISTS.
@@ -82,6 +84,7 @@ On top of the query builder, MetalORM ships a focused runtime managed by `Orm` a
 
 - **Entities inferred from your `TableDef`s** (no separate mapping file).
 - **Lazy, batched relations**: `user.posts.load()`, `user.roles.syncByIds([...])`, etc.
+- **Scoped transactions**: `session.transaction(async s => { ... })` wraps `begin/commit/rollback` on the existing executor; `Orm.transaction` remains available when you want a fresh transactional executor per call.
 - **Identity map**: the same row becomes the same entity instance within a session (see the [Identity map pattern](https://en.wikipedia.org/wiki/Identity_map_pattern)).
 - **Unit of Work (`OrmSession`)** tracking New/Dirty/Removed entities and relation changes, inspired by the classic [Unit of Work pattern](https://en.wikipedia.org/wiki/Unit_of_work).
 - **Graph persistence**: mutate a whole object graph and flush once with `session.commit()`.
@@ -102,11 +105,11 @@ If you like explicit model classes, you can add a thin decorator layer on top of
 - `@Entity()` on a class to derive and register a table name (by default snake_case plural of the class name, with an optional `tableName` override).
 - `@Column(...)` and `@PrimaryKey(...)` on properties; decorators collect column metadata and later build `TableDef`s from it.
 - Relation decorators:
-  - `@HasMany({ target, foreignKey, ... })`
-  - `@HasOne({ target, foreignKey, ... })`
-  - `@BelongsTo({ target, foreignKey, ... })`
+- `@HasMany({ target, foreignKey, ... })`
+- `@HasOne({ target, foreignKey, ... })`
+- `@BelongsTo({ target, foreignKey, ... })`
 - `@BelongsToMany({ target, pivotTable, ... })`
-- `bootstrapEntities()` scans metadata, builds `TableDef`s, wires relations with the same `hasOne` / `hasMany` / `belongsTo` / `belongsToMany` helpers you would use manually, and returns the resulting tables.
+- `bootstrapEntities()` scans metadata, builds `TableDef`s, wires relations with the same `hasOne` / `hasMany` / `belongsTo` / `belongsToMany` helpers you would use manually, and returns the resulting tables. (If you forget to call it, `getTableDefFromEntity` / `selectFromEntity` will bootstrap lazily on first use, but bootstrapping once at startup lets you reuse the same table defs and generate schema SQL.)
 - `selectFromEntity(MyEntity)` lets you start a `SelectQueryBuilder` directly from the class.
 - **Generate entities from an existing DB**: `npx metal-orm-gen -- --dialect=postgres --url=$DATABASE_URL --schema=public --out=src/entities.ts` introspects your schema and spits out `@Entity` / `@Column` classes you can immediately `bootstrapEntities()` with.
 
@@ -335,7 +338,7 @@ const [user] = await new SelectQueryBuilder(users)
   .where(eq(users.columns.id, 1))
   .execute(session);
 
-// user is an Entity<typeof users>
+// user is an EntityInstance<typeof users>
 // scalar props are normal:
 user.name = 'Updated Name';  // marks entity as Dirty
 
@@ -365,12 +368,14 @@ What the runtime gives you:
 
 Finally, you can describe your models with decorators and still use the same runtime and query builder.
 
-> Import paths here assume a `metal-orm/decorators` subpath export – adjust if your bundle exposes them differently.
-
 ```ts
 import mysql from 'mysql2/promise';
-import { Orm, OrmSession, MySqlDialect, col, createMysqlExecutor } from 'metal-orm';
 import {
+  Orm,
+  OrmSession,
+  MySqlDialect,
+  col,
+  createMysqlExecutor,
   Entity,
   Column,
   PrimaryKey,
@@ -378,7 +383,7 @@ import {
   BelongsTo,
   bootstrapEntities,
   selectFromEntity,
-} from 'metal-orm/decorators';
+} from 'metal-orm';
 
 @Entity()
 class User {
@@ -416,8 +421,8 @@ class Post {
   user!: any;
 }
 
-// 1) Bootstrap metadata once at startup
-const tables = bootstrapEntities();
+// 1) Bootstrap metadata once at startup (recommended so you reuse the same TableDefs)
+const tables = bootstrapEntities(); // getTableDefFromEntity/selectFromEntity can bootstrap lazily if you forget
 // tables: TableDef[] – compatible with the rest of MetalORM
 
 // 2) Create an Orm + session
