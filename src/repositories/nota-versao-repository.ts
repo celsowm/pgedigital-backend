@@ -1,17 +1,34 @@
-import {
-  OrmSession,
-  createEntityFromRow,
-  esel,
-  eq,
-  isNull,
-  count,
-  selectFromEntity,
-} from 'metal-orm';
+import type { OrmSession } from 'metal-orm';
+import { esel, eq, isNull, count, selectFromEntity } from 'metal-orm';
 import { NotaVersao, getNotaVersaoTable } from '../entities/index.js';
-import { createEntityMapper } from '../db/entity-mapper.js';
 
 const notaVersaoTable = getNotaVersaoTable();
-const notaVersaoMapper = createEntityMapper<NotaVersao>();
+
+export interface NotaVersaoGraphPayload {
+  id?: number;
+  data: Date;
+  sprint: number;
+  mensagem: string;
+  ativo: boolean;
+  data_exclusao?: Date;
+  data_inativacao?: Date;
+}
+
+interface SaveGraphConfig {
+  transactional?: boolean;
+  pruneMissing?: boolean;
+}
+
+const DEFAULT_SAVE_GRAPH_OPTIONS: SaveGraphConfig = { transactional: false };
+
+export async function persistNotaVersaoGraph(
+  session: OrmSession,
+  payload: NotaVersaoGraphPayload,
+  options?: SaveGraphConfig,
+): Promise<NotaVersao> {
+  const mergedOptions: SaveGraphConfig = { ...DEFAULT_SAVE_GRAPH_OPTIONS, ...(options ?? {}) };
+  return session.saveGraph(NotaVersao, payload, mergedOptions);
+}
 
 const getSelection = () =>
   esel(
@@ -34,20 +51,6 @@ export interface NotaVersaoListOptions {
   includeDeleted?: boolean;
   limit?: number;
   offset?: number;
-}
-
-export interface NotaVersaoCreatePayload {
-  data: Date;
-  sprint: number;
-  mensagem: string;
-  ativo: boolean;
-}
-
-export interface NotaVersaoUpdatePayload {
-  data?: Date;
-  sprint?: number;
-  mensagem?: string;
-  ativo?: boolean;
 }
 
 const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
@@ -88,7 +91,7 @@ export async function listNotaVersaoEntities(
   }
 
   const rows = await builder.execute(session);
-  return notaVersaoMapper.mapMany(rows);
+  return rows as unknown as NotaVersao[];
 }
 
 export async function countNotaVersaoEntities(
@@ -110,37 +113,7 @@ export async function findNotaVersaoById(
     .select(getSelection())
     .where(eq(notaVersaoTable.columns.id, id))
     .execute(session);
-  return notaVersaoMapper.mapOne(entity);
-}
-
-export function createNotaVersaoRecord(
-  session: OrmSession,
-  payload: NotaVersaoCreatePayload,
-): NotaVersao {
-  const entity = createEntityFromRow(session, notaVersaoTable, payload);
-  return notaVersaoMapper.mapOneOrThrow(entity, 'Failed to create NotaVersao');
-}
-
-/**
- * Updates a NotaVersao entity with the provided changes.
- * The entity must be a tracked entity from findNotaVersaoById.
- */
-export function updateNotaVersaoEntity(
-  entity: NotaVersao,
-  changes: NotaVersaoUpdatePayload,
-): void {
-  if (changes.data !== undefined) {
-    entity.data = changes.data;
-  }
-  if (changes.sprint !== undefined) {
-    entity.sprint = changes.sprint;
-  }
-  if (changes.mensagem !== undefined) {
-    entity.mensagem = changes.mensagem;
-  }
-  if (changes.ativo !== undefined) {
-    entity.ativo = changes.ativo;
-  }
+  return (entity ?? null) as unknown as NotaVersao | null;
 }
 
 /**

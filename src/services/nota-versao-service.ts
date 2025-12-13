@@ -4,12 +4,10 @@ import {
   listNotaVersaoEntities,
   countNotaVersaoEntities,
   findNotaVersaoById,
-  createNotaVersaoRecord,
-  updateNotaVersaoEntity,
-  deactivateNotaVersaoEntity,
+  persistNotaVersaoGraph,
+  NotaVersaoGraphPayload,
   softDeleteNotaVersaoEntity,
   deactivateOtherVersionsForSprint,
-  NotaVersaoCreatePayload,
 } from '../repositories/nota-versao-repository.js';
 import {
   normalizePage,
@@ -128,12 +126,14 @@ export async function createNotaVersao(
     await deactivateOtherVersionsForSprint(session, validated.sprint);
   }
 
-  const entity = createNotaVersaoRecord(session, {
+  const payload: NotaVersaoGraphPayload = {
     data: validated.data,
     sprint: validated.sprint,
     mensagem: validated.mensagem,
     ativo: validated.ativo,
-  } satisfies NotaVersaoCreatePayload);
+  };
+
+  const entity = await persistNotaVersaoGraph(session, payload);
   return toResponse(entity);
 }
 
@@ -156,20 +156,22 @@ export async function updateNotaVersao(
     await deactivateOtherVersionsForSprint(session, targetSprint, entity.id);
   }
 
-  // Apply updates through repository
-  updateNotaVersaoEntity(entity, {
-    data: validated.data,
-    sprint: validated.sprint,
-    mensagem: validated.mensagem,
+  const dataInativacao = !intendedActive
+    ? entity.data_inativacao ?? new Date()
+    : entity.data_inativacao;
+
+  const payload: NotaVersaoGraphPayload = {
+    id: entity.id,
+    data: validated.data ?? entity.data,
+    sprint: validated.sprint ?? entity.sprint,
+    mensagem: validated.mensagem ?? entity.mensagem,
     ativo: intendedActive,
-  });
+    data_exclusao: entity.data_exclusao,
+    data_inativacao: dataInativacao,
+  };
 
-  // Handle inactivation timestamp
-  if (!intendedActive && !entity.data_inativacao) {
-    deactivateNotaVersaoEntity(entity);
-  }
-
-  return toResponse(entity);
+  const updated = await persistNotaVersaoGraph(session, payload);
+  return toResponse(updated);
 }
 
 export async function deleteNotaVersao(
