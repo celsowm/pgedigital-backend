@@ -117,7 +117,7 @@ High-level overview of the code organization:
   - Centralized configuration (API constants/port, DB URL parsing).
 - `src/db/*`
   - Database integration:
-  - MSSQL pool (`tedious-connection-pool2`)
+  - MSSQL pooling (Metal-ORM `Pool` + `createPooledExecutorFactory`)
   - request-scoped Metal-ORM session factory
   - utility mapping helpers
 - `src/entities/*`
@@ -146,7 +146,7 @@ High-level overview of the code organization:
 - HTTP: **Express**
 - API contracts/routes: **tsoa** (generates `src/routes/*` and `docs/openapi.json`)
 - DB driver: **Tedious**
-- DB pooling: **tedious-connection-pool2**
+- DB pooling: **Metal-ORM Pool** (`createPooledExecutorFactory`)
 - ORM: **Metal-ORM** (request-scoped `OrmSession`)
 
 ### Request flow (high level)
@@ -167,6 +167,7 @@ Client
 Each request gets a dedicated Metal-ORM session created in `src/app.ts`.
 
 - A pooled MSSQL connection is acquired.
+- Metal-ORM's built-in `Pool` + `createPooledExecutorFactory` handles leasing, transactions, and deterministic shutdown.
 - A Metal-ORM executor is created from the Tedious connection.
 - The session is attached to `req.ormSession`.
 - On response `finish`/`close`, the connection is released back to the pool.

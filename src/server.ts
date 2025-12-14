@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { app } from './app.js';
 import { initEntityTables } from './entities/index.js';
-import { drainPool } from './db/connection-pool.js';
+import { disposeDbPool } from './db/session-mssql.js';
 import { getServerPort, getServerUrl } from './config/api.js';
 
 initEntityTables();
@@ -16,8 +16,8 @@ const server = app.listen(port, () => {
 const shutdown = async () => {
   console.log('Shutting down gracefully...');
   server.close(async () => {
-    await drainPool();
-    console.log('Connection pool drained. Goodbye!');
+    await disposeDbPool();
+    console.log('MetalORM pool disposed. Goodbye!');
     process.exit(0);
   });
 };
