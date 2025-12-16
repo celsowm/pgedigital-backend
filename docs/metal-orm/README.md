@@ -1,19 +1,53 @@
-# MetalORM ⚙️ - Type-safe SQL, layered ORM, decorator-based entities – all on the same core.
+# MetalORM ⚙️
 
 [![npm version](https://img.shields.io/npm/v/metal-orm.svg)](https://www.npmjs.com/package/metal-orm)
 [![license](https://img.shields.io/npm/l/metal-orm.svg)](https://github.com/celsowm/metal-orm/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%23007ACC.svg)](https://www.typescriptlang.org/)
 
-MetalORM is a TypeScript-first, AST-driven SQL toolkit you can dial up or down depending on how “ORM-y” you want to be:
+> **TypeScript-first ORM that adapts to your needs**: use it as a type-safe query builder, a full-featured ORM runtime, or anything in between.
 
-- **Level 1 – Query builder & hydration 🧩**
+## Why MetalORM? 💡
+
+- 🎯 **Gradual adoption**: Start with just SQL building, add ORM features when you need them
+- 🔒 **Exceptionally strongly typed**: Built with TypeScript generics and type inference—**zero** `any` types in the entire codebase
+- 🏗️ **Well-architected**: Implements proven design patterns (Strategy, Visitor, Builder, Unit of Work, Identity Map, Interceptor, and more)
+- 🎨 **One AST, multiple levels**: All features share the same SQL AST foundation—no magic, just composable layers
+- 🚀 **Multi-dialect from the start**: MySQL, PostgreSQL, SQLite, SQL Server support built-in
+
+---
+
+## ⚡ 30-Second Quick Start
+
+```ts
+import { defineTable, col, selectFrom, MySqlDialect } from 'metal-orm';
+
+const users = defineTable('users', {
+  id: col.primaryKey(col.int()),
+  name: col.varchar(255),
+});
+
+const query = selectFrom(users).select('id', 'name').limit(10);
+const { sql, params } = query.compile(new MySqlDialect());
+// That's it! Use sql + params with any driver.
+// ↑ Fully typed—no casting, no 'any', just strong types all the way down
+```
+
+---
+
+## Three Levels of Abstraction
+
+MetalORM is a TypeScript-first, AST-driven SQL toolkit you can dial up or down depending on how "ORM-y" you want to be:
+
+- **Level 1 – Query builder & hydration 🧩**  
   Define tables with `defineTable` / `col.*`, build strongly-typed queries on a real SQL AST, and hydrate flat result sets into nested objects – no ORM runtime involved.
-- **Level 2 – ORM runtime (entities + Unit of Work 🧠)**
+  
+- **Level 2 – ORM runtime (entities + Unit of Work 🧠)**  
   Let `OrmSession` (created from `Orm`) turn rows into tracked entities with lazy relations, cascades, and a [Unit of Work](https://en.wikipedia.org/wiki/Unit_of_work) that flushes changes with `session.commit()`.
-- **Level 3 – Decorator entities (classes + metadata ✨)**
+  
+- **Level 3 – Decorator entities (classes + metadata ✨)**  
   Use `@Entity`, `@Column`, `@PrimaryKey`, relation decorators, `bootstrapEntities()` (or the lazy bootstrapping in `getTableDefFromEntity` / `selectFromEntity`) to describe your model classes. MetalORM bootstraps schema & relations from metadata and plugs them into the same runtime and query builder.
 
-Use only the layer you need in each part of your codebase.
+**Use only the layer you need in each part of your codebase.**
 
 ---
 
@@ -28,7 +62,10 @@ Use only the layer you need in each part of your codebase.
   - [Level 2 – Entities + Unit of Work](#level-2)
   - [Level 3 – Decorator entities](#level-3)
 - [When to use which level?](#when-to-use-which-level)
-- [Design notes](#design-notes)
+- [Design & Architecture](#design-notes)
+- [FAQ](#frequently-asked-questions-)
+- [Performance & Production](#performance--production-)
+- [Community & Support](#community--support-)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -171,8 +208,9 @@ MetalORM can be just a straightforward query builder.
 import mysql from 'mysql2/promise';
 import {
   defineTable,
+  tableRef,
   col,
-  SelectQueryBuilder,
+  selectFrom,
   eq,
   MySqlDialect,
 } from 'metal-orm';
@@ -187,15 +225,14 @@ const todos = defineTable('todos', {
 todos.columns.title.notNull = true;
 todos.columns.done.default = false;
 
+// Optional: opt-in ergonomic column access
+const t = tableRef(todos);
+
 // 2) Build a simple query
-const listOpenTodos = new SelectQueryBuilder(todos)
-  .select({
-    id: todos.columns.id,
-    title: todos.columns.title,
-    done: todos.columns.done,
-  })
-  .where(eq(todos.columns.done, false))
-  .orderBy(todos.columns.id, 'ASC');
+const listOpenTodos = selectFrom(todos)
+  .select('id', 'title', 'done')
+  .where(eq(t.done, false))
+  .orderBy(t.id, 'ASC');
 
 // 3) Compile to SQL + params
 const dialect = new MySqlDialect();
@@ -214,6 +251,48 @@ console.log(rows);
 
 That’s it: schema, query, SQL, done.
 
+#### Column pickers (preferred selection helpers)
+
+`defineTable` still exposes the full `table.columns` map for schema metadata and constraint tweaks, but modern queries usually benefit from higher-level helpers instead of spelling `todo.columns.*` everywhere.
+
+```ts
+const t = tableRef(todos);
+
+const listOpenTodos = selectFrom(todos)
+  .select('id', 'title', 'done') // typed shorthand for the same fields
+  .where(eq(t.done, false))
+  .orderBy(t.id, 'ASC');
+```
+
+`select`, `selectRelationColumns`, `includePick`, `selectColumnsDeep`, the `sel()` helpers for tables, and `esel()` for entities all build typed selection maps without repeating `table.columns.*`. Use those helpers when building query selections and reserve `table.columns.*` for schema definition, relations, or rare cases where you need a column reference outside of a picker. See the [Query Builder docs](./docs/query-builder.md#selection-helpers) for the reference, examples, and best practices for these helpers.
+
+#### Ergonomic column access (opt-in) with `tableRef`
+
+If you still want the convenience of accessing columns without spelling `.columns`, you can opt-in with `tableRef()`:
+
+```ts
+import { tableRef, eq, selectFrom } from 'metal-orm';
+
+// Existing style (always works)
+const listOpenTodos = selectFrom(todos)
+  .select('id', 'title', 'done')
+  .where(eq(todos.columns.done, false))
+  .orderBy(todos.columns.id, 'ASC');
+
+// Opt-in ergonomic style
+const t = tableRef(todos);
+
+const listOpenTodos2 = selectFrom(todos)
+  .select('id', 'title', 'done')
+  .where(eq(t.done, false))
+  .orderBy(t.id, 'ASC');
+```
+
+Collision rule: real table fields win.
+
+- `t.name` is the table name (string)
+- `t.$.name` is the column definition for a colliding column name (escape hatch)
+
 #### 2. Relations & hydration (still no ORM)
 
 Now add relations and get nested objects, still without committing to a runtime.
@@ -223,10 +302,12 @@ import {
   defineTable,
   col,
   hasMany,
-  SelectQueryBuilder,
+  selectFrom,
   eq,
   count,
   rowNumber,
+  MySqlDialect,
+  sel,
   hydrateRows,
 } from 'metal-orm';
 
@@ -255,22 +336,24 @@ users.columns.name.notNull = true;
 users.columns.email.unique = true;
 
 // Build a query with relation & window function
-const builder = new SelectQueryBuilder(users)
-  .select({
-    id: users.columns.id,
-    name: users.columns.name,
-    email: users.columns.email,
-    postCount: count(posts.columns.id),
-    rank: rowNumber(),           // window function helper
-  })
-  .leftJoin(posts, eq(posts.columns.userId, users.columns.id))
-  .groupBy(users.columns.id, users.columns.name, users.columns.email)
-  .orderBy(count(posts.columns.id), 'DESC')
-  .limit(10)
-  .include('posts', {
-    columns: [posts.columns.id, posts.columns.title, posts.columns.createdAt],
-  }); // eager relation for hydration
+const u = sel(users, 'id', 'name', 'email');
+const p = sel(posts, 'id', 'userId');
 
+const builder = selectFrom(users)
+  .select({
+    ...u,
+    postCount: count(p.id),
+    rank: rowNumber(), // window function helper
+  })
+  .leftJoin(posts, eq(p.userId, u.id))
+  .groupBy(u.id)
+  .groupBy(u.name)
+  .groupBy(u.email)
+  .orderBy(count(p.id), 'DESC')
+  .limit(10)
+  .includePick('posts', ['id', 'title', 'createdAt']); // eager relation for hydration
+
+const dialect = new MySqlDialect();
 const { sql, params } = builder.compile(dialect);
 const [rows] = await connection.execute(sql, params);
 
@@ -312,8 +395,9 @@ import {
   Orm,
   OrmSession,
   MySqlDialect,
-  SelectQueryBuilder,
+  selectFrom,
   eq,
+  tableRef,
   createMysqlExecutor,
 } from 'metal-orm';
 
@@ -326,16 +410,19 @@ const orm = new Orm({
   executorFactory: {
     createExecutor: () => executor,
     createTransactionalExecutor: () => executor,
+    dispose: async () => {},
   },
 });
 const session = new OrmSession({ orm, executor });
 
+const u = tableRef(users);
+
 // 2) Load entities with lazy relations
-const [user] = await new SelectQueryBuilder(users)
-  .selectColumns('id', 'name', 'email')
+const [user] = await selectFrom(users)
+  .select('id', 'name', 'email')
   .includeLazy('posts')  // HasMany as a lazy collection
   .includeLazy('roles')  // BelongsToMany as a lazy collection
-  .where(eq(users.columns.id, 1))
+  .where(eq(u.id, 1))
   .execute(session);
 
 // user is an EntityInstance<typeof users>
@@ -361,7 +448,7 @@ What the runtime gives you:
 - Relation tracking (add/remove/sync on collections).
 - Cascades on relations: `'all' | 'persist' | 'remove' | 'link'`.
 - Single flush: `session.commit()` figures out inserts, updates, deletes, and pivot changes.
-- Column pickers to stay DRY: `selectColumns` on the root table, `selectRelationColumns` / `includePick` on relations, and `selectColumnsDeep` or the `sel`/`esel` helpers to build typed selection maps without repeating `table.columns.*`.
+- Column pickers to stay DRY: `select` on the root table, `selectRelationColumns` / `includePick` on relations, and `selectColumnsDeep` or the `sel`/`esel` helpers to build typed selection maps without repeating `table.columns.*`.
 
 <a id="level-3"></a>
 ### Level 3: Decorator entities ✨
@@ -383,6 +470,8 @@ import {
   BelongsTo,
   bootstrapEntities,
   selectFromEntity,
+  entityRef,
+  eq,
 } from 'metal-orm';
 
 @Entity()
@@ -433,22 +522,24 @@ const orm = new Orm({
   executorFactory: {
     createExecutor: () => executor,
     createTransactionalExecutor: () => executor,
+    dispose: async () => {},
   },
 });
 const session = new OrmSession({ orm, executor });
 
 // 3) Query starting from the entity class
+const U = entityRef(User);
 const [user] = await selectFromEntity(User)
-  .selectColumns('id', 'name')
+  .select('id', 'name')
   .includeLazy('posts')
-  .where(/* same eq()/and() API as before */)
+  .where(eq(U.id, 1))
   .execute(session);
 
 user.posts.add({ title: 'From decorators' });
 await session.commit();
 ```
 
-Tip: to keep selections terse, use `selectColumns`/`selectRelationColumns` or the `sel`/`esel` helpers instead of spelling `table.columns.*` over and over.
+Tip: to keep selections terse, use `select`/`selectRelationColumns` or the `sel`/`esel` helpers instead of spelling `table.columns.*` over and over.
 
 This level is nice when:
 
@@ -474,17 +565,123 @@ All three levels share the same schema, AST, and dialects, so you can mix them a
 ---
 
 <a id="design-notes"></a>
-## Design notes 🧱
+## Design & Architecture 🏗️
 
-Under the hood, MetalORM leans on well-known patterns:
+MetalORM is built on solid software engineering principles and proven design patterns.
 
-- **AST + dialect abstraction**: SQL is modeled as typed AST nodes, compiled by dialects that you can extend.
-- **Separation of concerns**: schema, AST, SQL compilation, execution, and ORM runtime are separate layers.
-- **Executor abstraction**: built-in executor creators (`createMysqlExecutor`, `createPostgresExecutor`, etc.) provide a clean separation between database drivers and ORM operations.
-- **Unit of Work + Identity Map**: `OrmSession` coordinates changes and enforces one entity instance per row, following the [Unit of Work](https://en.wikipedia.org/wiki/Unit_of_work) and [Identity map](https://en.wikipedia.org/wiki/Identity_map_pattern) patterns.
-- **Domain events + interceptors**: decouple side-effects from persistence and let cross-cutting concerns hook into flush points, similar in spirit to domain events in [Domain-driven design](https://en.wikipedia.org/wiki/Domain-driven_design).
+### Architecture Layers
 
-You can stay at the low level (just AST + dialects) or adopt the higher levels when it makes your code simpler.
+```
+┌─────────────────────────────────────────────────┐
+│              Your Application                   │
+└─────────────────────────────────────────────────┘
+                       │
+    ┌──────────────────┼──────────────────┐
+    │                  │                  │
+    ▼                  ▼                  ▼
+┌─────────┐      ┌──────────┐      ┌──────────┐
+│ Level 1 │      │ Level 2  │      │ Level 3  │
+│ Query   │◄─────┤   ORM    │◄─────┤Decorators│
+│ Builder │      │ Runtime  │      │          │
+└─────────┘      └──────────┘      └──────────┘
+    │                  │                  │
+    └──────────────────┼──────────────────┘
+                       ▼
+              ┌────────────────┐
+              │   SQL AST      │
+              │ (Typed Nodes)  │
+              └────────────────┘
+                       ▼
+┌────────────────────────────────────────────────┐
+│          Strategy Pattern: Dialects            │
+│  MySQL | PostgreSQL | SQLite | SQL Server      │
+└────────────────────────────────────────────────┘
+                       ▼
+              ┌────────────────┐
+              │   Database     │
+              └────────────────┘
+```
+
+### Design Patterns
+
+- **Strategy Pattern**: Pluggable dialects (MySQL, PostgreSQL, SQLite, SQL Server) and function renderers allow the same query to target different databases
+- **Visitor Pattern**: AST traversal for SQL compilation and expression processing
+- **Builder Pattern**: Fluent query builders (Select, Insert, Update, Delete) for constructing queries step-by-step
+- **Factory Pattern**: Dialect factory and executor creation abstract instantiation logic
+- **Unit of Work**: Change tracking and batch persistence in `OrmSession` coordinate all modifications
+- **Identity Map**: One entity instance per row within a session prevents duplicate object issues
+- **Interceptor/Pipeline**: Query interceptors and flush lifecycle hooks enable cross-cutting concerns
+- **Adapter Pattern**: Connection pooling adapters allow different pool implementations
+
+### Type Safety
+
+- **Zero `any` types**: The entire src codebase contains zero `any` types—every value is properly typed
+- **100% typed public API**: Every public method, parameter, and return value is fully typed
+- **Full type inference**: From schema definition through query building to result hydration
+- **Compile-time safety**: Catch SQL errors at TypeScript compile time, not runtime
+- **Generic-driven**: Leverages TypeScript generics extensively for type propagation
+
+### Separation of Concerns
+
+Each layer has a clear, focused responsibility:
+
+- **Core AST layer**: SQL representation independent of any specific dialect
+- **Dialect layer**: Vendor-specific SQL compilation (MySQL, PostgreSQL, etc.)
+- **Schema layer**: Table and column definitions with relations
+- **Query builder layer**: Fluent API for building type-safe queries
+- **Hydration layer**: Transforms flat result sets into nested object graphs
+- **ORM runtime layer**: Entity management, change tracking, lazy relations, transactions
+
+You can use just the layers you need and stay at the low level (AST + dialects) or adopt higher levels when beneficial.
+
+---
+
+## Frequently Asked Questions ❓
+
+**Q: How does MetalORM differ from other ORMs?**  
+A: MetalORM's unique three-level architecture lets you choose your abstraction level—use just the query builder, add the ORM runtime when needed, or go full decorator-based entities. This gradual adoption path is uncommon in the TypeScript ecosystem. You're not locked into an all-or-nothing ORM approach.
+
+**Q: Can I use this in production?**  
+A: Yes! MetalORM is designed for production use with robust patterns like Unit of Work, Identity Map, and connection pooling support. The type-safe query builder ensures SQL correctness at compile time.
+
+**Q: Do I need to use all three levels?**  
+A: No! Use only what you need. Many projects stay at Level 1 (query builder) for its type-safe SQL building without any ORM overhead. Add runtime features (Level 2) or decorators (Level 3) only where they provide value.
+
+**Q: What about migrations?**  
+A: MetalORM provides schema generation via DDL builders. See the [Schema Generation docs](./docs/schema-generation.md) for details on generating CREATE TABLE statements from your table definitions.
+
+**Q: How type-safe is it really?**  
+A: Exceptionally. The entire codebase contains **zero** `any` types—every value is properly typed with TypeScript generics and inference. All public APIs are fully typed, and your queries, entities, and results get full TypeScript checking at compile time.
+
+**Q: What design patterns are used?**  
+A: MetalORM implements several well-known patterns: Strategy (dialects & functions), Visitor (AST traversal), Builder (query construction), Factory (dialect & executor creation), Unit of Work (change tracking), Identity Map (entity caching), Interceptor (query hooks), and Adapter (pooling). This makes the codebase maintainable and extensible.
+
+---
+
+## Performance & Production 🚀
+
+- **Zero runtime overhead for Level 1** (query builder) - it's just SQL compilation and hydration
+- **Efficient batching** for Level 2 lazy relations minimizes database round-trips
+- **Identity Map** prevents duplicate entity instances and unnecessary queries
+- **Connection pooling** supported via executor factory pattern (see [pooling docs](./docs/pooling.md))
+- **Prepared statements** with parameterized queries protect against SQL injection
+
+**Production checklist:**
+- ✅ Use connection pooling for better resource management
+- ✅ Enable query logging in development for debugging
+- ✅ Set up proper error handling and retries
+- ✅ Use transactions for multi-statement operations
+- ✅ Monitor query performance with interceptors
+
+---
+
+## Community & Support 💬
+
+- 🐛 **Issues:** [GitHub Issues](https://github.com/celsowm/metal-orm/issues)
+- 💡 **Discussions:** [GitHub Discussions](https://github.com/celsowm/metal-orm/discussions)
+- 📖 **Documentation:** [Full docs](./docs/index.md)
+- 🗺️ **Roadmap:** [See what's planned](./ROADMAP.md)
+- 📦 **Changelog:** [View releases](https://github.com/celsowm/metal-orm/releases)
 
 ---
 
