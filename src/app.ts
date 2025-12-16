@@ -5,7 +5,6 @@ import swaggerUi from 'swagger-ui-express';
 import { RegisterRoutes } from './routes/routes.js';
 import { openSession } from './db/session-mssql.js';
 import { errorHandler } from './middlewares/error-handler.js';
-import { unitOfWork } from './middlewares/unit-of-work.js';
 import { logger } from './services/logger.js';
 import { API_BASE_PATH, API_DOCS_PATH } from './config/api.js';
 import openapiDocument from '../docs/openapi.json' with { type: 'json' };
@@ -45,9 +44,6 @@ app.use(async (req, res, next) => {
     next(error);
   }
 });
-
-// Unit of Work middleware - auto commit/rollback for mutating requests
-app.use(unitOfWork);
 
 RegisterRoutes(app);
 

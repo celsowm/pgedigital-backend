@@ -1,34 +1,8 @@
 import type { OrmSession } from 'metal-orm';
-import { eq, isNull, count, selectFromEntity, entityRef } from 'metal-orm';
+import { eq, isNull, count, selectFromEntity, entityRef, createEntityFromRow, getTableDefFromEntity } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
 
 const NV = entityRef(NotaVersao);
-
-export interface NotaVersaoGraphPayload {
-  id?: number;
-  data: Date;
-  sprint: number;
-  mensagem: string;
-  ativo: boolean;
-  data_exclusao?: Date | null;
-  data_inativacao?: Date | null;
-}
-
-interface SaveGraphConfig {
-  transactional?: boolean;
-  pruneMissing?: boolean;
-}
-
-const DEFAULT_SAVE_GRAPH_OPTIONS: SaveGraphConfig = { transactional: false };
-
-export async function persistNotaVersaoGraph(
-  session: OrmSession,
-  payload: NotaVersaoGraphPayload,
-  options?: SaveGraphConfig,
-): Promise<NotaVersao> {
-  const mergedOptions: SaveGraphConfig = { ...DEFAULT_SAVE_GRAPH_OPTIONS, ...(options ?? {}) };
-  return session.saveGraph(NotaVersao, payload as unknown as Record<string, unknown>, mergedOptions);
-}
 
 export interface NotaVersaoListOptions {
   sprint?: number;
@@ -78,8 +52,8 @@ export async function listNotaVersaoEntities(
     builder = builder.offset(options.offset);
   }
 
-  const rows = await builder.execute(session);
-  return rows as unknown as NotaVersao[];
+  const result = await builder.execute(session);
+  return result as unknown as NotaVersao[];
 }
 
 export async function countNotaVersaoEntities(
@@ -105,6 +79,26 @@ export async function findNotaVersaoById(
 }
 
 /**
+ * Creates a new NotaVersao entity as a tracked entity using Metal-ORM's Level 3 pattern.
+ */
+export function createNotaVersaoEntity(
+  session: OrmSession,
+  data: {
+    data: Date;
+    sprint: number;
+    mensagem: string;
+    ativo: boolean;
+  },
+): NotaVersao {
+  const table = getTableDefFromEntity(NotaVersao);
+  if (!table) {
+    throw new Error('NotaVersao table definition not found');
+  }
+
+  return createEntityFromRow(session, table, data) as unknown as NotaVersao;
+}
+
+/**
  * Deactivates a NotaVersao entity (sets ativo = false).
  * The entity must be a tracked entity from findNotaVersaoById.
  */
@@ -125,6 +119,18 @@ export function softDeleteNotaVersaoEntity(entity: NotaVersao): void {
   entity.ativo = false;
   entity.data_exclusao = now;
   entity.data_inativacao ??= now;
+}
+
+/**
+ * Activates a NotaVersao entity.
+ * Sets ativo = true and clears inativacao timestamp.
+ */
+export function activateNotaVersaoEntity(entity: NotaVersao): void {
+  if (entity.data_exclusao) {
+    throw new Error('Cannot activate a soft-deleted entity');
+  }
+  entity.ativo = true;
+  entity.data_inativacao = undefined;
 }
 
 /**

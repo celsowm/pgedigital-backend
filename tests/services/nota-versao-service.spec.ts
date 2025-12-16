@@ -39,16 +39,16 @@ describe('nota-versao service', () => {
         existing.data_inativacao = new Date();
       });
 
-    const persistSpy = vi
-      .spyOn(repository, 'persistNotaVersaoGraph')
-      .mockResolvedValue(
-        createMockNotaVersao({
-          id: 2,
-          sprint: 42,
-          ativo: true,
-          mensagem: 'new message',
-        }),
-      );
+    const newEntity = createMockNotaVersao({
+      id: 2,
+      sprint: 42,
+      ativo: true,
+      mensagem: 'new message',
+    });
+
+    const createEntitySpy = vi
+      .spyOn(repository, 'createNotaVersaoEntity')
+      .mockReturnValue(newEntity);
 
     const result = await createNotaVersao(session, {
       data: '2025-01-15T00:00:00.000Z',
@@ -60,7 +60,7 @@ describe('nota-versao service', () => {
     expect(deactivateOthersSpy).toHaveBeenCalledWith(session, 42);
     expect(existing.ativo).toBe(false);
     expect(existing.data_inativacao).toBeInstanceOf(Date);
-    expect(persistSpy).toHaveBeenCalledWith(
+    expect(createEntitySpy).toHaveBeenCalledWith(
       session,
       expect.objectContaining({
         sprint: 42,
@@ -68,6 +68,7 @@ describe('nota-versao service', () => {
         ativo: true,
       }),
     );
+    expect(session.commit).toHaveBeenCalled();
     expect(result.mensagem).toBe('new message');
   });
 

@@ -4,10 +4,10 @@ import {
   listNotaVersaoEntities,
   countNotaVersaoEntities,
   findNotaVersaoById,
-  persistNotaVersaoGraph,
-  NotaVersaoGraphPayload,
+  createNotaVersaoEntity,
   softDeleteNotaVersaoEntity,
   deactivateOtherVersionsForSprint,
+  activateNotaVersaoEntity,
 } from '../repositories/nota-versao-repository.js';
 import {
   normalizePage,
@@ -122,18 +122,22 @@ export async function createNotaVersao(
 ): Promise<NotaVersaoResponse> {
   const validated = validateNotaVersaoCreateInput(input);
 
+  // If activating, deactivate other versions for the sprint first
   if (validated.ativo) {
     await deactivateOtherVersionsForSprint(session, validated.sprint);
   }
 
-  const payload: NotaVersaoGraphPayload = {
+  // Create a new tracked entity using Metal-ORM Level 3 pattern
+  const entity = createNotaVersaoEntity(session, {
     data: validated.data,
     sprint: validated.sprint,
     mensagem: validated.mensagem,
     ativo: validated.ativo,
-  };
+  });
 
-  const entity = await persistNotaVersaoGraph(session, payload);
+  // Commit flushes the INSERT automatically
+  await session.commit();
+
   return toResponse(entity);
 }
 
@@ -148,30 +152,37 @@ export async function updateNotaVersao(
   }
 
   const validated = validateNotaVersaoUpdateInput(input);
-  const targetSprint = validated.sprint ?? entity.sprint;
-  const intendedActive = validated.ativo ?? entity.ativo;
 
-  // Handle activation logic - deactivate other versions for the sprint
-  if (intendedActive && !entity.ativo) {
-    await deactivateOtherVersionsForSprint(session, targetSprint, entity.id);
+  // Update entity properties - Metal-ORM tracks changes automatically
+  if (validated.data !== undefined) {
+    entity.data = validated.data;
   }
 
-  const dataInativacao = !intendedActive
-    ? entity.data_inativacao ?? new Date()
-    : entity.data_inativacao;
+  if (validated.sprint !== undefined) {
+    entity.sprint = validated.sprint;
+  }
 
-  const payload: NotaVersaoGraphPayload = {
-    id: entity.id,
-    data: validated.data ?? entity.data,
-    sprint: validated.sprint ?? entity.sprint,
-    mensagem: validated.mensagem ?? entity.mensagem,
-    ativo: intendedActive,
-    data_exclusao: entity.data_exclusao,
-    data_inativacao: dataInativacao,
-  };
+  if (validated.mensagem !== undefined) {
+    entity.mensagem = validated.mensagem;
+  }
 
-  const updated = await persistNotaVersaoGraph(session, payload);
-  return toResponse(updated);
+  // Handle activation/deactivation logic
+  if (validated.ativo !== undefined && validated.ativo !== entity.ativo) {
+    if (validated.ativo) {
+      // Activating - deactivate others first
+      await deactivateOtherVersionsForSprint(session, entity.sprint, entity.id);
+      activateNotaVersaoEntity(entity);
+    } else {
+      // Deactivating
+      entity.ativo = false;
+      entity.data_inativacao = new Date();
+    }
+  }
+
+  // Commit flushes the UPDATE automatically
+  await session.commit();
+
+  return toResponse(entity);
 }
 
 export async function deleteNotaVersao(
@@ -183,5 +194,9 @@ export async function deleteNotaVersao(
     throw new NotFoundError(`NotaVersao ${id} not found`);
   }
 
+  // Soft delete the entity (mutates the tracked entity)
   softDeleteNotaVersaoEntity(entity);
+
+  // Commit flushes the UPDATE automatically
+  await session.commit();
 }
