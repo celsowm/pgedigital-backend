@@ -16,7 +16,7 @@ import {
   validateNotaVersaoUpdateInput,
 } from '../validators/nota-versao-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
-import type { PaginationMeta, PaginationQuery } from '../models/pagination.js';
+import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
 
 export interface NotaVersaoCreateInput {
   data: string;
@@ -62,19 +62,6 @@ const toResponse = (entity: NotaVersao): NotaVersaoResponse => ({
   mensagem: entity.mensagem,
   data_exclusao: entity.data_exclusao?.toISOString(),
   data_inativacao: entity.data_inativacao?.toISOString(),
-});
-
-const buildPaginationMeta = (
-  page: number,
-  pageSize: number,
-  totalItems: number,
-): PaginationMeta => ({
-  page,
-  pageSize,
-  totalItems,
-  totalPages: totalItems === 0 ? 0 : Math.ceil(totalItems / pageSize),
-  hasNextPage: page * pageSize < totalItems,
-  hasPreviousPage: page > 1,
 });
 
 export async function listNotaVersao(
