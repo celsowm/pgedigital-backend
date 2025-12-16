@@ -13,8 +13,4 @@ export function getEntityTables(): EntityTables {
     return initEntityTables();
 }
 
-export function getNotaVersaoTable() {
-    return getEntityTables().NotaVersao;
-}
-
 export { NotaVersao };

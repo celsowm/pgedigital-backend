@@ -14,8 +14,8 @@ export const createSessionFactory = (dialect: any, connect: Connector) => {
       createTransactionalExecutor() {
         throw new Error('Use the request-scoped connector instead of the default factory.');
       },
-      dispose() {
-        return Promise.resolve();
+      async dispose() {
+        // No-op: session-scoped executors handle their own cleanup
       },
     },
   });

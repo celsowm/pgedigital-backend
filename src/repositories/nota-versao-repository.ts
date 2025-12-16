@@ -1,8 +1,8 @@
 import type { OrmSession } from 'metal-orm';
-import { esel, eq, isNull, count, selectFromEntity } from 'metal-orm';
-import { NotaVersao, getNotaVersaoTable } from '../entities/index.js';
+import { eq, isNull, count, selectFromEntity, entityRef } from 'metal-orm';
+import { NotaVersao } from '../entities/index.js';
 
-const notaVersaoTable = getNotaVersaoTable();
+const NV = entityRef(NotaVersao);
 
 export interface NotaVersaoGraphPayload {
   id?: number;
@@ -10,8 +10,8 @@ export interface NotaVersaoGraphPayload {
   sprint: number;
   mensagem: string;
   ativo: boolean;
-  data_exclusao?: Date;
-  data_inativacao?: Date;
+  data_exclusao?: Date | null;
+  data_inativacao?: Date | null;
 }
 
 interface SaveGraphConfig {
@@ -27,20 +27,8 @@ export async function persistNotaVersaoGraph(
   options?: SaveGraphConfig,
 ): Promise<NotaVersao> {
   const mergedOptions: SaveGraphConfig = { ...DEFAULT_SAVE_GRAPH_OPTIONS, ...(options ?? {}) };
-  return session.saveGraph(NotaVersao, payload, mergedOptions);
+  return session.saveGraph(NotaVersao, payload as unknown as Record<string, unknown>, mergedOptions);
 }
-
-const getSelection = () =>
-  esel(
-    NotaVersao,
-    'id',
-    'data',
-    'sprint',
-    'ativo',
-    'mensagem',
-    'data_exclusao',
-    'data_inativacao',
-  );
 
 export interface NotaVersaoListOptions {
   sprint?: number;
@@ -54,21 +42,21 @@ export interface NotaVersaoListOptions {
 }
 
 const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
-  let builder = selectFromEntity<typeof notaVersaoTable>(NotaVersao);
+  let builder = selectFromEntity(NotaVersao);
 
   if (options?.sprint !== undefined) {
-    builder = builder.where(eq(notaVersaoTable.columns.sprint, options.sprint));
+    builder = builder.where(eq(NV.sprint, options.sprint));
   }
 
   if (options?.ativo !== undefined) {
-    builder = builder.where(eq(notaVersaoTable.columns.ativo, options.ativo));
+    builder = builder.where(eq(NV.ativo, options.ativo));
   } else if (!options?.includeInactive) {
     // Default behavior: only active records
-    builder = builder.where(eq(notaVersaoTable.columns.ativo, true));
+    builder = builder.where(eq(NV.ativo, true));
   }
 
   if (!options?.includeDeleted) {
-    builder = builder.where(isNull(notaVersaoTable.columns.data_exclusao));
+    builder = builder.where(isNull(NV.data_exclusao));
   }
 
   return builder;
@@ -79,8 +67,8 @@ export async function listNotaVersaoEntities(
   options?: NotaVersaoListOptions,
 ): Promise<NotaVersao[]> {
   let builder = buildFilteredQuery(options)
-    .select(getSelection())
-    .orderBy(notaVersaoTable.columns.data, 'DESC');
+    .select('id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao')
+    .orderBy(NV.data, 'DESC');
 
   if (options?.limit !== undefined) {
     builder = builder.limit(options.limit);
@@ -99,7 +87,7 @@ export async function countNotaVersaoEntities(
   options?: NotaVersaoListOptions,
 ) {
   const [row] = await buildFilteredQuery(options)
-    .select({ total: count(notaVersaoTable.columns.id) })
+    .select({ total: count(NV.id) })
     .execute(session);
 
   return Number(row?.total ?? 0);
@@ -109,9 +97,9 @@ export async function findNotaVersaoById(
   session: OrmSession,
   id: number,
 ): Promise<NotaVersao | null> {
-  const [entity] = await selectFromEntity<typeof notaVersaoTable>(NotaVersao)
-    .select(getSelection())
-    .where(eq(notaVersaoTable.columns.id, id))
+  const [entity] = await selectFromEntity(NotaVersao)
+    .select('id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao')
+    .where(eq(NV.id, id))
     .execute(session);
   return (entity ?? null) as unknown as NotaVersao | null;
 }

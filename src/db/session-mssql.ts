@@ -37,21 +37,21 @@ const executorFactory = createPooledExecutorFactory({
             const { recordset } = await createTediousMssqlClient(connection, moduleBindings).query(sql, params);
             return recordset ?? [];
         },
-        async beginTransaction(connection) {
+        beginTransaction: async (connection) => {
             const client = createTediousMssqlClient(connection, moduleBindings);
             if (!client.beginTransaction) {
                 throw new Error('Tedious client is missing beginTransaction');
             }
             await client.beginTransaction();
         },
-        async commitTransaction(connection) {
+        commitTransaction: async (connection) => {
             const client = createTediousMssqlClient(connection, moduleBindings);
             if (!client.commit) {
                 throw new Error('Tedious client is missing commit');
             }
             await client.commit();
         },
-        async rollbackTransaction(connection) {
+        rollbackTransaction: async (connection) => {
             const client = createTediousMssqlClient(connection, moduleBindings);
             if (!client.rollback) {
                 throw new Error('Tedious client is missing rollback');
@@ -174,4 +174,3 @@ async function destroyConnection(connection: Connection): Promise<void> {
         connection.close();
     });
 }
-
