@@ -18,19 +18,26 @@ import {
 import { NotFoundError } from '../errors/http-error.js';
 import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
 
-export interface NotaVersaoCreateInput {
-  data: string;
-  sprint: number;
-  mensagem: string;
-  ativo?: boolean;
-}
+// Helper type to convert entity to response format
+type EntityToResponse<T> = {
+  [K in keyof T]: T[K] extends Date ? string : T[K];
+};
 
-export interface NotaVersaoUpdateInput {
-  data?: string;
-  sprint?: number;
-  mensagem?: string;
-  ativo?: boolean;
-}
+// Helper type to create input interfaces from entity
+type EntityToCreateInput<T> = {
+  [K in keyof T as K extends 'id' | 'data_exclusao' | 'data_inativacao' ? never : K]:
+  T[K] extends Date ? string : (K extends 'ativo' ? T[K] | undefined : T[K]);
+};
+
+type EntityToUpdateInput<T> = {
+  [K in keyof T as K extends 'id' | 'data_exclusao' | 'data_inativacao' ? never : K]?:
+  T[K] extends Date ? string : T[K];
+};
+
+// Derive input interfaces from the entity to avoid duplication
+export type NotaVersaoCreateInput = EntityToCreateInput<NotaVersao>;
+
+export type NotaVersaoUpdateInput = EntityToUpdateInput<NotaVersao>;
 
 export interface NotaVersaoListQuery extends PaginationQuery {
   sprint?: number;
@@ -39,30 +46,27 @@ export interface NotaVersaoListQuery extends PaginationQuery {
   includeDeleted?: boolean;
 }
 
-export interface NotaVersaoResponse {
-  id: number;
-  data: string;
-  sprint: number;
-  ativo: boolean;
-  mensagem: string;
-  data_exclusao?: string;
-  data_inativacao?: string;
-}
+// Use the entity type to derive the response interface
+export type NotaVersaoResponse = EntityToResponse<NotaVersao>;
 
 export interface NotaVersaoListResponse {
   items: NotaVersaoResponse[];
   pagination: PaginationMeta;
 }
 
-const toResponse = (entity: NotaVersao): NotaVersaoResponse => ({
-  id: entity.id,
-  data: entity.data.toISOString(),
-  sprint: entity.sprint,
-  ativo: entity.ativo,
-  mensagem: entity.mensagem,
-  data_exclusao: entity.data_exclusao?.toISOString(),
-  data_inativacao: entity.data_inativacao?.toISOString(),
-});
+// Generic function to convert entity to response format
+const toResponse = (entity: NotaVersao): NotaVersaoResponse => {
+  const result: any = {};
+  for (const key in entity) {
+    const value = (entity as any)[key];
+    if (value instanceof Date) {
+      result[key] = value.toISOString();
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+};
 
 export async function listNotaVersao(
   session: OrmSession,

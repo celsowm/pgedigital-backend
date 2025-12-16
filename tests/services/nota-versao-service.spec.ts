@@ -1,4 +1,5 @@
 import type { NotaVersao } from '../../src/entities/index.js';
+import type { NotaVersaoCreateInput } from '../../src/services/nota-versao-service.js';
 import * as repository from '../../src/repositories/nota-versao-repository.js';
 import { BadRequestError } from '../../src/errors/http-error.js';
 import { createNotaVersao, listNotaVersao } from '../../src/services/nota-versao-service.js';
@@ -16,6 +17,7 @@ describe('nota-versao service', () => {
         data: '2025-01-01T00:00:00.000Z',
         sprint: 1,
         mensagem: 'x'.repeat(300),
+        ativo: false,
       }),
     ).rejects.toBeInstanceOf(BadRequestError);
   });
@@ -54,6 +56,7 @@ describe('nota-versao service', () => {
       data: '2025-01-15T00:00:00.000Z',
       sprint: 42,
       mensagem: 'new message',
+      ativo: true,
     });
 
     // deactivateOtherVersionsForSprint should have been called
