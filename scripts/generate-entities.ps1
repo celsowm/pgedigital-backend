@@ -4,8 +4,8 @@ param(
     [string]$Schema = "dbo",
     [string]$Include,
     [string]$Exclude,
-    [string]$Out = "src/entities/index.ts",
-    [string]$OutDir = "src/entities",
+    [string]$Out = "src/entities/generated/index.ts",
+    [string]$OutDir = "src/entities/generated",
     [string]$Locale = "pt-BR"
 )
 
