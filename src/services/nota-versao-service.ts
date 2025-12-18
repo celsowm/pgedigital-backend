@@ -2,7 +2,7 @@ import { jsonify, type OrmSession } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
 import {
   listNotaVersaoEntities,
-  countNotaVersaoEntities,
+  listNotaVersaoEntitiesPaged,
   findNotaVersaoById,
   softDeleteNotaVersaoEntity,
   deactivateNotaVersaoEntity,
@@ -70,16 +70,13 @@ export async function listNotaVersao(
     includeDeleted: query?.includeDeleted,
   };
 
-  // Execute sequentially to avoid concurrent requests on a single connection/session (Tedious).
-  const rows = await listNotaVersaoEntities(session, {
-    ...baseFilters,
-    limit: pageSize,
-    offset: (page - 1) * pageSize,
+  const { items, totalItems } = await listNotaVersaoEntitiesPaged(session, baseFilters, {
+    page,
+    pageSize,
   });
-  const totalItems = await countNotaVersaoEntities(session, baseFilters);
 
   return {
-    items: rows.map(toResponse),
+    items: items.map(toResponse),
     pagination: buildPaginationMeta(page, pageSize, totalItems),
   };
 }

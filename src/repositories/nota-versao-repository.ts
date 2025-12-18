@@ -1,5 +1,5 @@
 import type { OrmSession } from 'metal-orm';
-import { eq, isNull, count, selectFromEntity, entityRef, createEntityFromRow, getTableDefFromEntity } from 'metal-orm';
+import { eq, isNull, selectFromEntity, entityRef } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
 
 const NV = entityRef(NotaVersao);
@@ -36,13 +36,16 @@ const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
   return builder;
 };
 
+const buildSelectedQuery = (options?: NotaVersaoListOptions) =>
+  buildFilteredQuery(options)
+    .select('id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao')
+    .orderBy(NV.data, 'DESC');
+
 export async function listNotaVersaoEntities(
   session: OrmSession,
   options?: NotaVersaoListOptions,
 ): Promise<NotaVersao[]> {
-  let builder = buildFilteredQuery(options)
-    .select('id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao')
-    .orderBy(NV.data, 'DESC');
+  let builder = buildSelectedQuery(options);
 
   if (options?.limit !== undefined) {
     builder = builder.limit(options.limit);
@@ -56,15 +59,20 @@ export async function listNotaVersaoEntities(
   return result as unknown as NotaVersao[];
 }
 
-export async function countNotaVersaoEntities(
+export async function listNotaVersaoEntitiesPaged(
   session: OrmSession,
   options?: NotaVersaoListOptions,
+  paging?: { page: number; pageSize: number },
 ) {
-  const [row] = await buildFilteredQuery(options)
-    .select({ total: count(NV.id) })
-    .execute(session);
+  const page = paging?.page ?? 1;
+  const pageSize = paging?.pageSize ?? 20;
 
-  return Number(row?.total ?? 0);
+  const { items, totalItems } = await buildSelectedQuery(options).executePaged(session, {
+    page,
+    pageSize,
+  });
+
+  return { items: items as unknown as NotaVersao[], totalItems };
 }
 
 export async function findNotaVersaoById(
@@ -76,26 +84,6 @@ export async function findNotaVersaoById(
     .where(eq(NV.id, id))
     .execute(session);
   return (entity ?? null) as unknown as NotaVersao | null;
-}
-
-/**
- * Creates a new NotaVersao entity as a tracked entity using Metal-ORM's Level 3 pattern.
- */
-export function createNotaVersaoEntity(
-  session: OrmSession,
-  data: {
-    data: Date;
-    sprint: number;
-    mensagem: string;
-    ativo: boolean;
-  },
-): NotaVersao {
-  const table = getTableDefFromEntity(NotaVersao);
-  if (!table) {
-    throw new Error('NotaVersao table definition not found');
-  }
-
-  return createEntityFromRow(session, table, data) as unknown as NotaVersao;
 }
 
 /**

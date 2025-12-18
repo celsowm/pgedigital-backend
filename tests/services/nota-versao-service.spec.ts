@@ -82,23 +82,20 @@ describe('nota-versao service', () => {
       sprint: 10,
       mensagem: 'teste',
     });
-    const listSpy = vi
-      .spyOn(repository, 'listNotaVersaoEntities')
-      .mockResolvedValue([entity]);
-    const countSpy = vi
-      .spyOn(repository, 'countNotaVersaoEntities')
-      .mockResolvedValue(5);
+    const pagedSpy = vi
+      .spyOn(repository, 'listNotaVersaoEntitiesPaged')
+      .mockResolvedValue({ items: [entity], totalItems: 5 });
 
     const result = await listNotaVersao(session, {});
 
-    expect(listSpy).toHaveBeenCalledWith(
+    expect(pagedSpy).toHaveBeenCalledWith(
       session,
+      expect.objectContaining({}),
       expect.objectContaining({
-        limit: result.pagination.pageSize,
-        offset: 0,
+        page: 1,
+        pageSize: result.pagination.pageSize,
       }),
     );
-    expect(countSpy).toHaveBeenCalled();
     expect(result.items[0]).toMatchObject({
       id: 1,
       mensagem: 'teste',
@@ -122,16 +119,16 @@ describe('nota-versao service', () => {
 
   it('applies explicit page and pageSize when provided', async () => {
     const session = createMockSession();
-    const listSpy = vi
-      .spyOn(repository, 'listNotaVersaoEntities')
-      .mockResolvedValue([]);
-    vi.spyOn(repository, 'countNotaVersaoEntities').mockResolvedValue(30);
+    const pagedSpy = vi
+      .spyOn(repository, 'listNotaVersaoEntitiesPaged')
+      .mockResolvedValue({ items: [], totalItems: 30 });
 
     const result = await listNotaVersao(session, { page: 2, pageSize: 10 });
 
-    expect(listSpy).toHaveBeenCalledWith(
+    expect(pagedSpy).toHaveBeenCalledWith(
       session,
-      expect.objectContaining({ limit: 10, offset: 10 }),
+      expect.objectContaining({}),
+      expect.objectContaining({ page: 2, pageSize: 10 }),
     );
     expect(result.pagination).toMatchObject({
       page: 2,
