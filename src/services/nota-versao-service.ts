@@ -6,38 +6,35 @@ import {
   findNotaVersaoById,
   createNotaVersaoEntity,
   softDeleteNotaVersaoEntity,
+  deactivateNotaVersaoEntity,
   deactivateOtherVersionsForSprint,
   activateNotaVersaoEntity,
 } from '../repositories/nota-versao-repository.js';
 import {
-  normalizePage,
-  normalizePageSize,
   validateNotaVersaoCreateInput,
   validateNotaVersaoUpdateInput,
 } from '../validators/nota-versao-validators.js';
+import { normalizePage, normalizePageSize } from '../validators/pagination-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
 import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
+import {
+  assertExists,
+  type CreateInputFromEntity,
+  type JsonifyDates,
+  serializeDates,
+  type UpdateInputFromEntity,
+} from './service-utils.js';
 
-// Helper type to convert entity to response format
-type EntityToResponse<T> = {
-  [K in keyof T]: T[K] extends Date ? string : T[K];
-};
+export type NotaVersaoCreateInput = CreateInputFromEntity<
+  NotaVersao,
+  'id' | 'data_exclusao' | 'data_inativacao',
+  'ativo'
+>;
 
-// Helper type to create input interfaces from entity
-type EntityToCreateInput<T> = {
-  [K in keyof T as K extends 'id' | 'data_exclusao' | 'data_inativacao' ? never : K]:
-  T[K] extends Date ? string : (K extends 'ativo' ? T[K] | undefined : T[K]);
-};
-
-type EntityToUpdateInput<T> = {
-  [K in keyof T as K extends 'id' | 'data_exclusao' | 'data_inativacao' ? never : K]?:
-  T[K] extends Date ? string : T[K];
-};
-
-// Derive input interfaces from the entity to avoid duplication
-export type NotaVersaoCreateInput = EntityToCreateInput<NotaVersao>;
-
-export type NotaVersaoUpdateInput = EntityToUpdateInput<NotaVersao>;
+export type NotaVersaoUpdateInput = UpdateInputFromEntity<
+  NotaVersao,
+  'id' | 'data_exclusao' | 'data_inativacao'
+>;
 
 export interface NotaVersaoListQuery extends PaginationQuery {
   sprint?: number;
@@ -47,26 +44,14 @@ export interface NotaVersaoListQuery extends PaginationQuery {
 }
 
 // Use the entity type to derive the response interface
-export type NotaVersaoResponse = EntityToResponse<NotaVersao>;
+export type NotaVersaoResponse = JsonifyDates<NotaVersao>;
 
 export interface NotaVersaoListResponse {
   items: NotaVersaoResponse[];
   pagination: PaginationMeta;
 }
 
-// Generic function to convert entity to response format
-const toResponse = (entity: NotaVersao): NotaVersaoResponse => {
-  const result: any = {};
-  for (const key in entity) {
-    const value = (entity as any)[key];
-    if (value instanceof Date) {
-      result[key] = value.toISOString();
-    } else {
-      result[key] = value;
-    }
-  }
-  return result;
-};
+const toResponse = (entity: NotaVersao): NotaVersaoResponse => serializeDates(entity);
 
 export async function listNotaVersao(
   session: OrmSession,
@@ -99,10 +84,10 @@ export async function getNotaVersao(
   session: OrmSession,
   id: number,
 ): Promise<NotaVersaoResponse> {
-  const entity = await findNotaVersaoById(session, id);
-  if (!entity) {
-    throw new NotFoundError(`NotaVersao ${id} not found`);
-  }
+  const entity = assertExists(
+    await findNotaVersaoById(session, id),
+    new NotFoundError(`NotaVersao ${id} not found`),
+  );
 
   return toResponse(entity);
 }
@@ -137,12 +122,14 @@ export async function updateNotaVersao(
   id: number,
   input: NotaVersaoUpdateInput,
 ): Promise<NotaVersaoResponse> {
-  const entity = await findNotaVersaoById(session, id);
-  if (!entity) {
-    throw new NotFoundError(`NotaVersao ${id} not found`);
-  }
+  const entity = assertExists(
+    await findNotaVersaoById(session, id),
+    new NotFoundError(`NotaVersao ${id} not found`),
+  );
 
   const validated = validateNotaVersaoUpdateInput(input);
+
+  const previousSprint = entity.sprint;
 
   // Update entity properties - Metal-ORM tracks changes automatically
   if (validated.data !== undefined) {
@@ -157,17 +144,16 @@ export async function updateNotaVersao(
     entity.mensagem = validated.mensagem;
   }
 
+  const sprintChanged = validated.sprint !== undefined && validated.sprint !== previousSprint;
+
   // Handle activation/deactivation logic
-  if (validated.ativo !== undefined && validated.ativo !== entity.ativo) {
-    if (validated.ativo) {
-      // Activating - deactivate others first
-      await deactivateOtherVersionsForSprint(session, entity.sprint, entity.id);
-      activateNotaVersaoEntity(entity);
-    } else {
-      // Deactivating
-      entity.ativo = false;
-      entity.data_inativacao = new Date();
-    }
+  if (validated.ativo === true) {
+    await deactivateOtherVersionsForSprint(session, entity.sprint, entity.id);
+    activateNotaVersaoEntity(entity);
+  } else if (validated.ativo === false) {
+    deactivateNotaVersaoEntity(entity);
+  } else if (sprintChanged && entity.ativo) {
+    await deactivateOtherVersionsForSprint(session, entity.sprint, entity.id);
   }
 
   // Commit flushes the UPDATE automatically
@@ -180,10 +166,10 @@ export async function deleteNotaVersao(
   session: OrmSession,
   id: number,
 ): Promise<void> {
-  const entity = await findNotaVersaoById(session, id);
-  if (!entity) {
-    throw new NotFoundError(`NotaVersao ${id} not found`);
-  }
+  const entity = assertExists(
+    await findNotaVersaoById(session, id),
+    new NotFoundError(`NotaVersao ${id} not found`),
+  );
 
   // Soft delete the entity (mutates the tracked entity)
   softDeleteNotaVersaoEntity(entity);
