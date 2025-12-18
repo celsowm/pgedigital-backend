@@ -4,7 +4,8 @@ param(
     [string]$Schema = "dbo",
     [string]$Include,
     [string]$Exclude,
-    [string]$Out = "src/entities/entities.ts"
+    [string]$Out = "src/entities/entities.ts",
+    [string]$Locale = "pt-BR"
 )
 
 ## --- 1. URL Construction ---
@@ -43,7 +44,7 @@ if ($env:DATABASE_URL) {
     Write-Host ("Database URL (for review): mssql://{0}:***masked***@{1}/{2}?encrypt={3}&trustServerCertificate={4}" -f $encodedUser, $env:PGE_DIGITAL_HOST, $databaseName, $encrypt, $trust)
 }
 
-Write-Host "Generating entities for schema '$Schema'." + ($(if ($Include) { " Include: '$Include'." } elseif ($Exclude) { " Exclude: '$Exclude'." } else { "" }))
+Write-Host "Generating entities for schema '$Schema' with locale '$Locale'." + ($(if ($Include) { " Include: '$Include'." } elseif ($Exclude) { " Exclude: '$Exclude'." } else { "" }))
 
 ## --- 3. Command Execution (Corrected for PowerShell) ---
 
@@ -65,6 +66,7 @@ if ($Exclude -and $Exclude.Trim()) {
 }
 
 $argList += "--out=$Out"
+$argList += "--locale=$Locale"
 
 $commandString = $argList -join " "
 
