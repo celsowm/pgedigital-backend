@@ -4,30 +4,37 @@
 		"application/json"
 	],
 	"definitions": {
-		"NotaVersaoResponse": {
+		"Jsonify_NotaVersao_": {
 			"properties": {
 				"id": {
 					"type": "number",
-					"format": "double"
+					"format": "double",
+					"description": "Identificador da nota versão"
 				},
 				"data": {
-					"type": "string"
+					"type": "string",
+					"description": "Data da criação da nota versão"
 				},
 				"sprint": {
 					"type": "number",
-					"format": "double"
+					"format": "double",
+					"description": "Número da Sprint da versão em nota"
 				},
 				"ativo": {
-					"type": "boolean"
+					"type": "boolean",
+					"description": "Versão está ativa ou inativa"
 				},
 				"mensagem": {
-					"type": "string"
+					"type": "string",
+					"description": "Informação da nota"
 				},
 				"data_exclusao": {
-					"type": "string"
+					"type": "string",
+					"description": "Data da exclusão"
 				},
 				"data_inativacao": {
-					"type": "string"
+					"type": "string",
+					"description": "Data da inativação"
 				}
 			},
 			"required": [
@@ -38,7 +45,10 @@
 				"mensagem"
 			],
 			"type": "object",
-			"additionalProperties": false
+			"description": "Shallow JSON-friendly mapping:\n- Date -> ISO string\n- Everything else unchanged"
+		},
+		"NotaVersaoResponse": {
+			"$ref": "#/definitions/Jsonify_NotaVersao_"
 		},
 		"PaginationMeta": {
 			"properties": {
@@ -95,20 +105,20 @@
 			"type": "object",
 			"additionalProperties": false
 		},
-		"NotaVersaoCreateInput": {
+		"Pick_NotaVersaoInputFields.Exclude_keyofNotaVersaoInputFields.ativo__": {
 			"properties": {
 				"data": {
-					"type": "string"
+					"type": "string",
+					"description": "Data da criação da nota versão"
 				},
 				"sprint": {
 					"type": "number",
-					"format": "double"
+					"format": "double",
+					"description": "Número da Sprint da versão em nota"
 				},
 				"mensagem": {
-					"type": "string"
-				},
-				"ativo": {
-					"type": "boolean"
+					"type": "string",
+					"description": "Informação da nota"
 				}
 			},
 			"required": [
@@ -117,26 +127,127 @@
 				"mensagem"
 			],
 			"type": "object",
-			"additionalProperties": false
+			"description": "From T, pick a set of properties whose keys are in the union K"
 		},
-		"NotaVersaoUpdateInput": {
+		"Omit_NotaVersaoInputFields.ativo_": {
+			"$ref": "#/definitions/Pick_NotaVersaoInputFields.Exclude_keyofNotaVersaoInputFields.ativo__",
+			"description": "Construct a type with the properties of T except for those in type K."
+		},
+		"NotaVersaoCreateInput": {
+			"type": "object",
+			"properties": {}
+		},
+		"Partial_NotaVersaoCreateInput_": {
 			"properties": {
 				"data": {
-					"type": "string"
+					"type": "string",
+					"description": "Data da criação da nota versão"
 				},
 				"sprint": {
 					"type": "number",
-					"format": "double"
+					"format": "double",
+					"description": "Número da Sprint da versão em nota"
 				},
 				"mensagem": {
-					"type": "string"
+					"type": "string",
+					"description": "Informação da nota"
 				},
 				"ativo": {
 					"type": "boolean"
 				}
 			},
 			"type": "object",
+			"description": "Make all properties in T optional"
+		},
+		"NotaVersaoUpdateInput": {
+			"$ref": "#/definitions/Partial_NotaVersaoCreateInput_"
+		},
+		"Jsonify_ItemAjuda_": {
+			"properties": {
+				"id": {
+					"type": "number",
+					"format": "double",
+					"description": "Identificador do item ajuda"
+				},
+				"identificador": {
+					"type": "string",
+					"description": "Armazena um código que identifica cada item de ajuda."
+				},
+				"html": {
+					"type": "string",
+					"description": "Armazena o conteúdo HTML formatado que fornece informações detalhadas."
+				}
+			},
+			"required": [
+				"id",
+				"identificador",
+				"html"
+			],
+			"type": "object",
+			"description": "Shallow JSON-friendly mapping:\n- Date -> ISO string\n- Everything else unchanged"
+		},
+		"ItemAjudaResponse": {
+			"$ref": "#/definitions/Jsonify_ItemAjuda_"
+		},
+		"ItemAjudaListResponse": {
+			"properties": {
+				"items": {
+					"items": {
+						"$ref": "#/definitions/ItemAjudaResponse"
+					},
+					"type": "array"
+				},
+				"pagination": {
+					"$ref": "#/definitions/PaginationMeta"
+				}
+			},
+			"required": [
+				"items",
+				"pagination"
+			],
+			"type": "object",
 			"additionalProperties": false
+		},
+		"Pick_Jsonify_ItemAjuda_.identificador-or-html_": {
+			"properties": {
+				"identificador": {
+					"type": "string",
+					"description": "Armazena um código que identifica cada item de ajuda."
+				},
+				"html": {
+					"type": "string",
+					"description": "Armazena o conteúdo HTML formatado que fornece informações detalhadas."
+				}
+			},
+			"required": [
+				"identificador",
+				"html"
+			],
+			"type": "object",
+			"description": "From T, pick a set of properties whose keys are in the union K"
+		},
+		"ItemAjudaInputFields": {
+			"$ref": "#/definitions/Pick_Jsonify_ItemAjuda_.identificador-or-html_"
+		},
+		"ItemAjudaCreateInput": {
+			"$ref": "#/definitions/ItemAjudaInputFields"
+		},
+		"Partial_ItemAjudaCreateInput_": {
+			"properties": {
+				"identificador": {
+					"type": "string",
+					"description": "Armazena um código que identifica cada item de ajuda."
+				},
+				"html": {
+					"type": "string",
+					"description": "Armazena o conteúdo HTML formatado que fornece informações detalhadas."
+				}
+			},
+			"type": "object",
+			"description": "Make all properties in T optional"
+		},
+		"ItemAjudaUpdateInput": {
+			"$ref": "#/definitions/Partial_ItemAjudaCreateInput_"
 		}
 	},
 	"info": {
@@ -327,6 +438,179 @@
 				},
 				"tags": [
 					"NotaVersao"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"format": "double",
+						"type": "number"
+					}
+				]
+			}
+		},
+		"/item-ajuda": {
+			"get": {
+				"operationId": "List",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/ItemAjudaListResponse"
+						}
+					}
+				},
+				"tags": [
+					"ItemAjuda"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "identificador",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"format": "double",
+						"type": "number"
+					},
+					{
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"format": "double",
+						"type": "number"
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"201": {
+						"description": "Created",
+						"schema": {
+							"$ref": "#/definitions/ItemAjudaResponse"
+						}
+					}
+				},
+				"consumes": [
+					"application/json"
+				],
+				"tags": [
+					"ItemAjuda"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "payload",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/ItemAjudaCreateInput"
+						}
+					}
+				]
+			}
+		},
+		"/item-ajuda/{id}": {
+			"get": {
+				"operationId": "Find",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/ItemAjudaResponse"
+						}
+					},
+					"404": {
+						"description": "ItemAjuda not found"
+					}
+				},
+				"tags": [
+					"ItemAjuda"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"format": "double",
+						"type": "number"
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/ItemAjudaResponse"
+						}
+					},
+					"404": {
+						"description": "ItemAjuda not found"
+					}
+				},
+				"consumes": [
+					"application/json"
+				],
+				"tags": [
+					"ItemAjuda"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"format": "double",
+						"type": "number"
+					},
+					{
+						"in": "body",
+						"name": "payload",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/ItemAjudaUpdateInput"
+						}
+					}
+				]
+			},
+			"delete": {
+				"operationId": "Remove",
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"404": {
+						"description": "ItemAjuda not found"
+					}
+				},
+				"tags": [
+					"ItemAjuda"
 				],
 				"security": [],
 				"parameters": [

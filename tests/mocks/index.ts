@@ -5,7 +5,7 @@
  * realistic behavior instead of empty objects.
  */
 import type { OrmSession } from 'metal-orm';
-import type { NotaVersao } from '../../src/entities/index.js';
+import type { ItemAjuda, NotaVersao } from '../../src/entities/index.js';
 
 /**
  * Creates a mock OrmSession for testing.
@@ -14,6 +14,7 @@ import type { NotaVersao } from '../../src/entities/index.js';
 export function createMockSession(overrides?: Partial<OrmSession>): OrmSession {
     return {
         saveGraph: vi.fn(),
+        remove: vi.fn().mockResolvedValue(undefined),
         commit: vi.fn().mockResolvedValue(undefined),
         rollback: vi.fn().mockResolvedValue(undefined),
         ...overrides,
@@ -50,6 +51,35 @@ export function createMockNotaVersaoList(
         createMockNotaVersao({
             id: i + 1,
             sprint: Math.floor(i / 2) + 1,
+            ...baseOverrides,
+        }),
+    );
+}
+
+/**
+ * Creates a mock ItemAjuda entity for testing.
+ */
+export function createMockItemAjuda(
+    overrides?: Partial<ItemAjuda>,
+): ItemAjuda {
+    return {
+        id: Math.floor(Math.random() * 1000) + 1,
+        identificador: 'ajuda.teste',
+        html: '<p>Test</p>',
+        ...overrides,
+    } as ItemAjuda;
+}
+
+/**
+ * Creates an array of mock ItemAjuda entities.
+ */
+export function createMockItemAjudaList(
+    count: number,
+    baseOverrides?: Partial<ItemAjuda>,
+): ItemAjuda[] {
+    return Array.from({ length: count }, (_, i) =>
+        createMockItemAjuda({
+            id: i + 1,
             ...baseOverrides,
         }),
     );
