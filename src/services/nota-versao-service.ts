@@ -1,10 +1,9 @@
-import { OrmSession } from 'metal-orm';
+import { jsonify, type OrmSession } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
 import {
   listNotaVersaoEntities,
   countNotaVersaoEntities,
   findNotaVersaoById,
-  createNotaVersaoEntity,
   softDeleteNotaVersaoEntity,
   deactivateNotaVersaoEntity,
   deactivateOtherVersionsForSprint,
@@ -17,24 +16,21 @@ import {
 import { normalizePage, normalizePageSize } from '../validators/pagination-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
 import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
-import {
-  assertExists,
-  type CreateInputFromEntity,
-  type JsonifyDates,
-  serializeDates,
-  type UpdateInputFromEntity,
-} from './service-utils.js';
+import { assertExists } from './service-utils.js';
 
-export type NotaVersaoCreateInput = CreateInputFromEntity<
-  NotaVersao,
-  'id' | 'data_exclusao' | 'data_inativacao',
-  'ativo'
->;
+export interface NotaVersaoCreateInput {
+  data: string;
+  sprint: number;
+  mensagem: string;
+  ativo?: boolean;
+}
 
-export type NotaVersaoUpdateInput = UpdateInputFromEntity<
-  NotaVersao,
-  'id' | 'data_exclusao' | 'data_inativacao'
->;
+export interface NotaVersaoUpdateInput {
+  data?: string;
+  sprint?: number;
+  mensagem?: string;
+  ativo?: boolean;
+}
 
 export interface NotaVersaoListQuery extends PaginationQuery {
   sprint?: number;
@@ -44,14 +40,22 @@ export interface NotaVersaoListQuery extends PaginationQuery {
 }
 
 // Use the entity type to derive the response interface
-export type NotaVersaoResponse = JsonifyDates<NotaVersao>;
+export interface NotaVersaoResponse {
+  id: number;
+  data: string;
+  sprint: number;
+  ativo: boolean;
+  mensagem: string;
+  data_exclusao?: string;
+  data_inativacao?: string;
+}
 
 export interface NotaVersaoListResponse {
   items: NotaVersaoResponse[];
   pagination: PaginationMeta;
 }
 
-const toResponse = (entity: NotaVersao): NotaVersaoResponse => serializeDates(entity);
+const toResponse = (entity: NotaVersao): NotaVersaoResponse => jsonify(entity);
 
 export async function listNotaVersao(
   session: OrmSession,
@@ -103,13 +107,16 @@ export async function createNotaVersao(
     await deactivateOtherVersionsForSprint(session, validated.sprint);
   }
 
-  // Create a new tracked entity using Metal-ORM Level 3 pattern
-  const entity = createNotaVersaoEntity(session, {
-    data: validated.data,
-    sprint: validated.sprint,
-    mensagem: validated.mensagem,
-    ativo: validated.ativo,
-  });
+  const entity = await session.saveGraph(
+    NotaVersao,
+    {
+      data: validated.data,
+      sprint: validated.sprint,
+      mensagem: validated.mensagem,
+      ativo: validated.ativo,
+    },
+    { transactional: false },
+  );
 
   // Commit flushes the INSERT automatically
   await session.commit();

@@ -1,4 +1,4 @@
-import type { NotaVersao } from '../../src/entities/index.js';
+import { NotaVersao } from '../../src/entities/index.js';
 import type { NotaVersaoCreateInput } from '../../src/services/nota-versao-service.js';
 import * as repository from '../../src/repositories/nota-versao-repository.js';
 import { BadRequestError } from '../../src/errors/http-error.js';
@@ -23,7 +23,6 @@ describe('nota-versao service', () => {
   });
 
   it('deactivates other active versions before creating a new one', async () => {
-    const session = createMockSession();
     const existing = createMockNotaVersao({
       id: 1,
       sprint: 42,
@@ -48,9 +47,8 @@ describe('nota-versao service', () => {
       mensagem: 'new message',
     });
 
-    const createEntitySpy = vi
-      .spyOn(repository, 'createNotaVersaoEntity')
-      .mockReturnValue(newEntity);
+    const saveGraphSpy = vi.fn().mockResolvedValue(newEntity);
+    const session = createMockSession({ saveGraph: saveGraphSpy });
 
     const result = await createNotaVersao(session, {
       data: '2025-01-15T00:00:00.000Z',
@@ -63,13 +61,14 @@ describe('nota-versao service', () => {
     expect(deactivateOthersSpy).toHaveBeenCalledWith(session, 42);
     expect(existing.ativo).toBe(false);
     expect(existing.data_inativacao).toBeInstanceOf(Date);
-    expect(createEntitySpy).toHaveBeenCalledWith(
-      session,
+    expect(saveGraphSpy).toHaveBeenCalledWith(
+      NotaVersao,
       expect.objectContaining({
         sprint: 42,
         mensagem: 'new message',
         ativo: true,
       }),
+      { transactional: false },
     );
     expect(session.commit).toHaveBeenCalled();
     expect(result.mensagem).toBe('new message');

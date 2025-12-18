@@ -13,6 +13,7 @@ import type { NotaVersao } from '../../src/entities/index.js';
  */
 export function createMockSession(overrides?: Partial<OrmSession>): OrmSession {
     return {
+        saveGraph: vi.fn(),
         commit: vi.fn().mockResolvedValue(undefined),
         rollback: vi.fn().mockResolvedValue(undefined),
         ...overrides,
