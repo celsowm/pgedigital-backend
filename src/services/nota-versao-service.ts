@@ -1,7 +1,6 @@
-import { jsonify, type OrmSession } from 'metal-orm';
+import { jsonify, type Jsonify, type OrmSession } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
 import {
-  listNotaVersaoEntities,
   listNotaVersaoEntitiesPaged,
   findNotaVersaoById,
   softDeleteNotaVersaoEntity,
@@ -18,19 +17,13 @@ import { NotFoundError } from '../errors/http-error.js';
 import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
 import { assertExists } from './service-utils.js';
 
-export interface NotaVersaoCreateInput {
-  data: string;
-  sprint: number;
-  mensagem: string;
-  ativo?: boolean;
-}
+type NotaVersaoInputFields = Pick<Jsonify<NotaVersao>, 'data' | 'sprint' | 'mensagem' | 'ativo'>;
 
-export interface NotaVersaoUpdateInput {
-  data?: string;
-  sprint?: number;
-  mensagem?: string;
-  ativo?: boolean;
-}
+export type NotaVersaoCreateInput = Omit<NotaVersaoInputFields, 'ativo'> & {
+  ativo?: NotaVersaoInputFields['ativo'];
+};
+
+export type NotaVersaoUpdateInput = Partial<NotaVersaoCreateInput>;
 
 export interface NotaVersaoListQuery extends PaginationQuery {
   sprint?: number;
@@ -40,15 +33,7 @@ export interface NotaVersaoListQuery extends PaginationQuery {
 }
 
 // Use the entity type to derive the response interface
-export interface NotaVersaoResponse {
-  id: number;
-  data: string;
-  sprint: number;
-  ativo: boolean;
-  mensagem: string;
-  data_exclusao?: string;
-  data_inativacao?: string;
-}
+export type NotaVersaoResponse = Jsonify<NotaVersao>;
 
 export interface NotaVersaoListResponse {
   items: NotaVersaoResponse[];
