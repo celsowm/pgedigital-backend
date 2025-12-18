@@ -4,7 +4,8 @@ param(
     [string]$Schema = "dbo",
     [string]$Include,
     [string]$Exclude,
-    [string]$Out = "src/entities/entities.ts",
+    [string]$Out = "src/entities/index.ts",
+    [string]$OutDir = "src/entities",
     [string]$Locale = "pt-BR"
 )
 
@@ -66,6 +67,10 @@ if ($Exclude -and $Exclude.Trim()) {
 }
 
 $argList += "--out=$Out"
+
+if ($OutDir -and $OutDir.Trim()) {
+    $argList += "--out-dir=$OutDir"
+}
 $argList += "--locale=$Locale"
 
 $commandString = $argList -join " "
