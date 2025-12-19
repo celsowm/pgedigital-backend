@@ -1,4 +1,4 @@
-import { getTableDefFromEntity, type OrmSession } from 'metal-orm';
+import { getDecoratorMetadata, getTableDefFromEntity, type OrmSession } from 'metal-orm';
 import { buildPaginationMeta, type PaginationQuery } from '../models/pagination.js';
 import { normalizePage, normalizePageSize } from '../validators/pagination-validators.js';
 import type { PagedResponse } from './service-types.js';
@@ -58,8 +58,6 @@ export async function commitAndMap<TEntity, TResponse>(
 
 type EntityConstructor<TEntity extends object = object> = new (...args: unknown[]) => TEntity;
 
-const METAL_ORM_DECORATOR_METADATA_KEY = 'metal-orm:decorators';
-
 function resolvePrimaryKeys(target: object): Set<string> {
   const primaryKeys = new Set<string>();
   const ctor = (target as { constructor?: Function }).constructor;
@@ -68,17 +66,13 @@ function resolvePrimaryKeys(target: object): Set<string> {
     return primaryKeys;
   }
 
-  const metadataSymbol = (Symbol as { metadata?: symbol }).metadata;
-  if (metadataSymbol) {
-    const metadata = Reflect.get(ctor as object, metadataSymbol) as
-      | { [METAL_ORM_DECORATOR_METADATA_KEY]?: { columns?: Array<{ propertyName?: string; column?: { primary?: boolean } }> } }
-      | undefined;
-    const bag = metadata?.[METAL_ORM_DECORATOR_METADATA_KEY];
-    if (bag?.columns) {
-      for (const entry of bag.columns) {
-        if (entry.column?.primary && entry.propertyName) {
-          primaryKeys.add(entry.propertyName);
-        }
+  const decoratorMeta = getDecoratorMetadata(ctor as EntityConstructor<object>) as
+    | { columns?: Array<{ propertyName?: string; column?: { primary?: boolean } }> }
+    | undefined;
+  if (decoratorMeta?.columns) {
+    for (const entry of decoratorMeta.columns) {
+      if (entry.column?.primary && entry.propertyName) {
+        primaryKeys.add(entry.propertyName);
       }
     }
   }
