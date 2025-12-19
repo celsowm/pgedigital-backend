@@ -1,4 +1,4 @@
-import type { OrmSession } from 'metal-orm';
+import { getTableDefFromEntity, type OrmSession } from 'metal-orm';
 import { buildPaginationMeta, type PaginationQuery } from '../models/pagination.js';
 import { normalizePage, normalizePageSize } from '../validators/pagination-validators.js';
 import type { PagedResponse } from './service-types.js';
@@ -56,9 +56,51 @@ export async function commitAndMap<TEntity, TResponse>(
   return map(entity);
 }
 
-type EntityConstructor<TEntity> = new (...args: unknown[]) => TEntity;
+type EntityConstructor<TEntity extends object = object> = new (...args: unknown[]) => TEntity;
 
-export async function saveGraphAndCommit<TEntity>(
+const METAL_ORM_DECORATOR_METADATA_KEY = 'metal-orm:decorators';
+
+function resolvePrimaryKeys(target: object): Set<string> {
+  const primaryKeys = new Set<string>();
+  const ctor = (target as { constructor?: Function }).constructor;
+
+  if (!ctor) {
+    return primaryKeys;
+  }
+
+  const metadataSymbol = (Symbol as { metadata?: symbol }).metadata;
+  if (metadataSymbol) {
+    const metadata = Reflect.get(ctor as object, metadataSymbol) as
+      | { [METAL_ORM_DECORATOR_METADATA_KEY]?: { columns?: Array<{ propertyName?: string; column?: { primary?: boolean } }> } }
+      | undefined;
+    const bag = metadata?.[METAL_ORM_DECORATOR_METADATA_KEY];
+    if (bag?.columns) {
+      for (const entry of bag.columns) {
+        if (entry.column?.primary && entry.propertyName) {
+          primaryKeys.add(entry.propertyName);
+        }
+      }
+    }
+  }
+
+  const table = getTableDefFromEntity(ctor as EntityConstructor<object>);
+  if (table?.primaryKey) {
+    for (const key of table.primaryKey) {
+      primaryKeys.add(key);
+    }
+  }
+  if (table?.columns) {
+    for (const [key, column] of Object.entries(table.columns)) {
+      if (column.primary) {
+        primaryKeys.add(key);
+      }
+    }
+  }
+
+  return primaryKeys;
+}
+
+export async function saveGraphAndCommit<TEntity extends object>(
   session: OrmSession,
   entity: EntityConstructor<TEntity>,
   graph: object,
@@ -75,9 +117,11 @@ export function applyUpdates<T extends object>(
   keys?: readonly (keyof T)[],
 ): void {
   const keysToApply = keys ?? (Object.keys(updates) as (keyof T)[]);
+  const primaryKeys = resolvePrimaryKeys(target);
 
   for (const key of keysToApply) {
-    if (key === 'id') continue;
+    const keyName = typeof key === 'string' ? key : typeof key === 'number' ? `${key}` : undefined;
+    if (keyName && primaryKeys.has(keyName)) continue;
 
     const value = updates[key];
     if (value !== undefined) {
