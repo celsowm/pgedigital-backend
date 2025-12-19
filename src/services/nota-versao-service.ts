@@ -13,31 +13,27 @@ import {
   validateNotaVersaoUpdateInput,
 } from '../validators/nota-versao-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
-import { type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
 import { applyUpdates, commitAndMap, getByIdOrThrow, listPaged, saveGraphAndCommit } from './service-utils.js';
+import type { CreateInput, EntityResponse, ListQuery, PagedResponse, UpdateInput } from './service-types.js';
 
-type NotaVersaoInputFields = Pick<Jsonify<NotaVersao>, 'data' | 'sprint' | 'mensagem' | 'ativo'>;
+export type NotaVersaoCreateInput = CreateInput<
+  Jsonify<NotaVersao>,
+  'data' | 'sprint' | 'mensagem',
+  'ativo'
+>;
 
-export type NotaVersaoCreateInput = Omit<NotaVersaoInputFields, 'ativo'> & {
-  ativo?: NotaVersaoInputFields['ativo'];
-};
+export type NotaVersaoUpdateInput = UpdateInput<NotaVersaoCreateInput>;
 
-export type NotaVersaoUpdateInput = Partial<NotaVersaoCreateInput>;
-
-export interface NotaVersaoListQuery extends PaginationQuery {
+export type NotaVersaoListQuery = ListQuery<{
   sprint?: number;
   ativo?: boolean;
   includeInactive?: boolean;
   includeDeleted?: boolean;
-}
+}>;
 
-// Use the entity type to derive the response interface
-export type NotaVersaoResponse = Jsonify<NotaVersao>;
+export type NotaVersaoResponse = EntityResponse<NotaVersao>;
 
-export interface NotaVersaoListResponse {
-  items: NotaVersaoResponse[];
-  pagination: PaginationMeta;
-}
+export type NotaVersaoListResponse = PagedResponse<NotaVersaoResponse>;
 
 const toResponse = (entity: NotaVersao): NotaVersaoResponse => jsonify(entity);
 
@@ -77,17 +73,7 @@ export async function createNotaVersao(
     await deactivateOtherVersionsForSprint(session, validated.sprint);
   }
 
-  const entity = await saveGraphAndCommit(
-    session,
-    NotaVersao,
-    {
-      data: validated.data,
-      sprint: validated.sprint,
-      mensagem: validated.mensagem,
-      ativo: validated.ativo,
-    },
-    { transactional: false },
-  );
+  const entity = await saveGraphAndCommit(session, NotaVersao, validated);
 
   return toResponse(entity);
 }

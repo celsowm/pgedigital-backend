@@ -1,7 +1,6 @@
 import type { Request as ExpressRequest } from 'express';
 import {
   Body,
-  Controller,
   Delete,
   Get,
   Path,
@@ -14,7 +13,6 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import type { OrmSession } from 'metal-orm';
 import {
   NotaVersaoCreateInput,
   NotaVersaoResponse,
@@ -28,19 +26,11 @@ import {
   updateNotaVersao,
 } from '../services/nota-versao-service.js';
 import { logger } from '../services/logger.js';
-
-type RequestWithSession = ExpressRequest & { ormSession?: OrmSession };
+import { OrmController } from './OrmController.js';
 
 @Route('nota-versao')
 @Tags('NotaVersao')
-export class NotaVersaoController extends Controller {
-  private requireSession(request: RequestWithSession): OrmSession {
-    if (!request.ormSession) {
-      throw new Error('Orm session is missing from the request');
-    }
-    return request.ormSession;
-  }
-
+export class NotaVersaoController extends OrmController {
   @Get()
   public async list(
     @Request() request: ExpressRequest,

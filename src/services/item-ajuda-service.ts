@@ -9,24 +9,21 @@ import {
   validateItemAjudaUpdateInput,
 } from '../validators/item-ajuda-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
-import { type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
 import { applyUpdates, commitAndMap, getByIdOrThrow, listPaged, saveGraphAndCommit } from './service-utils.js';
+import type { CreateInput, EntityResponse, ListQuery, PagedResponse, UpdateInput } from './service-types.js';
 
-type ItemAjudaInputFields = Pick<Jsonify<ItemAjuda>, 'identificador' | 'html'>;
+export type ItemAjudaCreateInput = CreateInput<
+  Jsonify<ItemAjuda>,
+  'identificador' | 'html'
+>;
 
-export type ItemAjudaCreateInput = ItemAjudaInputFields;
-export type ItemAjudaUpdateInput = Partial<ItemAjudaCreateInput>;
+export type ItemAjudaUpdateInput = UpdateInput<ItemAjudaCreateInput>;
 
-export interface ItemAjudaListQuery extends PaginationQuery {
-  identificador?: string;
-}
+export type ItemAjudaListQuery = ListQuery<{ identificador?: string }>;
 
-export type ItemAjudaResponse = Jsonify<ItemAjuda>;
+export type ItemAjudaResponse = EntityResponse<ItemAjuda>;
 
-export interface ItemAjudaListResponse {
-  items: ItemAjudaResponse[];
-  pagination: PaginationMeta;
-}
+export type ItemAjudaListResponse = PagedResponse<ItemAjudaResponse>;
 
 const toResponse = (entity: ItemAjuda): ItemAjudaResponse => jsonify(entity);
 
@@ -56,15 +53,7 @@ export async function createItemAjuda(
 ): Promise<ItemAjudaResponse> {
   const validated = validateItemAjudaCreateInput(input);
 
-  const entity = await saveGraphAndCommit(
-    session,
-    ItemAjuda,
-    {
-      identificador: validated.identificador,
-      html: validated.html,
-    },
-    { transactional: false },
-  );
+  const entity = await saveGraphAndCommit(session, ItemAjuda, validated);
 
   return toResponse(entity);
 }
@@ -80,7 +69,7 @@ export async function updateItemAjuda(
 
   const validated = validateItemAjudaUpdateInput(input);
 
-  applyUpdates(entity, validated, ['identificador', 'html']);
+  applyUpdates(entity, validated);
 
   return commitAndMap(session, entity, toResponse);
 }

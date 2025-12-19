@@ -1,6 +1,7 @@
 import type { OrmSession } from 'metal-orm';
-import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
+import { buildPaginationMeta, type PaginationQuery } from '../models/pagination.js';
 import { normalizePage, normalizePageSize } from '../validators/pagination-validators.js';
+import type { PagedResponse } from './service-types.js';
 
 export function assertExists<T>(value: T | null | undefined, error: Error): T {
   if (value === null || value === undefined) {
@@ -34,7 +35,7 @@ export async function listPaged<TSession, TFilters, TEntity, TResponse>(
   filters: TFilters,
   query: PaginationQuery | undefined,
   map: (entity: TEntity) => TResponse,
-): Promise<{ items: TResponse[]; pagination: PaginationMeta }> {
+): Promise<PagedResponse<TResponse>> {
   const page = normalizePage(query?.page);
   const pageSize = normalizePageSize(query?.pageSize);
 
@@ -68,15 +69,19 @@ export async function saveGraphAndCommit<TEntity>(
   return saved as TEntity;
 }
 
-export function applyUpdates<T extends object, K extends keyof T>(
+export function applyUpdates<T extends object>(
   target: T,
-  updates: Partial<Pick<T, K>>,
-  keys: readonly K[],
+  updates: Partial<T>,
+  keys?: readonly (keyof T)[],
 ): void {
-  for (const key of keys) {
+  const keysToApply = keys ?? (Object.keys(updates) as (keyof T)[]);
+
+  for (const key of keysToApply) {
+    if (key === 'id') continue;
+
     const value = updates[key];
     if (value !== undefined) {
-      target[key] = value;
+      (target as any)[key] = value;
     }
   }
 }

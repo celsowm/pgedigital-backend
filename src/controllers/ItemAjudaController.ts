@@ -1,7 +1,6 @@
 import type { Request as ExpressRequest } from 'express';
 import {
   Body,
-  Controller,
   Delete,
   Get,
   Path,
@@ -14,7 +13,6 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import type { OrmSession } from 'metal-orm';
 import {
   ItemAjudaCreateInput,
   ItemAjudaListQuery,
@@ -28,19 +26,11 @@ import {
   updateItemAjuda,
 } from '../services/item-ajuda-service.js';
 import { logger } from '../services/logger.js';
-
-type RequestWithSession = ExpressRequest & { ormSession?: OrmSession };
+import { OrmController } from './OrmController.js';
 
 @Route('item-ajuda')
 @Tags('ItemAjuda')
-export class ItemAjudaController extends Controller {
-  private requireSession(request: RequestWithSession): OrmSession {
-    if (!request.ormSession) {
-      throw new Error('Orm session is missing from the request');
-    }
-    return request.ormSession;
-  }
-
+export class ItemAjudaController extends OrmController {
   @Get()
   public async list(
     @Request() request: ExpressRequest,
@@ -94,4 +84,3 @@ export class ItemAjudaController extends Controller {
     this.setStatus(204);
   }
 }
-
