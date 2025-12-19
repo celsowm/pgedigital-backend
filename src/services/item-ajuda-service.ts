@@ -10,7 +10,7 @@ import {
 } from '../validators/item-ajuda-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
 import { type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
-import { applyUpdates, assertExists, listPaged } from './service-utils.js';
+import { applyUpdates, commitAndMap, getByIdOrThrow, listPaged, saveGraphAndCommit } from './service-utils.js';
 
 type ItemAjudaInputFields = Pick<Jsonify<ItemAjuda>, 'identificador' | 'html'>;
 
@@ -43,10 +43,9 @@ export async function getItemAjuda(
   session: OrmSession,
   id: number,
 ): Promise<ItemAjudaResponse> {
-  const entity = assertExists(
-    await findItemAjudaById(session, id),
-    new NotFoundError(`ItemAjuda ${id} not found`),
-  );
+  const entity = await getByIdOrThrow(session, id, findItemAjudaById, () => {
+    return new NotFoundError(`ItemAjuda ${id} not found`);
+  });
 
   return toResponse(entity);
 }
@@ -57,7 +56,8 @@ export async function createItemAjuda(
 ): Promise<ItemAjudaResponse> {
   const validated = validateItemAjudaCreateInput(input);
 
-  const entity = await session.saveGraph(
+  const entity = await saveGraphAndCommit(
+    session,
     ItemAjuda,
     {
       identificador: validated.identificador,
@@ -66,7 +66,6 @@ export async function createItemAjuda(
     { transactional: false },
   );
 
-  await session.commit();
   return toResponse(entity);
 }
 
@@ -75,27 +74,24 @@ export async function updateItemAjuda(
   id: number,
   input: ItemAjudaUpdateInput,
 ): Promise<ItemAjudaResponse> {
-  const entity = assertExists(
-    await findItemAjudaById(session, id),
-    new NotFoundError(`ItemAjuda ${id} not found`),
-  );
+  const entity = await getByIdOrThrow(session, id, findItemAjudaById, () => {
+    return new NotFoundError(`ItemAjuda ${id} not found`);
+  });
 
   const validated = validateItemAjudaUpdateInput(input);
 
   applyUpdates(entity, validated, ['identificador', 'html']);
 
-  await session.commit();
-  return toResponse(entity);
+  return commitAndMap(session, entity, toResponse);
 }
 
 export async function deleteItemAjuda(
   session: OrmSession,
   id: number,
 ): Promise<void> {
-  const entity = assertExists(
-    await findItemAjudaById(session, id),
-    new NotFoundError(`ItemAjuda ${id} not found`),
-  );
+  const entity = await getByIdOrThrow(session, id, findItemAjudaById, () => {
+    return new NotFoundError(`ItemAjuda ${id} not found`);
+  });
 
   await session.remove(entity);
   await session.commit();

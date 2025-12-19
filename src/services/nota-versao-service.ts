@@ -14,7 +14,7 @@ import {
 } from '../validators/nota-versao-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
 import { type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
-import { applyUpdates, assertExists, listPaged } from './service-utils.js';
+import { applyUpdates, commitAndMap, getByIdOrThrow, listPaged, saveGraphAndCommit } from './service-utils.js';
 
 type NotaVersaoInputFields = Pick<Jsonify<NotaVersao>, 'data' | 'sprint' | 'mensagem' | 'ativo'>;
 
@@ -59,10 +59,9 @@ export async function getNotaVersao(
   session: OrmSession,
   id: number,
 ): Promise<NotaVersaoResponse> {
-  const entity = assertExists(
-    await findNotaVersaoById(session, id),
-    new NotFoundError(`NotaVersao ${id} not found`),
-  );
+  const entity = await getByIdOrThrow(session, id, findNotaVersaoById, () => {
+    return new NotFoundError(`NotaVersao ${id} not found`);
+  });
 
   return toResponse(entity);
 }
@@ -78,7 +77,8 @@ export async function createNotaVersao(
     await deactivateOtherVersionsForSprint(session, validated.sprint);
   }
 
-  const entity = await session.saveGraph(
+  const entity = await saveGraphAndCommit(
+    session,
     NotaVersao,
     {
       data: validated.data,
@@ -89,9 +89,6 @@ export async function createNotaVersao(
     { transactional: false },
   );
 
-  // Commit flushes the INSERT automatically
-  await session.commit();
-
   return toResponse(entity);
 }
 
@@ -100,10 +97,9 @@ export async function updateNotaVersao(
   id: number,
   input: NotaVersaoUpdateInput,
 ): Promise<NotaVersaoResponse> {
-  const entity = assertExists(
-    await findNotaVersaoById(session, id),
-    new NotFoundError(`NotaVersao ${id} not found`),
-  );
+  const entity = await getByIdOrThrow(session, id, findNotaVersaoById, () => {
+    return new NotFoundError(`NotaVersao ${id} not found`);
+  });
 
   const validated = validateNotaVersaoUpdateInput(input);
 
@@ -124,20 +120,16 @@ export async function updateNotaVersao(
     await deactivateOtherVersionsForSprint(session, entity.sprint, entity.id);
   }
 
-  // Commit flushes the UPDATE automatically
-  await session.commit();
-
-  return toResponse(entity);
+  return commitAndMap(session, entity, toResponse);
 }
 
 export async function deleteNotaVersao(
   session: OrmSession,
   id: number,
 ): Promise<void> {
-  const entity = assertExists(
-    await findNotaVersaoById(session, id),
-    new NotFoundError(`NotaVersao ${id} not found`),
-  );
+  const entity = await getByIdOrThrow(session, id, findNotaVersaoById, () => {
+    return new NotFoundError(`NotaVersao ${id} not found`);
+  });
 
   // Soft delete the entity (mutates the tracked entity)
   softDeleteNotaVersaoEntity(entity);

@@ -1,6 +1,7 @@
 import type { OrmSession } from 'metal-orm';
 import { eq, isNull, selectFromEntity, entityRef } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
+import { findFirst, listEntities, listEntitiesPaged } from './repository-utils.js';
 
 const NV = entityRef(NotaVersao);
 
@@ -45,18 +46,7 @@ export async function listNotaVersaoEntities(
   session: OrmSession,
   options?: NotaVersaoListOptions,
 ): Promise<NotaVersao[]> {
-  let builder = buildSelectedQuery(options);
-
-  if (options?.limit !== undefined) {
-    builder = builder.limit(options.limit);
-  }
-
-  if (options?.offset !== undefined) {
-    builder = builder.offset(options.offset);
-  }
-
-  const result = await builder.execute(session);
-  return result as unknown as NotaVersao[];
+  return listEntities(session, buildSelectedQuery, options);
 }
 
 export async function listNotaVersaoEntitiesPaged(
@@ -64,26 +54,24 @@ export async function listNotaVersaoEntitiesPaged(
   options?: NotaVersaoListOptions,
   paging?: { page: number; pageSize: number },
 ) {
-  const page = paging?.page ?? 1;
-  const pageSize = paging?.pageSize ?? 20;
-
-  const { items, totalItems } = await buildSelectedQuery(options).executePaged(session, {
-    page,
-    pageSize,
-  });
-
-  return { items: items as unknown as NotaVersao[], totalItems };
+  return listEntitiesPaged<NotaVersao, NotaVersaoListOptions>(
+    session,
+    buildSelectedQuery,
+    options,
+    paging,
+  );
 }
 
 export async function findNotaVersaoById(
   session: OrmSession,
   id: number,
 ): Promise<NotaVersao | null> {
-  const [entity] = await selectFromEntity(NotaVersao)
+  return findFirst<NotaVersao>(
+    session,
+    selectFromEntity(NotaVersao)
     .select('id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao')
     .where(eq(NV.id, id))
-    .execute(session);
-  return (entity ?? null) as unknown as NotaVersao | null;
+  );
 }
 
 /**

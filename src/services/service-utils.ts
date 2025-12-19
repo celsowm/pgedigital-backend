@@ -1,3 +1,4 @@
+import type { OrmSession } from 'metal-orm';
 import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
 import { normalizePage, normalizePageSize } from '../validators/pagination-validators.js';
 
@@ -6,6 +7,19 @@ export function assertExists<T>(value: T | null | undefined, error: Error): T {
     throw error;
   }
   return value;
+}
+
+export async function getByIdOrThrow<TEntity>(
+  session: OrmSession,
+  id: number,
+  findById: (session: OrmSession, id: number) => Promise<TEntity | null | undefined>,
+  notFoundError: () => Error,
+): Promise<TEntity> {
+  const entity = await findById(session, id);
+  if (entity === null || entity === undefined) {
+    throw notFoundError();
+  }
+  return entity;
 }
 
 export type PagedListResult<TEntity> = { items: TEntity[]; totalItems: number };
@@ -30,6 +44,28 @@ export async function listPaged<TSession, TFilters, TEntity, TResponse>(
     items: items.map(map),
     pagination: buildPaginationMeta(page, pageSize, totalItems),
   };
+}
+
+export async function commitAndMap<TEntity, TResponse>(
+  session: OrmSession,
+  entity: TEntity,
+  map: (entity: TEntity) => TResponse,
+): Promise<TResponse> {
+  await session.commit();
+  return map(entity);
+}
+
+type EntityConstructor<TEntity> = new (...args: unknown[]) => TEntity;
+
+export async function saveGraphAndCommit<TEntity>(
+  session: OrmSession,
+  entity: EntityConstructor<TEntity>,
+  graph: object,
+  options: { transactional?: boolean } = { transactional: false },
+): Promise<TEntity> {
+  const saved = await session.saveGraph(entity as any, graph as any, options as any);
+  await session.commit();
+  return saved as TEntity;
 }
 
 export function applyUpdates<T extends object, K extends keyof T>(
