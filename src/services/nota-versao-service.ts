@@ -12,10 +12,9 @@ import {
   validateNotaVersaoCreateInput,
   validateNotaVersaoUpdateInput,
 } from '../validators/nota-versao-validators.js';
-import { normalizePage, normalizePageSize } from '../validators/pagination-validators.js';
 import { NotFoundError } from '../errors/http-error.js';
-import { buildPaginationMeta, type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
-import { assertExists } from './service-utils.js';
+import { type PaginationMeta, type PaginationQuery } from '../models/pagination.js';
+import { applyUpdates, assertExists, listPaged } from './service-utils.js';
 
 type NotaVersaoInputFields = Pick<Jsonify<NotaVersao>, 'data' | 'sprint' | 'mensagem' | 'ativo'>;
 
@@ -46,8 +45,6 @@ export async function listNotaVersao(
   session: OrmSession,
   query?: NotaVersaoListQuery,
 ): Promise<NotaVersaoListResponse> {
-  const page = normalizePage(query?.page);
-  const pageSize = normalizePageSize(query?.pageSize);
   const baseFilters = {
     sprint: query?.sprint,
     ativo: query?.ativo,
@@ -55,15 +52,7 @@ export async function listNotaVersao(
     includeDeleted: query?.includeDeleted,
   };
 
-  const { items, totalItems } = await listNotaVersaoEntitiesPaged(session, baseFilters, {
-    page,
-    pageSize,
-  });
-
-  return {
-    items: items.map(toResponse),
-    pagination: buildPaginationMeta(page, pageSize, totalItems),
-  };
+  return listPaged(session, listNotaVersaoEntitiesPaged, baseFilters, query, toResponse);
 }
 
 export async function getNotaVersao(
@@ -121,17 +110,7 @@ export async function updateNotaVersao(
   const previousSprint = entity.sprint;
 
   // Update entity properties - Metal-ORM tracks changes automatically
-  if (validated.data !== undefined) {
-    entity.data = validated.data;
-  }
-
-  if (validated.sprint !== undefined) {
-    entity.sprint = validated.sprint;
-  }
-
-  if (validated.mensagem !== undefined) {
-    entity.mensagem = validated.mensagem;
-  }
+  applyUpdates(entity, validated, ['data', 'sprint', 'mensagem']);
 
   const sprintChanged = validated.sprint !== undefined && validated.sprint !== previousSprint;
 
