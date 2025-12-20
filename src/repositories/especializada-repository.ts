@@ -67,10 +67,13 @@ const buildFilteredQuery = (options?: EspecializadaListFilters) => {
   return builder;
 };
 
-const buildSelectedQuery = (options?: EspecializadaListOptions) =>
-  buildFilteredQuery(options)
-    .select(...selectColumns)
-    .orderBy(E.nome, 'ASC');
+const buildSelectedQuery = (options?: EspecializadaListOptions) => {
+  let builder = buildFilteredQuery(options).select(...selectColumns);
+  for (const relation of belongsToRelations) {
+    builder = builder.include(relation);
+  }
+  return builder.orderBy(E.nome, 'ASC');
+};
 
 export async function listEspecializadaEntities(
   session: OrmSession,
