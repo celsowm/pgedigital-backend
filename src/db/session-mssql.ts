@@ -1,6 +1,7 @@
 import { Connection, Request, TYPES } from 'tedious';
 import { Pool, SqlServerDialect, createPooledExecutorFactory, createTediousMssqlClient } from 'metal-orm';
 import { getTediousConfig, getDbDebugSummary } from '../config/db.js';
+import { isSqlDebugEnabled } from '../config/sql-debug.js';
 import { createSessionFactory } from './session-factory.js';
 import { logger } from '../services/logger.js';
 
@@ -29,13 +30,36 @@ const pool = new Pool<Connection>(
 );
 
 const moduleBindings = { Request, TYPES } as const;
+const sqlDebugEnabled = isSqlDebugEnabled();
 
 const executorFactory = createPooledExecutorFactory({
     pool,
     adapter: {
         async query(connection, sql, params) {
-            const { recordset } = await createTediousMssqlClient(connection, moduleBindings).query(sql, params);
-            return recordset ?? [];
+            const start = Date.now();
+            const client = createTediousMssqlClient(connection, moduleBindings);
+            try {
+                const { recordset } = await client.query(sql, params);
+                if (sqlDebugEnabled) {
+                    logger.debug('query', 'SQL query executed', {
+                        sql,
+                        params,
+                        durationMs: Date.now() - start,
+                        rows: recordset?.length ?? 0,
+                    });
+                }
+                return recordset ?? [];
+            } catch (error) {
+                if (sqlDebugEnabled) {
+                    logger.debug('query', 'SQL query failed', {
+                        sql,
+                        params,
+                        durationMs: Date.now() - start,
+                        error,
+                    });
+                }
+                throw error;
+            }
         },
         beginTransaction: async (connection) => {
             const client = createTediousMssqlClient(connection, moduleBindings);

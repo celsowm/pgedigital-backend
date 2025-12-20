@@ -104,6 +104,7 @@ You must provide either **`DATABASE_URL`** _or_ the **`PGE_DIGITAL_*`** fields.
 | `PGE_DIGITAL_DB_DEBUG` | no | - | Legacy: enables `db` and `db-pool` namespaces when `true`. |
 | `PGE_DIGITAL_UOW_DEBUG` | no | - | Legacy: enables `uow` namespace when `true`. |
 | `PGE_DIGITAL_QUERY_DEBUG` | no | - | Legacy: enables `query` namespace when `true`. |
+| `PGE_DIGITAL_SQL_DEBUG` | no | - | Enables SQL debug logging, forces the `query` namespace + `debug` level, and mirrors the `--sql-debug` CLI flag. |
 
 ## Folder structure
 
@@ -219,6 +220,7 @@ Common `npm` scripts (see `package.json`):
 - `npm run test` – run tests (Vitest)
 - `npm run lint` – TypeScript typecheck
 - `npm run check` – `lint` + `test`
+- `npm start -- --sql-debug` – start once with SQL debug logging enabled (equivalent to `PGE_DIGITAL_SQL_DEBUG=true`).
 
 ## Testing
 

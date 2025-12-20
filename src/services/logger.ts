@@ -1,3 +1,5 @@
+import { isSqlDebugEnabled } from '../config/sql-debug.js';
+
 /**
  * Centralized Logger Service
  *
@@ -47,7 +49,8 @@ function parseNamespaces(value: string | undefined): Set<LogNamespace> {
 
 function getConfig(): LogConfig {
     // Support both new unified env vars and legacy per-feature debug flags
-    const level = parseLogLevel(process.env.PGE_DIGITAL_LOG_LEVEL);
+    const sqlDebug = isSqlDebugEnabled();
+    const level = sqlDebug ? 'debug' : parseLogLevel(process.env.PGE_DIGITAL_LOG_LEVEL);
     const namespaces = parseNamespaces(process.env.PGE_DIGITAL_LOG_NAMESPACES);
 
     // Legacy debug env vars still enable their respective namespaces
@@ -59,6 +62,10 @@ function getConfig(): LogConfig {
         namespaces.add('uow');
     }
     if (process.env.PGE_DIGITAL_QUERY_DEBUG === 'true') {
+        namespaces.add('query');
+    }
+
+    if (sqlDebug) {
         namespaces.add('query');
     }
 

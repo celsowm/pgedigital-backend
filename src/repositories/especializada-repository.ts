@@ -14,6 +14,14 @@ export interface EspecializadaListFilters {
 
 export interface EspecializadaListOptions extends EspecializadaListFilters, LimitOffsetOptions {}
 
+const belongsToRelations = [
+  'equipeTriagem',
+  'responsavel',
+  'tipoDivisaoCargaTrabalho',
+  'tipoLocalidadeEspecializada',
+  'tipoEspecializada',
+] as const;
+
 const selectColumns = [
   'id',
   'equipe_triagem_id',
@@ -88,10 +96,10 @@ export async function findEspecializadaById(
   session: OrmSession,
   id: number,
 ): Promise<Especializada | null> {
-  return findFirst<Especializada>(
-    session,
-    selectFromEntity(Especializada)
-      .select(...selectColumns)
-      .where(eq(E.id, id)),
-  );
+  let builder = selectFromEntity(Especializada).select(...selectColumns);
+  for (const relation of belongsToRelations) {
+    builder = builder.include(relation);
+  }
+
+  return findFirst<Especializada>(session, builder.where(eq(E.id, id)));
 }
