@@ -2,7 +2,7 @@ import { NotaVersao } from '../../src/entities/index.js';
 import type { NotaVersaoCreateInput } from '../../src/services/nota-versao-service.js';
 import * as repository from '../../src/repositories/nota-versao-repository.js';
 import { BadRequestError } from '../../src/errors/http-error.js';
-import { createNotaVersao, listNotaVersao } from '../../src/services/nota-versao-service.js';
+import { createNotaVersao, listNotaVersao, updateNotaVersao } from '../../src/services/nota-versao-service.js';
 import { createMockSession, createMockNotaVersao } from '../mocks/index.js';
 
 describe('nota-versao service', () => {
@@ -72,6 +72,26 @@ describe('nota-versao service', () => {
     );
     expect(session.commit).toHaveBeenCalled();
     expect(result.mensagem).toBe('new message');
+  });
+
+  it('deactivates other versions when updating sprint while still active', async () => {
+    const session = createMockSession();
+    const entity = createMockNotaVersao({
+      id: 10,
+      sprint: 1,
+      ativo: true,
+    });
+
+    vi.spyOn(repository, 'findNotaVersaoById').mockResolvedValue(entity);
+    const deactivateOthersSpy = vi
+      .spyOn(repository, 'deactivateOtherVersionsForSprint')
+      .mockResolvedValue(undefined);
+
+    const result = await updateNotaVersao(session, 10, { sprint: 2 });
+
+    expect(deactivateOthersSpy).toHaveBeenCalledWith(session, 2, 10);
+    expect(result.sprint).toBe(2);
+    expect(session.commit).toHaveBeenCalled();
   });
 
   it('paginates nota-versao list with defaults', async () => {
