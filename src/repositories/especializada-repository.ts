@@ -38,7 +38,7 @@ const selectColumns = [
   'tipo_especializada_id',
   'especializada_triagem',
   'caixa_entrada_max',
-];
+] as const;
 
 const buildFilteredQuery = (options?: EspecializadaListFilters) => {
   let builder = selectFromEntity(Especializada);
