@@ -251,7 +251,14 @@ console.log(rows);
 // ]
 ```
 
-That’s it: schema, query, SQL, done.
+If you keep a reusable array of column names (e.g. shared across helpers or pulled from config), you can spread it into `.select(...)` since the method accepts rest arguments:
+
+```ts
+const defaultColumns = ['id', 'title', 'done'] as const;
+const listOpenTodos = selectFrom(todos).select(...defaultColumns);
+```
+
+That's it: schema, query, SQL, done.
 
 If you are using the Level 2 runtime (`OrmSession`), `SelectQueryBuilder` also provides `count(session)` and `executePaged(session, { page, pageSize })` for common pagination patterns.
 
@@ -268,7 +275,7 @@ const listOpenTodos = selectFrom(todos)
   .orderBy(t.id, 'ASC');
 ```
 
-`select`, `selectRelationColumns`, `includePick`, `selectColumnsDeep`, the `sel()` helpers for tables, and `esel()` for entities all build typed selection maps without repeating `table.columns.*`. Use those helpers when building query selections and reserve `table.columns.*` for schema definition, relations, or rare cases where you need a column reference outside of a picker. See the [Query Builder docs](./docs/query-builder.md#selection-helpers) for the reference, examples, and best practices for these helpers.
+`select`, `include` (with `columns`), `includePick`, `selectColumnsDeep`, the `sel()` helpers for tables, and `esel()` for entities all build typed selection maps without repeating `table.columns.*`. Use those helpers when building query selections and reserve `table.columns.*` for schema definition, relations, or rare cases where you need a column reference outside of a picker. See the [Query Builder docs](./docs/query-builder.md#selection-helpers) for the reference, examples, and best practices for these helpers.
 
 #### Ergonomic column access (opt-in) with `tableRef`
 
@@ -452,12 +459,15 @@ What the runtime gives you:
 - Relation tracking (add/remove/sync on collections).
 - Cascades on relations: `'all' | 'persist' | 'remove' | 'link'`.
 - Single flush: `session.commit()` figures out inserts, updates, deletes, and pivot changes.
-- Column pickers to stay DRY: `select` on the root table, `selectRelationColumns` / `includePick` on relations, and `selectColumnsDeep` or the `sel`/`esel` helpers to build typed selection maps without repeating `table.columns.*`.
+- Column pickers to stay DRY: `select` on the root table, `include` (with `columns`) or `includePick` on relations, and `selectColumnsDeep` or the `sel`/`esel` helpers to build typed selection maps without repeating `table.columns.*`.
+- Tip: if you assign relations after `defineTable`, use `setRelations(table, { ... })` so TypeScript can validate `include(..., { columns: [...] })` and pivot columns. See `docs/query-builder.md`.
 
 <a id="level-3"></a>
 ### Level 3: Decorator entities ✨
 
 Finally, you can describe your models with decorators and still use the same runtime and query builder.
+
+The decorator layer is built on the TC39 Stage 3 standard (TypeScript 5.6+), so you simply decorate class fields (or accessors if you need custom logic) and the standard `ClassFieldDecoratorContext` keeps a metadata bag on `context.metadata`/`Symbol.metadata`. `@Entity` reads that bag when it runs and builds your `TableDef`s—no `experimentalDecorators`, parameter decorators, or extra polyfills required.
 
 ```ts
 import mysql from 'mysql2/promise';
@@ -543,7 +553,7 @@ user.posts.add({ title: 'From decorators' });
 await session.commit();
 ```
 
-Tip: to keep selections terse, use `select`/`selectRelationColumns` or the `sel`/`esel` helpers instead of spelling `table.columns.*` over and over.
+Tip: to keep selections terse, use `select`, `include` (with `columns`), or the `sel`/`esel` helpers instead of spelling `table.columns.*` over and over.
 
 This level is nice when:
 

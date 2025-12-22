@@ -12,6 +12,13 @@ For basic cases, just pass the column names as strings.
 const query = selectFrom(users).select('id', 'name', 'email');
 ```
 
+If you prefer to keep column lists in a reusable array or generate them at runtime, you can spread the array into `select()` because it accepts rest arguments:
+
+```ts
+const visibleColumns = ['id', 'name', 'email'] as const;
+const query = selectFrom(users).select(...visibleColumns);
+```
+
 ### 2. The `sel()` and `esel()` Helpers (Recommended)
 Use `sel()` for pure tables and `esel()` for decorator-based entities. These helpers build a typed selection map that you can spread inside `.select()`, allowing you to mix in computed fields easily.
 
@@ -79,11 +86,56 @@ const query = selectFrom(users)
 MetalORM understands your schema relations and provides helpers to automatically handle joins and hydration.
 
 - `joinRelation(name, [kind], [extraCondition])`: Joins a related table.
-- `include(name, [options])`: Joins and prepares the relation for hydration.
-- `includePick(name, columns)`: A shortcut to `include` only specific columns.
-- `selectRelationColumns(name, ...columns)`: Similar to `includePick`.
-- `includeLazy(name)`: Marks a relation to be loaded lazily (only for Level 2 runtime).
+- `include(name, [options])`: Joins and prepares the relation for hydration; use `options.columns` when you only need a subset of relation fields.
+- `includePick(name, columns)`: A shortcut to `include` with the `columns` option.
+- `includeLazy(name, [options])`: Marks a relation to be loaded lazily (only for Level 2 runtime).
 - `match(name, [predicate])`: Matches records based on a relationship.
+
+> **Typed includes:** If you assign relations after `defineTable`, prefer `setRelations(table, { ... })` (the same helper used in `tests/fixtures/schema.ts` and the new `tests/relations/include-typing-set-relations.test.ts`). That keeps relation metadata literal so TypeScript can validate `include(..., { columns: [...] })` and pivot columns, guarding against typos before you run the query.
+
+```ts
+const users = defineTable('users', {
+  id: col.primaryKey(col.int()),
+  name: col.varchar(255),
+});
+
+const projects = defineTable('projects', {
+  id: col.primaryKey(col.int()),
+  name: col.varchar(255),
+});
+
+const projectAssignments = defineTable('project_assignments', {
+  id: col.primaryKey(col.int()),
+  user_id: col.int(),
+  project_id: col.int(),
+});
+
+setRelations(users, {
+  projects: belongsToMany(projects, projectAssignments, {
+    pivotForeignKeyToRoot: 'user_id',
+    pivotForeignKeyToTarget: 'project_id',
+  }),
+});
+
+selectFrom(users)
+  .include('projects', { columns: ['id', 'name'] });
+```
+
+After executing a query with `includeLazy`, the hydrated result behaves like any other array, so you can call `find()` or `map()` to inspect the loaded relations:
+
+```ts
+const lazyPosts = await selectFrom(posts)
+  .select('id', 'title')
+  .includeLazy('tags', { columns: ['label'] })
+  .execute(session);
+
+const analyticalPost = lazyPosts.find(post => post.title === 'Analytical Engine');
+const tagLabels = analyticalPost?.tags.map(tag => tag.label) ?? [];
+const titlesWithTags = lazyPosts.map(post => ({
+  title: post.title,
+  tags: post.tags.map(tag => tag.label)
+}));
+```
 
 ```ts
 const u = sel(users, 'id', 'name');
@@ -95,6 +147,14 @@ const query = selectFrom(users)
   .joinRelation('roles', 'LEFT')
   .whereHas('posts', q => q.where(gt(p.createdAt, '2023-01-01')));
 ```
+
+### Include Filters & CTEs
+
+When you filter an included relation (`include('relation', { filter: ... })`), MetalORM now hoists any predicate that only references the included table's columns into a dedicated Common Table Expression (CTE). The join then runs against `WITH "<relation>__filtered" AS (...)` and reuses the original table alias so hydration, column aliases, and eager loading still work predictably.
+
+This hoisting is applied for nested includes and BelongsToMany targets as well: if the predicate only touches the related table (e.g., the `tags` table in a Post→Tag include) a CTE such as `tags__filtered` is created before the pivot joins, while filters that span the root, pivot, or other relations remain in the join `ON` clause. The same classification happens at every nested relation, so each include decides on the CTE path independently.
+
+Filters that touch the root table, pivot tables, or other relations stay in the join `ON` clause to preserve correlation semantics, so keeping the predicate scoped to the relation's columns is the easiest way to get cleaner, composable SQL.
 
 ---
 
