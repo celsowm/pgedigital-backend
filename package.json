@@ -21,7 +21,7 @@
   "type": "module",
   "dependencies": {
     "@types/tedious": "^4.0.14",
-    "adorn-api": "^1.0.1",
+    "adorn-api": "^1.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
