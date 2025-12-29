@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "tsoa:routes": "tsoa routes --config tsoa.json && node scripts/fix-tsoa-routes.mjs",
-    "tsoa:spec": "tsoa spec --config tsoa.json",
+    "generate:openapi": "tsx scripts/generate-openapi.ts",
     "generate:entities": "pwsh -File scripts/generate-entities.ps1",
     "db:test-connection": "tsx scripts/db/test-connection.ts",
     "db:test-metalorm": "tsx scripts/db/test-metalorm.ts",
@@ -27,7 +26,7 @@
     "express": "^4.19.2",
     "metal-orm": "^1.0.66",
     "morgan": "^1.10.0",
-    "swagger-ui-express": "^5.0.1",
+    "@adorn-api/types": "^1.0.3",
     "tedious": "^16.7.1"
   },
   "devDependencies": {
@@ -35,9 +34,9 @@
     "@types/express": "^4.17.22",
     "@types/morgan": "^1.9.4",
     "@types/node": "^24.10.3",
-    "@types/swagger-ui-express": "^4.1.8",
+
     "patch-package": "^8.0.1",
-    "tsoa": "^6.6.0",
+
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"

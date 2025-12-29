@@ -1,25 +1,41 @@
 import cors from 'cors';
 import express from 'express';
 import morgan from 'morgan';
-import swaggerUi from 'swagger-ui-express';
-import { RegisterRoutes } from './routes/routes.js';
+import { createAdornExpressApp } from 'adorn-api/express';
 import { openSession } from './db/session-mssql.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { logger } from './services/logger.js';
 import { API_BASE_PATH, API_DOCS_PATH } from './config/api.js';
-import openapiDocument from '../docs/openapi.json' with { type: 'json' };
+import type { Request as ExpressRequest } from 'express';
+import type { OrmSession } from 'metal-orm';
 
-const app = express();
+// Import migrated controller
+import { EspecializadaController } from './controllers/EspecializadaController.js';
+import { ItemAjudaController } from './controllers/ItemAjudaController.js';
+import { NotaVersaoController } from './controllers/NotaVersaoController.js';
+import { TestController } from './controllers/TestController.js';
 
-app.use(cors());
-app.use(express.json());
-app.use(morgan('tiny'));
-
-app.use(API_DOCS_PATH, swaggerUi.serve, swaggerUi.setup(openapiDocument, { explorer: true }));
-app.get(API_BASE_PATH, (_req, res) => res.redirect(API_DOCS_PATH));
+// Controller factory to inject ORM session dependency
+function createOrmControllerFactory() {
+  return (ctor: any, req: ExpressRequest) => {
+    const controller = new ctor();
+    
+    // Add session requirement method to all controllers
+    if (!controller.requireSession) {
+      controller.requireSession = (request: ExpressRequest): OrmSession => {
+        if (!request.ormSession) {
+          throw new Error('Orm session is missing from the request');
+        }
+        return request.ormSession;
+      };
+    }
+    
+    return controller;
+  };
+}
 
 // Session middleware - creates ORM session per request
-app.use(async (req, res, next) => {
+async function sessionMiddleware(req: ExpressRequest, res: express.Response, next: express.NextFunction) {
   try {
     const { session, cleanup } = await openSession();
     req.ormSession = session;
@@ -43,10 +59,29 @@ app.use(async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+}
+
+// Create Express app with Adorn-API
+const app = createAdornExpressApp({
+  controllers: [
+    TestController,
+    EspecializadaController,
+    ItemAjudaController,
+    NotaVersaoController,
+  ],
+  controllerFactory: createOrmControllerFactory(),
 });
 
-RegisterRoutes(app);
+// Add middleware BEFORE Adorn routes
+app.use(cors());
+app.use(express.json());
+app.use(morgan('tiny'));
+app.use(sessionMiddleware);
 
+// Add documentation redirect
+app.get(API_BASE_PATH, (_req, res) => res.redirect(API_DOCS_PATH));
+
+// Add error handling (must be last)
 app.use(errorHandler);
 
 export { app };
