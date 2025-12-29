@@ -3,15 +3,13 @@ import { entityDto, filtersFromEntity } from 'adorn-api/metal-orm';
 import type { OrmSession } from 'metal-orm';
 import { Especializada } from '../entities/index.js';
 import {
-  createEspecializada,
-  deleteEspecializada,
-  getEspecializada,
-  listEspecializada,
-  updateEspecializada,
+  especializadaService,
   type EspecializadaCreateInput,
   type EspecializadaListQuery,
   type EspecializadaUpdateInput,
 } from '../services/especializada-service.js';
+import type { PagedResponse } from '../services/service-types.js';
+import { BaseCrudController } from './base-crud-controller.js';
 import { idParamSchema } from './controller-schemas.js';
 
 const listEspecializadaQuerySchema = filtersFromEntity(Especializada, {
@@ -27,35 +25,41 @@ const createEspecializadaSchema = entityDto(Especializada, 'create');
 const updateEspecializadaSchema = entityDto(Especializada, 'update');
 
 @Controller('/api/especializada')
-export class EspecializadaController {
-  constructor(private session: OrmSession) {}
+export class EspecializadaController extends BaseCrudController<
+  Especializada,
+  EspecializadaCreateInput,
+  EspecializadaUpdateInput,
+  EspecializadaListQuery
+> {
+  constructor(session: OrmSession) {
+    super(session, especializadaService, Especializada.name);
+  }
 
   @Get('/', { validate: { query: listEspecializadaQuerySchema } })
-  async list(query: EspecializadaListQuery) {
-    return listEspecializada(this.session, query);
+  async list(query: EspecializadaListQuery): Promise<PagedResponse<Especializada>> {
+    return super.list(query);
   }
 
   @Bindings({ path: { id: 'int' } })
   @Get('/{id}', { validate: { params: idParamSchema } })
-  async find(id: number) {
-    return getEspecializada(this.session, id);
+  async find(id: number): Promise<Especializada> {
+    return super.find(id);
   }
 
   @Post('/', { validate: { body: createEspecializadaSchema } })
-  async create(body: EspecializadaCreateInput) {
-    return createEspecializada(this.session, body);
+  async create(body: EspecializadaCreateInput): Promise<Especializada> {
+    return super.create(body);
   }
 
   @Bindings({ path: { id: 'int' } })
   @Put('/{id}', { validate: { params: idParamSchema, body: updateEspecializadaSchema } })
-  async update(id: number, body: EspecializadaUpdateInput) {
-    return updateEspecializada(this.session, id, body);
+  async update(id: number, body: EspecializadaUpdateInput): Promise<Especializada> {
+    return super.update(id, body);
   }
 
   @Bindings({ path: { id: 'int' } })
   @Delete('/{id}', { validate: { params: idParamSchema } })
-  async remove(id: number) {
-    await deleteEspecializada(this.session, id);
-    return { success: true, message: `Especializada ${id} deleted` };
+  async remove(id: number): Promise<{ success: true; message: string }> {
+    return super.remove(id);
   }
 }

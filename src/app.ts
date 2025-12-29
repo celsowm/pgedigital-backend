@@ -5,7 +5,7 @@ import { createAdornExpressRouter } from 'adorn-api/express';
 import { openSession } from './db/session-mssql.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { logger } from './services/logger.js';
-import { API_BASE_PATH, API_DOCS_PATH } from './config/api.js';
+import { API_BASE_PATH, API_DOCS_PATH, API_OPENAPI_PATH } from './config/api.js';
 import type { Request as ExpressRequest } from 'express';
 import { createOrmControllerFactory } from './controllers/adorn-controller.js';
 
@@ -61,6 +61,13 @@ const { router } = createAdornExpressRouter({
   controllerFactory: createOrmControllerFactory(),
   jsonBodyParser: false,
   errorHandler: false,
+  openapi: {
+    enabled: true,
+    title: 'PGE Digital API',
+    version: '1.0.0',
+    docsPath: API_DOCS_PATH,
+    jsonPath: API_OPENAPI_PATH,
+  },
 });
 
 app.use(router);

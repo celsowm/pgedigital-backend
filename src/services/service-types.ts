@@ -1,7 +1,6 @@
-import type { Jsonify } from 'metal-orm';
 import type { PaginationMeta, PaginationQuery } from '../models/pagination.js';
 
-export type EntityResponse<TEntity> = Jsonify<TEntity>;
+export type EntityResponse<TEntity> = TEntity;
 
 export type PagedResponse<TItem> = {
   items: TItem[];
@@ -17,4 +16,3 @@ export type CreateInput<
 > = Pick<TEntityJson, TRequiredKeys> & Partial<Pick<TEntityJson, TOptionalKeys>>;
 
 export type UpdateInput<TCreateInput> = Partial<TCreateInput>;
-

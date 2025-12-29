@@ -1,77 +1,67 @@
 import type { OrmSession } from 'metal-orm';
-import { eq, isNull, selectFromEntity, entityRef } from 'metal-orm';
+import { eq, isNull } from 'metal-orm';
 import { NotaVersao } from '../entities/index.js';
-import { findFirst, listEntities, listEntitiesPaged } from './repository-utils.js';
+import { createEntityRepository } from './entity-repository.js';
+import type { LimitOffsetOptions } from './repository-utils.js';
 
-const NV = entityRef(NotaVersao);
-
-export interface NotaVersaoListOptions {
+export interface NotaVersaoListFilters {
   sprint?: number;
   ativo?: boolean;
   /** Include `ativo = false` rows (still excludes soft-deleted rows unless `includeDeleted` is true). */
   includeInactive?: boolean;
   /** Include soft-deleted rows (where `data_exclusao` is not null). */
   includeDeleted?: boolean;
-  limit?: number;
-  offset?: number;
 }
 
-const buildFilteredQuery = (options?: NotaVersaoListOptions) => {
-  let builder = selectFromEntity(NotaVersao);
+export interface NotaVersaoListOptions extends NotaVersaoListFilters, LimitOffsetOptions {
+}
 
-  if (options?.sprint !== undefined) {
-    builder = builder.where(eq(NV.sprint, options.sprint));
-  }
+const repository = createEntityRepository<NotaVersao, NotaVersaoListFilters>({
+  entity: NotaVersao,
+  select: ['id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao'],
+  orderBy: (ref) => [{ column: ref.data, direction: 'DESC' }],
+  applyFilters: (builder, ref, filters) => {
+    let query = builder;
 
-  if (options?.ativo !== undefined) {
-    builder = builder.where(eq(NV.ativo, options.ativo));
-  } else if (!options?.includeInactive) {
-    // Default behavior: only active records
-    builder = builder.where(eq(NV.ativo, true));
-  }
+    if (filters.sprint !== undefined) {
+      query = query.where(eq(ref.sprint, filters.sprint));
+    }
 
-  if (!options?.includeDeleted) {
-    builder = builder.where(isNull(NV.data_exclusao));
-  }
+    if (filters.ativo !== undefined) {
+      query = query.where(eq(ref.ativo, filters.ativo));
+    } else if (!filters.includeInactive) {
+      // Default behavior: only active records
+      query = query.where(eq(ref.ativo, true));
+    }
 
-  return builder;
-};
+    if (!filters.includeDeleted) {
+      query = query.where(isNull(ref.data_exclusao));
+    }
 
-const buildSelectedQuery = (options?: NotaVersaoListOptions) =>
-  buildFilteredQuery(options)
-    .select('id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao')
-    .orderBy(NV.data, 'DESC');
+    return query;
+  },
+});
 
 export async function listNotaVersaoEntities(
   session: OrmSession,
   options?: NotaVersaoListOptions,
 ): Promise<NotaVersao[]> {
-  return listEntities(session, buildSelectedQuery, options);
+  return repository.list(session, options ?? ({} as NotaVersaoListOptions));
 }
 
 export async function listNotaVersaoEntitiesPaged(
   session: OrmSession,
-  options?: NotaVersaoListOptions,
+  options?: NotaVersaoListFilters,
   paging?: { page: number; pageSize: number },
 ) {
-  return listEntitiesPaged<NotaVersao, NotaVersaoListOptions>(
-    session,
-    buildSelectedQuery,
-    options,
-    paging,
-  );
+  return repository.listPaged(session, options ?? ({} as NotaVersaoListFilters), paging);
 }
 
 export async function findNotaVersaoById(
   session: OrmSession,
   id: number,
 ): Promise<NotaVersao | null> {
-  return findFirst<NotaVersao>(
-    session,
-    selectFromEntity(NotaVersao)
-    .select('id', 'data', 'sprint', 'ativo', 'mensagem', 'data_exclusao', 'data_inativacao')
-    .where(eq(NV.id, id))
-  );
+  return repository.findById(session, id);
 }
 
 /**

@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HttpError as AdornHttpError, ValidationError } from 'adorn-api';
-import { ValidateError } from 'tsoa';
 import { HttpError } from '../errors/http-error.js';
 import { logger } from '../services/logger.js';
 
@@ -26,14 +25,6 @@ export const errorHandler = (
     res.status(400).json({
       message: err.message || 'Validation failed',
       details: err.issues,
-    });
-    return;
-  }
-
-  if (err instanceof ValidateError) {
-    res.status(400).json({
-      message: 'Validation failed',
-      details: err.fields,
     });
     return;
   }

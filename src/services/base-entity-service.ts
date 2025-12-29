@@ -1,4 +1,4 @@
-import { jsonify, type OrmSession } from 'metal-orm';
+import type { OrmSession } from 'metal-orm';
 import { applyUpdates, commitAndMap, getByIdOrThrow, listPaged, saveGraphAndCommit } from './service-utils.js';
 import type { EntityResponse, PagedResponse, ListQuery } from './service-types.js';
 import { NotFoundError } from '../errors/http-error.js';
@@ -19,7 +19,7 @@ export interface IEntityValidators<
   validateUpdate: (input: TUpdateInput) => TUpdateValidated;
 }
 
-export abstract class BaseEntityService<
+export class BaseEntityService<
   TEntity extends object,
   TCreateInput extends object,
   TUpdateInput extends object,
@@ -30,6 +30,13 @@ export abstract class BaseEntityService<
 > {
   protected readonly entityName: string;
   protected readonly toResponse: (entity: TEntity) => EntityResponse<TEntity>;
+  private readonly getBaseFiltersFn: (query?: TListQuery) => TFilters;
+  private readonly beforeCreateFn?: (session: OrmSession, validated: TCreateValidated) => Promise<void>;
+  private readonly beforeUpdateFn?: (
+    session: OrmSession,
+    entity: TEntity,
+    validated: TUpdateValidated,
+  ) => Promise<void>;
   private readonly repository: IEntityRepository<TEntity, TFilters>;
   private readonly validators: IEntityValidators<
     TCreateInput,
@@ -48,14 +55,25 @@ export abstract class BaseEntityService<
     entityClass: new (...args: any[]) => TEntity;
     softDeleteFn?: (entity: TEntity) => void;
     updateFields?: readonly (keyof TEntity)[];
+    getBaseFilters?: (query?: TListQuery) => TFilters;
+    beforeCreate?: (session: OrmSession, validated: TCreateValidated) => Promise<void>;
+    beforeUpdate?: (
+      session: OrmSession,
+      entity: TEntity,
+      validated: TUpdateValidated,
+    ) => Promise<void>;
+    toResponse?: (entity: TEntity) => EntityResponse<TEntity>;
   }) {
     this.entityName = options.entityName;
-    this.toResponse = (entity: TEntity) => jsonify(entity);
+    this.toResponse = options.toResponse ?? ((entity: TEntity) => entity as EntityResponse<TEntity>);
     this.repository = options.repository;
     this.validators = options.validators;
     this.entityClass = options.entityClass;
     this.softDeleteFn = options.softDeleteFn;
     this.updateFields = options.updateFields;
+    this.getBaseFiltersFn = options.getBaseFilters ?? (() => ({} as TFilters));
+    this.beforeCreateFn = options.beforeCreate;
+    this.beforeUpdateFn = options.beforeUpdate;
   }
 
   async list(session: OrmSession, query?: TListQuery): Promise<PagedResponse<EntityResponse<TEntity>>> {
@@ -64,7 +82,7 @@ export abstract class BaseEntityService<
   }
 
   protected getBaseFilters(_query?: TListQuery): TFilters {
-    return {} as TFilters;
+    return this.getBaseFiltersFn(_query);
   }
 
   async get(session: OrmSession, id: number): Promise<EntityResponse<TEntity>> {
@@ -79,7 +97,11 @@ export abstract class BaseEntityService<
     return this.toResponse(entity);
   }
 
-  protected async beforeCreate(_session: OrmSession, _validated: TCreateValidated): Promise<void> {}
+  protected async beforeCreate(_session: OrmSession, _validated: TCreateValidated): Promise<void> {
+    if (this.beforeCreateFn) {
+      await this.beforeCreateFn(_session, _validated);
+    }
+  }
 
   async update(session: OrmSession, id: number, input: TUpdateInput): Promise<EntityResponse<TEntity>> {
     const entity = await getByIdOrThrow(session, id, this.repository.findById, () => new NotFoundError(`${this.entityName} ${id} not found`));
@@ -93,7 +115,11 @@ export abstract class BaseEntityService<
     _session: OrmSession,
     _entity: TEntity,
     _validated: TUpdateValidated,
-  ): Promise<void> {}
+  ): Promise<void> {
+    if (this.beforeUpdateFn) {
+      await this.beforeUpdateFn(_session, _entity, _validated);
+    }
+  }
 
   async delete(session: OrmSession, id: number): Promise<void> {
     const entity = await getByIdOrThrow(session, id, this.repository.findById, () => new NotFoundError(`${this.entityName} ${id} not found`));

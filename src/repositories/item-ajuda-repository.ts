@@ -1,59 +1,53 @@
 import type { OrmSession } from 'metal-orm';
-import { eq, selectFromEntity, entityRef } from 'metal-orm';
+import { eq } from 'metal-orm';
 import { ItemAjuda } from '../entities/index.js';
-import { findFirst, listEntities, listEntitiesPaged } from './repository-utils.js';
+import { createEntityRepository } from './entity-repository.js';
+import { findFirst } from './repository-utils.js';
 
-const IA = entityRef(ItemAjuda);
-
-export interface ItemAjudaListOptions {
+export interface ItemAjudaListFilters {
   identificador?: string;
+}
+
+export interface ItemAjudaListOptions extends ItemAjudaListFilters {
   limit?: number;
   offset?: number;
 }
 
-const buildFilteredQuery = (options?: ItemAjudaListOptions) => {
-  let builder = selectFromEntity(ItemAjuda);
+const repository = createEntityRepository<ItemAjuda, ItemAjudaListFilters>({
+  entity: ItemAjuda,
+  select: ['id', 'identificador', 'html'],
+  orderBy: (ref) => [{ column: ref.identificador, direction: 'ASC' }],
+  applyFilters: (builder, ref, filters) => {
+    let query = builder;
 
-  if (options?.identificador !== undefined) {
-    builder = builder.where(eq(IA.identificador, options.identificador));
-  }
+    if (filters.identificador !== undefined) {
+      query = query.where(eq(ref.identificador, filters.identificador));
+    }
 
-  return builder;
-};
-
-const buildSelectedQuery = (options?: ItemAjudaListOptions) =>
-  buildFilteredQuery(options).select('id', 'identificador', 'html').orderBy(IA.identificador, 'ASC');
+    return query;
+  },
+});
 
 export async function listItemAjudaEntities(
   session: OrmSession,
   options?: ItemAjudaListOptions,
 ): Promise<ItemAjuda[]> {
-  return listEntities(session, buildSelectedQuery, options);
+  return repository.list(session, options ?? ({} as ItemAjudaListOptions));
 }
 
 export async function listItemAjudaEntitiesPaged(
   session: OrmSession,
-  options?: ItemAjudaListOptions,
+  options?: ItemAjudaListFilters,
   paging?: { page: number; pageSize: number },
 ) {
-  return listEntitiesPaged<ItemAjuda, ItemAjudaListOptions>(
-    session,
-    buildSelectedQuery,
-    options,
-    paging,
-  );
+  return repository.listPaged(session, options ?? ({} as ItemAjudaListFilters), paging);
 }
 
 export async function findItemAjudaById(
   session: OrmSession,
   id: number,
 ): Promise<ItemAjuda | null> {
-  return findFirst<ItemAjuda>(
-    session,
-    selectFromEntity(ItemAjuda)
-    .select('id', 'identificador', 'html')
-    .where(eq(IA.id, id))
-  );
+  return repository.findById(session, id);
 }
 
 export async function findItemAjudaByIdentificador(
@@ -62,8 +56,6 @@ export async function findItemAjudaByIdentificador(
 ): Promise<ItemAjuda | null> {
   return findFirst<ItemAjuda>(
     session,
-    selectFromEntity(ItemAjuda)
-    .select('id', 'identificador', 'html')
-    .where(eq(IA.identificador, identificador))
+    repository.buildQuery({ identificador }),
   );
 }
