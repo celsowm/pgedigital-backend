@@ -1,77 +1,56 @@
-import type { Request as ExpressRequest } from 'express';
+import { Bindings, Controller, Delete, Get, Post, Put } from 'adorn-api';
+import { entityDto, filtersFromEntity } from 'adorn-api/metal-orm';
+import type { OrmSession } from 'metal-orm';
+import { ItemAjuda } from '../entities/index.js';
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-} from 'adorn-api';
-import { AdornController } from './adorn-controller.js';
+  createItemAjuda,
+  deleteItemAjuda,
+  getItemAjuda,
+  listItemAjuda,
+  updateItemAjuda,
+  type ItemAjudaCreateInput,
+  type ItemAjudaListQuery,
+  type ItemAjudaUpdateInput,
+} from '../services/item-ajuda-service.js';
+import { idParamSchema } from './controller-schemas.js';
+
+const listItemAjudaQuerySchema = filtersFromEntity(ItemAjuda, {
+  pick: ['identificador'] as const,
+});
+
+const createItemAjudaSchema = entityDto(ItemAjuda, 'create');
+const updateItemAjudaSchema = entityDto(ItemAjuda, 'update');
 
 @Controller('/api/item-ajuda')
-export class ItemAjudaController implements AdornController {
-  requireSession!: (request: ExpressRequest) => any;
+export class ItemAjudaController {
+  constructor(private session: OrmSession) {}
 
-  @Get('/')
-  async list(request: ExpressRequest) {
-    const query = request.query;
-    // Mock data for now
-    return {
-      items: [
-        {
-          id: 1,
-          identificador: 'help-001',
-          html: '<p>Help content 1</p>'
-        },
-        {
-          id: 2,
-          identificador: 'help-002', 
-          html: '<p>Help content 2</p>'
-        }
-      ],
-      pagination: {
-        page: 1,
-        pageSize: 10,
-        totalItems: 2,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      }
-    };
+  @Get('/', { validate: { query: listItemAjudaQuerySchema } })
+  async list(query: ItemAjudaListQuery) {
+    return listItemAjuda(this.session, query);
   }
 
-  @Get('/{id}')
-  async find(request: ExpressRequest) {
-    const id = Number(request.params.id);
-    return {
-      id,
-      identificador: `help-${id.toString().padStart(3, '0')}`,
-      html: `<p>Help content for item ${id}</p>`
-    };
+  @Bindings({ path: { id: 'int' } })
+  @Get('/{id}', { validate: { params: idParamSchema } })
+  async find(id: number) {
+    return getItemAjuda(this.session, id);
   }
 
-  @Post('/')
-  async create(request: ExpressRequest) {
-    const body = request.body;
-    return {
-      id: Date.now(),
-      ...body,
-    };
+  @Post('/', { validate: { body: createItemAjudaSchema } })
+  async create(body: ItemAjudaCreateInput) {
+    return createItemAjuda(this.session, body);
   }
 
-  @Put('/{id}')
-  async update(request: ExpressRequest) {
-    const id = Number(request.params.id);
-    const body = request.body;
-    return {
-      id,
-      ...body,
-    };
+  @Bindings({ path: { id: 'int' } })
+  @Put('/{id}', { validate: { params: idParamSchema, body: updateItemAjudaSchema } })
+  async update(id: number, body: ItemAjudaUpdateInput) {
+    return updateItemAjuda(this.session, id, body);
   }
 
-  @Delete('/{id}')
-  async remove(request: ExpressRequest) {
-    const id = Number(request.params.id);
+  @Bindings({ path: { id: 'int' } })
+  @Delete('/{id}', { validate: { params: idParamSchema } })
+  async remove(id: number) {
+    await deleteItemAjuda(this.session, id);
     return { success: true, message: `ItemAjuda ${id} deleted` };
   }
 }
