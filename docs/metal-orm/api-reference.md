@@ -69,6 +69,7 @@ Decorator metadata is stored in a registry. Use `bootstrapEntities()` to resolve
 - `outerRef(col)` marks a column as an outer-scope reference.
 - `correlateBy(table, column)` shortcut for `outerRef({ table, name: column })`.
 - `aliasRef(name)` references a SELECT alias.
+- `asType<T>(expr)` annotates functions/case/window expressions with a compile-time-only type when the runtime node cannot infer it (e.g., `concat` or string literals).
 
 ### SQL Functions
 - **Text**: `lower`, `upper`, `trim`, `ltrim`, `rtrim`, `substr`, `concat`, `concatWs`, `replace`, `left`, `right`, `ascii`, `char`, `chr`, `bitLength`, `octetLength`, `reverse`, `position`, `locate`, `instr`, `repeat`, `lpad`, `rpad`, `space`, `initcap`, `md5`, `sha1`, `sha2?`.
@@ -96,7 +97,7 @@ Decorator metadata is stored in a registry. Use `bootstrapEntities()` to resolve
 - `esel(Entity, ...props)` typed selection map for Entites.
 
 ### SelectQueryBuilder Details
-- `select({ ... })`, `selectRaw(...cols)`, `selectSubquery(alias, qb)`.
+- `select(...names)` (typed to include the requested columns), `select({ ... })` (merges alias keys into the result type), `selectRaw(...cols)`, `selectSubquery(alias, qb)` (use the generic form to keep the projected type).
 - `with(name, qb)`, `withRecursive(name, qb)`.
 - `fromFunctionTable(fn, args, alias, options?)`.
 - `joinFunctionTable(fn, args, alias, condition?, kind?, options?)`.
@@ -105,7 +106,7 @@ Decorator metadata is stored in a registry. Use `bootstrapEntities()` to resolve
 - `match(relation, predicate?)`, `joinRelation(relation, kind?)`.
 - `include(relation, options?)`, `includeLazy(relation, options?)`.
 - `groupBy`, `having`, `orderBy`, `distinct`, `limit`, `offset`.
-- `compile(dialect)`, `execute(session)`.
+- `compile(dialect)`, `execute(session)`, `executePlain(session)`, `executeAs(Entity, session)`.
 
 ## Execution & Pooling
 
