@@ -1,2 +1,5 @@
 # Dependências de projeto
 node_modules/
+.adorn/
+dist/
+.env
