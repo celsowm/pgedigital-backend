@@ -27,7 +27,7 @@ export const listNotaVersoes = async (session: OrmSession, filters?: NotaVersaoF
     query = query.where(eq(NV.sprint, filters.sprint));
   }
 
-  return query.executePlain(session);
+  return query.execute(session);
 };
 
 export const findNotaVersao = (session: OrmSession, id: number) => session.find(NotaVersao, id);
