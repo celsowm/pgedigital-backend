@@ -2,23 +2,17 @@ import type { OrmSession } from "metal-orm";
 import { NotaVersao } from "../../db/entities/NotaVersao.js";
 import { listNotaVersoes, findNotaVersao, type NotaVersaoFilters } from "../../repositories/nota-versao/NotaVersaoRepository.js";
 
-export type NotaVersaoCreateInput = {
+type NotaVersaoDateInput = {
   data: string;
-  sprint: number;
-  ativo?: boolean;
-  mensagem: string;
   data_exclusao?: string;
   data_inativacao?: string;
 };
 
-export type NotaVersaoUpdateInput = {
-  data?: string;
-  sprint?: number;
-  ativo?: boolean;
-  mensagem?: string;
-  data_exclusao?: string;
-  data_inativacao?: string;
-};
+export type NotaVersaoCreateInput = Pick<NotaVersao, "sprint" | "ativo" | "mensagem"> &
+  NotaVersaoDateInput;
+
+export type NotaVersaoUpdateInput = Partial<Pick<NotaVersao, "sprint" | "ativo" | "mensagem">> &
+  Partial<NotaVersaoDateInput>;
 
 const parseDate = (value: string | undefined, field: string): Date | undefined => {
   if (!value) return undefined;
