@@ -18,7 +18,31 @@ type EspecializadaQuery = {
 @Controller("/especializada")
 export class EspecializadaController {
   @Get("/")
-  async list(query?: EspecializadaQuery): Promise<EspecializadaService.EspecializadaResponse[]> {
+  async list(
+    responsavel_id?: number,
+    responsavel_nome?: string,
+    tipo_especializada_id?: number,
+    usa_pge_digital?: boolean,
+    usa_plantao_audiencia?: boolean,
+    restricao_ponto_focal?: boolean,
+    especializada_triagem?: boolean,
+    codigo_ad?: number,
+    nome?: string,
+    sigla?: string,
+  ): Promise<EspecializadaService.EspecializadaResponse[]> {
+    const query: EspecializadaQuery = {
+      responsavel_id,
+      responsavel_nome,
+      tipo_especializada_id,
+      usa_pge_digital,
+      usa_plantao_audiencia,
+      restricao_ponto_focal,
+      especializada_triagem,
+      codigo_ad,
+      nome,
+      sigla,
+    };
+
     return withSession(session => EspecializadaService.list(session, query));
   }
 
