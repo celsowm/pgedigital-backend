@@ -12,6 +12,13 @@ const main = async () => {
   const result = await bootstrap({
     controllers: [HealthController, NotaVersaoController],
     ...apiConfig,
+    coerce: {
+      body: true,
+      query: true,
+      path: true,
+      dateTime: true,
+      date: true,
+    },
   });
 
   for (const signal of shutdownSignals) {

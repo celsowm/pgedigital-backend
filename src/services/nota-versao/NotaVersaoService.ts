@@ -3,9 +3,9 @@ import { NotaVersao } from "../../db/entities/NotaVersao.js";
 import { listNotaVersoes, findNotaVersao, type NotaVersaoFilters } from "../../repositories/nota-versao/NotaVersaoRepository.js";
 
 type NotaVersaoDateInput = {
-  data: string;
-  data_exclusao?: string;
-  data_inativacao?: string;
+  data: Date;
+  data_exclusao?: Date;
+  data_inativacao?: Date;
 };
 
 export type NotaVersaoCreateInput = Pick<NotaVersao, "sprint" | "ativo" | "mensagem"> &
@@ -14,14 +14,12 @@ export type NotaVersaoCreateInput = Pick<NotaVersao, "sprint" | "ativo" | "mensa
 export type NotaVersaoUpdateInput = Partial<Pick<NotaVersao, "sprint" | "ativo" | "mensagem">> &
   Partial<NotaVersaoDateInput>;
 
-const requireDate = (value: string | undefined, field: string) => {
-  if (!value) {
-    throw new Error(`Missing required field: ${field}`);
-  }
-  return value;
-};
-
-const normalizeDateInput = (value: string | undefined) => (value ? value : undefined);
+const withGraphDefaults = (session: OrmSession) =>
+  session.withSaveGraphDefaults({
+    coerce: "json-in",
+    flush: true,
+    transactional: false,
+  });
 
 export const list = (session: OrmSession, filters?: NotaVersaoFilters) =>
   listNotaVersoes(session, filters);
@@ -32,13 +30,10 @@ export const getById = (session: OrmSession, id: number) =>
 export const create = async (session: OrmSession, input: NotaVersaoCreateInput) => {
   const payload = {
     ...input,
-    data: requireDate(input.data, "data"),
     ativo: input.ativo ?? true,
-    data_exclusao: normalizeDateInput(input.data_exclusao),
-    data_inativacao: normalizeDateInput(input.data_inativacao),
   };
 
-  return session.saveGraphAndFlush(NotaVersao, payload, { coerce: "json-in" });
+  return withGraphDefaults(session).saveGraph(NotaVersao, payload);
 };
 
 export const update = async (
@@ -49,14 +44,7 @@ export const update = async (
   const payload = {
     id,
     ...input,
-    data: input.data !== undefined ? requireDate(input.data, "data") : undefined,
-    data_exclusao: normalizeDateInput(input.data_exclusao),
-    data_inativacao: normalizeDateInput(input.data_inativacao),
   };
 
-  return session.updateGraph(NotaVersao, payload, {
-    coerce: "json-in",
-    flush: true,
-    transactional: false,
-  });
+  return withGraphDefaults(session).updateGraph(NotaVersao, payload);
 };
