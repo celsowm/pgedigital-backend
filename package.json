@@ -16,7 +16,7 @@
     "adorn-api": "file:../adorn-api",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
-    "metal-orm": "^1.0.66",
+    "metal-orm": "^1.0.67",
     "tedious": "^16.7.1"
   },
   "devDependencies": {
