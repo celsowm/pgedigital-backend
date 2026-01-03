@@ -1,6 +1,6 @@
 import type { OrmSession } from "metal-orm";
 import { selectFromEntity, entityRef, eq } from "metal-orm";
-import { NotaVersao } from "../../db/entities/NotaVersao.js";
+import { NotaVersao } from "../db/entities/NotaVersao.js";
 
 export type NotaVersaoFilters = {
   ativo?: boolean;

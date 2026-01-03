@@ -1,7 +1,7 @@
 import type { OrmSession } from "metal-orm";
-import { selectFromEntity, entityRef, eq, like } from "metal-orm";
-import { Especializada } from "../../db/entities/Especializada.js";
-import { Usuario } from "../../db/entities/Usuario.js";
+import { selectFromEntity, entityRefs, eq, like } from "metal-orm";
+import { Especializada } from "../db/entities/Especializada.js";
+import { Usuario } from "../db/entities/Usuario.js";
 
 export type EspecializadaFilters = {
   responsavel_id?: number;
@@ -16,8 +16,7 @@ export type EspecializadaFilters = {
   sigla?: string;
 };
 
-const E = entityRef(Especializada);
-const U = entityRef(Usuario);
+const [E, U] = entityRefs(Especializada, Usuario);
 
 export const ESPECIALIZADA_COLUMNS = [
   "id",

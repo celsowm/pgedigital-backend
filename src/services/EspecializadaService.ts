@@ -1,12 +1,12 @@
 import type { OrmSession } from "metal-orm";
-import { Especializada } from "../../db/entities/Especializada.js";
-import { Usuario } from "../../db/entities/Usuario.js";
+import { Especializada } from "../db/entities/Especializada.js";
+import { Usuario } from "../db/entities/Usuario.js";
 import {
   listEspecializadas,
   findEspecializada,
   type EspecializadaFilters,
   ESPECIALIZADA_COLUMNS,
-} from "../../repositories/especializada/EspecializadaRepository.js";
+} from "../repositories/EspecializadaRepository.js";
 
 type EspecializadaOptionalInput = Partial<
   Pick<

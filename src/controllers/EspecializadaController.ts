@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put } from "adorn-api";
-import { withSession } from "../../db/orm.js";
-import * as EspecializadaService from "../../services/especializada/EspecializadaService.js";
+import { withSession } from "../db/orm.js";
+import * as EspecializadaService from "../services/EspecializadaService.js";
 
 type EspecializadaQuery = {
   responsavel_id?: number;

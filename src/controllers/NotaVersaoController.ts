@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put } from "adorn-api";
-import type { NotaVersao } from "../../db/entities/NotaVersao.js";
-import { withSession } from "../../db/orm.js";
-import * as NotaVersaoService from "../../services/nota-versao/NotaVersaoService.js";
+import type { NotaVersao } from "../db/entities/NotaVersao.js";
+import { withSession } from "../db/orm.js";
+import * as NotaVersaoService from "../services/NotaVersaoService.js";
 
 type NotaVersaoQuery = {
   ativo?: boolean;

@@ -2,8 +2,8 @@ import "dotenv/config";
 import { bootstrap } from "adorn-api/express";
 import { getApiConfig } from "./config/api.js";
 import { HealthController } from "./controllers/HealthController.js";
-import { EspecializadaController } from "./controllers/especializada/EspecializadaController.js";
-import { NotaVersaoController } from "./controllers/nota-versao/NotaVersaoController.js";
+import { EspecializadaController } from "./controllers/EspecializadaController.js";
+import { NotaVersaoController } from "./controllers/NotaVersaoController.js";
 
 const shutdownSignals = ["SIGINT", "SIGTERM"] as const;
 

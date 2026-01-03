@@ -1,6 +1,6 @@
 import type { OrmSession } from "metal-orm";
-import { NotaVersao } from "../../db/entities/NotaVersao.js";
-import { listNotaVersoes, findNotaVersao, type NotaVersaoFilters } from "../../repositories/nota-versao/NotaVersaoRepository.js";
+import { NotaVersao } from "../db/entities/NotaVersao.js";
+import { listNotaVersoes, findNotaVersao, type NotaVersaoFilters } from "../repositories/NotaVersaoRepository.js";
 
 type NotaVersaoDateInput = {
   data: Date;
