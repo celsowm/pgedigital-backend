@@ -95,7 +95,7 @@ export class DocumentoComunicacao {
   comunicacoes!: ManyToManyCollection<Comunicacao>;
 
   @HasMany({ target: () => OutroParametroDocumentoComunicacao, foreignKey: 'documento_comunicacao_id' })
-  outrosParametroDocumentoComunicacao!: HasManyCollection<OutroParametroDocumentoComunicacao>;
+  outrosParametrosDocumentosComunicacoes!: HasManyCollection<OutroParametroDocumentoComunicacao>;
 
   @BelongsTo({ target: () => Comunicacao, foreignKey: 'comunicacao_id' })
   comunicacao!: BelongsToReference<Comunicacao>;
@@ -104,12 +104,12 @@ export class DocumentoComunicacao {
   parent!: BelongsToReference<DocumentoComunicacao>;
 
   @HasMany({ target: () => DocumentoComunicacao, foreignKey: 'parent_id' })
-  documentosComunicacao!: HasManyCollection<DocumentoComunicacao>;
+  documentosComunicacoes!: HasManyCollection<DocumentoComunicacao>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'documento_comunicacao_id' })
-  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoComunicacaoOutroParametro, foreignKey: 'documento_comunicacao_id' })
-  documentosComunicacaoOutroParametro!: HasManyCollection<DocumentoComunicacaoOutroParametro>;
+  documentosComunicacoesOutrosParametros!: HasManyCollection<DocumentoComunicacaoOutroParametro>;
 
 }

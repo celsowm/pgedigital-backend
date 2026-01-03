@@ -20,9 +20,9 @@ export class MotivoArquivamento {
   nome!: string;
 
   @BelongsToMany({ target: () => EstadoProcessoAdministrativo, pivotTable: () => EstadoProcessoAdministrativoMotivoArquivamento, pivotForeignKeyToRoot: 'motivo_arquivamento_id', pivotForeignKeyToTarget: 'estado_processo_administrativo_id' })
-  estadosProcessoAdministrativo!: ManyToManyCollection<EstadoProcessoAdministrativo>;
+  estadosProcessosAdministrativos!: ManyToManyCollection<EstadoProcessoAdministrativo>;
 
   @HasMany({ target: () => EstadoProcessoAdministrativoMotivoArquivamento, foreignKey: 'motivo_arquivamento_id' })
-  estadosProcessoAdministrativoMotivoArquivamento!: HasManyCollection<EstadoProcessoAdministrativoMotivoArquivamento>;
+  estadosProcessosAdministrativosMotivosArquivamentos!: HasManyCollection<EstadoProcessoAdministrativoMotivoArquivamento>;
 
 }

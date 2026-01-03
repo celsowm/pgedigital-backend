@@ -28,19 +28,19 @@ export class FilaCircular {
   especializadas!: ManyToManyCollection<Especializada>;
 
   @HasMany({ target: () => ClassificacaoEspecializadaTema, foreignKey: 'fila_circular_id' })
-  classificacoesEspecializadaTema!: HasManyCollection<ClassificacaoEspecializadaTema>;
+  classificacoesEspecializadasTemas!: HasManyCollection<ClassificacaoEspecializadaTema>;
 
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'fila_circular_id' })
-  especializadasTema!: HasManyCollection<EspecializadaTema>;
+  especializadasTemas!: HasManyCollection<EspecializadaTema>;
 
   @HasMany({ target: () => Equipe, foreignKey: 'fila_circular_id' })
   equipes!: HasManyCollection<Equipe>;
 
   @HasMany({ target: () => AfastamentoPessoa, foreignKey: 'fila_circular_id' })
-  afastamentosPessoa!: HasManyCollection<AfastamentoPessoa>;
+  afastamentosPessoas!: HasManyCollection<AfastamentoPessoa>;
 
   @HasMany({ target: () => ElementoFilaCircular, foreignKey: 'fila_circular_id' })
-  elementosFilaCircular!: HasManyCollection<ElementoFilaCircular>;
+  elementosFilasCirculares!: HasManyCollection<ElementoFilaCircular>;
 
   @HasMany({ target: () => Acervo, foreignKey: 'fila_circular_id' })
   acervos!: HasManyCollection<Acervo>;

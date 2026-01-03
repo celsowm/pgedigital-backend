@@ -111,6 +111,6 @@ export class AfastamentoPessoa {
   filaCircular!: BelongsToReference<FilaCircular>;
 
   @HasMany({ target: () => AfastamentoPessoaUsuario, foreignKey: 'afastamento_pessoa_id' })
-  afastamentosPessoaUsuario!: HasManyCollection<AfastamentoPessoaUsuario>;
+  afastamentosPessoasUsuarios!: HasManyCollection<AfastamentoPessoaUsuario>;
 
 }

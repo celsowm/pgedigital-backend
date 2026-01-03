@@ -143,7 +143,7 @@ export class MniTribunal {
   exige_hash?: boolean;
 
   @BelongsToMany({ target: () => TipoOrgaoJulgador, pivotTable: () => OrgaoJulgador, pivotForeignKeyToRoot: 'tribunal_id', pivotForeignKeyToTarget: 'instancia' })
-  tiposOrgaoJulgador!: ManyToManyCollection<TipoOrgaoJulgador>;
+  tiposOrgaosJulgadores!: ManyToManyCollection<TipoOrgaoJulgador>;
 
   @BelongsToMany({ target: () => Instancia, pivotTable: () => InstanciaMniTribunal, pivotForeignKeyToRoot: 'mni_tribunal_id', pivotForeignKeyToTarget: 'instancia_id' })
   instancias!: ManyToManyCollection<Instancia>;
@@ -152,27 +152,27 @@ export class MniTribunal {
   localidades!: ManyToManyCollection<Localidade>;
 
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'tribunal_id' })
-  processosJudicial!: HasManyCollection<ProcessoJudicial>;
+  processosJudiciais!: HasManyCollection<ProcessoJudicial>;
 
   @HasMany({ target: () => ContatoMniTribunal, foreignKey: 'mni_tribunal_id' })
-  contatosMniTribunal!: HasManyCollection<ContatoMniTribunal>;
+  contatosMnisTribunais!: HasManyCollection<ContatoMniTribunal>;
 
   @HasMany({ target: () => AssuntoLocal, foreignKey: 'tribunal_id' })
-  assuntosLocal!: HasManyCollection<AssuntoLocal>;
+  assuntosLocais!: HasManyCollection<AssuntoLocal>;
 
   @HasMany({ target: () => OrgaoJulgador, foreignKey: 'tribunal_id' })
-  orgaosJulgador!: HasManyCollection<OrgaoJulgador>;
+  orgaosJulgadores!: HasManyCollection<OrgaoJulgador>;
 
   @HasMany({ target: () => InstanciaMniTribunal, foreignKey: 'mni_tribunal_id' })
-  instanciasMniTribunal!: HasManyCollection<InstanciaMniTribunal>;
+  instanciasMnisTribunais!: HasManyCollection<InstanciaMniTribunal>;
 
   @HasMany({ target: () => Competencia, foreignKey: 'tribunal_id' })
   competencias!: HasManyCollection<Competencia>;
 
   @HasMany({ target: () => TipoDocumentoProvidencia, foreignKey: 'mni_tribunal_id' })
-  tiposDocumentoProvidencia!: HasManyCollection<TipoDocumentoProvidencia>;
+  tiposDocumentosProvidencias!: HasManyCollection<TipoDocumentoProvidencia>;
 
   @HasMany({ target: () => TipoDocumentoMni, foreignKey: 'tribunal_id' })
-  tiposDocumentoMni!: HasManyCollection<TipoDocumentoMni>;
+  tiposDocumentosMnis!: HasManyCollection<TipoDocumentoMni>;
 
 }

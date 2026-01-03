@@ -95,7 +95,7 @@ export class DocumentoRascunho {
   estado_id?: number;
 
   @BelongsToMany({ target: () => ProvidenciaJuridica, pivotTable: () => DocumentoRascunhoProvidenciaJuridica, pivotForeignKeyToRoot: 'documento_rascunho_id', pivotForeignKeyToTarget: 'providencia_juridica_id' })
-  providenciasJuridica!: ManyToManyCollection<ProvidenciaJuridica>;
+  providenciasJuridicas!: ManyToManyCollection<ProvidenciaJuridica>;
 
   @BelongsTo({ target: () => Solicitacao, foreignKey: 'solicitacao_id' })
   solicitacao!: BelongsToReference<Solicitacao>;
@@ -119,15 +119,15 @@ export class DocumentoRascunho {
   revisor!: BelongsToReference<Usuario>;
 
   @HasMany({ target: () => DocumentoRascunhoEstado, foreignKey: 'documento_rascunho_id' })
-  documentosRascunhoEstado!: HasManyCollection<DocumentoRascunhoEstado>;
+  documentosRascunhosEstados!: HasManyCollection<DocumentoRascunhoEstado>;
 
   @HasMany({ target: () => DocumentoRascunhoProvidenciaJuridica, foreignKey: 'documento_rascunho_id' })
-  documentosRascunhoProvidenciaJuridica!: HasManyCollection<DocumentoRascunhoProvidenciaJuridica>;
+  documentosRascunhosProvidenciasJuridicas!: HasManyCollection<DocumentoRascunhoProvidenciaJuridica>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'documento_rascunho_id' })
-  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => RegistroTramitacao, foreignKey: 'documento_rascunho_id' })
-  registrosTramitacao!: HasManyCollection<RegistroTramitacao>;
+  registrosTramitacoes!: HasManyCollection<RegistroTramitacao>;
 
 }

@@ -57,30 +57,30 @@ export class TipoAcao {
   rght?: number;
 
   @BelongsToMany({ target: () => TipoProcessoAdministrativo, pivotTable: () => TipoAcaoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_acao_id', pivotForeignKeyToTarget: 'tipo_processo_administrativo_id' })
-  tiposProcessoAdministrativo!: ManyToManyCollection<TipoProcessoAdministrativo>;
+  tiposProcessosAdministrativos!: ManyToManyCollection<TipoProcessoAdministrativo>;
 
   @BelongsToMany({ target: () => Estado, pivotTable: () => TipoAcaoEstado, pivotForeignKeyToRoot: 'tipo_acao_id', pivotForeignKeyToTarget: 'estado_id' })
   estados!: ManyToManyCollection<Estado>;
 
   @HasMany({ target: () => DocumentoRascunho, foreignKey: 'tipo_acao_id' })
-  documentosRascunho!: HasManyCollection<DocumentoRascunho>;
+  documentosRascunhos!: HasManyCollection<DocumentoRascunho>;
 
   @BelongsTo({ target: () => TipoAcao, foreignKey: 'parent_id' })
   parent!: BelongsToReference<TipoAcao>;
 
   @HasMany({ target: () => TipoAcao, foreignKey: 'parent_id' })
-  tiposAcao!: HasManyCollection<TipoAcao>;
+  tiposAcoes!: HasManyCollection<TipoAcao>;
 
   @HasMany({ target: () => TipoAcaoTipoProcessoAdministrativo, foreignKey: 'tipo_acao_id' })
-  tiposAcaoTipoProcessoAdministrativo!: HasManyCollection<TipoAcaoTipoProcessoAdministrativo>;
+  tiposAcoesTiposProcessosAdministrativos!: HasManyCollection<TipoAcaoTipoProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoAcaoEstado, foreignKey: 'tipo_acao_id' })
-  tiposAcaoEstado!: HasManyCollection<TipoAcaoEstado>;
+  tiposAcoesEstados!: HasManyCollection<TipoAcaoEstado>;
 
   @HasMany({ target: () => Modelo, foreignKey: 'tipo_acao_id' })
   modelos!: HasManyCollection<Modelo>;
 
   @HasMany({ target: () => TipoDocumento, foreignKey: 'tipo_acao_id' })
-  tiposDocumento!: HasManyCollection<TipoDocumento>;
+  tiposDocumentos!: HasManyCollection<TipoDocumento>;
 
 }

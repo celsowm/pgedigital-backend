@@ -25,6 +25,6 @@ export class Justificativa {
   acao?: string;
 
   @HasMany({ target: () => HistoricoPrazo, foreignKey: 'justificativa_id' })
-  historicosPrazo!: HasManyCollection<HistoricoPrazo>;
+  historicosPrazos!: HasManyCollection<HistoricoPrazo>;
 
 }

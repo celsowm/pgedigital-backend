@@ -26,9 +26,9 @@ export class Magistrado {
   cpf?: string;
 
   @BelongsToMany({ target: () => ProcessoJudicial, pivotTable: () => MagistradoProcesso, pivotForeignKeyToRoot: 'magistrado_id', pivotForeignKeyToTarget: 'processo_judicial_id' })
-  processosJudicial!: ManyToManyCollection<ProcessoJudicial>;
+  processosJudiciais!: ManyToManyCollection<ProcessoJudicial>;
 
   @HasMany({ target: () => MagistradoProcesso, foreignKey: 'magistrado_id' })
-  magistradosProcesso!: HasManyCollection<MagistradoProcesso>;
+  magistradosProcessos!: HasManyCollection<MagistradoProcesso>;
 
 }

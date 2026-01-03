@@ -78,6 +78,6 @@ export class DocumentoAcordoContencioso {
   parent!: BelongsToReference<DocumentoAcordoContencioso>;
 
   @HasMany({ target: () => DocumentoAcordoContencioso, foreignKey: 'parent_id' })
-  documentosAcordoContencioso!: HasManyCollection<DocumentoAcordoContencioso>;
+  documentosAcordosContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
 
 }

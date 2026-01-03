@@ -25,6 +25,6 @@ export class TipoProcedimentoSei {
   nome!: string;
 
   @HasMany({ target: () => ProcedimentoSei, foreignKey: 'tipo_procedimento_sei_id' })
-  procedimentosSei!: HasManyCollection<ProcedimentoSei>;
+  procedimentosSeis!: HasManyCollection<ProcedimentoSei>;
 
 }

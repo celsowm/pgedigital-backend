@@ -20,9 +20,9 @@ export class SistemaOrigem {
   nome!: string;
 
   @BelongsToMany({ target: () => ProcedimentoSei, pivotTable: () => CodigoExterno, pivotForeignKeyToRoot: 'sistema_origem_id', pivotForeignKeyToTarget: 'procedimento_sei_id' })
-  procedimentosSei!: ManyToManyCollection<ProcedimentoSei>;
+  procedimentosSeis!: ManyToManyCollection<ProcedimentoSei>;
 
   @HasMany({ target: () => CodigoExterno, foreignKey: 'sistema_origem_id' })
-  codigosExterno!: HasManyCollection<CodigoExterno>;
+  codigosExternos!: HasManyCollection<CodigoExterno>;
 
 }

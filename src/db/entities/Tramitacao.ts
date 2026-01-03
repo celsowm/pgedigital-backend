@@ -38,9 +38,9 @@ export class Tramitacao {
   bloqueio_entrada?: boolean;
 
   @HasMany({ target: () => RegistroTramitacao, foreignKey: 'tramitacao_id' })
-  registrosTramitacao!: HasManyCollection<RegistroTramitacao>;
+  registrosTramitacoes!: HasManyCollection<RegistroTramitacao>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'tipo_tramitacao_id' })
-  tramitacoesAutomaticaAcervoTema!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
+  tramitacoesAutomaticasAcervosTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
 }

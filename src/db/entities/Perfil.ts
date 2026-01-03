@@ -44,7 +44,7 @@ export class Perfil {
   usuarios!: ManyToManyCollection<Usuario>;
 
   @BelongsToMany({ target: () => AcessoRestritoFuncionalidade, pivotTable: () => AcessoRestritoFuncionalidadePerfil, pivotForeignKeyToRoot: 'perfil_id', pivotForeignKeyToTarget: 'acesso_restrito_funcionalidade_id' })
-  acessosRestritoFuncionalidade!: ManyToManyCollection<AcessoRestritoFuncionalidade>;
+  acessosRestritosFuncionalidades!: ManyToManyCollection<AcessoRestritoFuncionalidade>;
 
   @BelongsTo({ target: () => Perfil, foreignKey: 'parent_id' })
   parent!: BelongsToReference<Perfil>;
@@ -53,9 +53,9 @@ export class Perfil {
   perfis!: HasManyCollection<Perfil>;
 
   @HasMany({ target: () => UsuarioPerfil, foreignKey: 'perfil_id' })
-  usuariosPerfil!: HasManyCollection<UsuarioPerfil>;
+  usuariosPerfis!: HasManyCollection<UsuarioPerfil>;
 
   @HasMany({ target: () => AcessoRestritoFuncionalidadePerfil, foreignKey: 'perfil_id' })
-  acessosRestritoFuncionalidadePerfil!: HasManyCollection<AcessoRestritoFuncionalidadePerfil>;
+  acessosRestritosFuncionalidadesPerfis!: HasManyCollection<AcessoRestritoFuncionalidadePerfil>;
 
 }

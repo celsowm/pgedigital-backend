@@ -91,22 +91,22 @@ export class ProvidenciaJuridica {
   solicitacoes!: ManyToManyCollection<Solicitacao>;
 
   @BelongsToMany({ target: () => DocumentoRascunho, pivotTable: () => DocumentoRascunhoProvidenciaJuridica, pivotForeignKeyToRoot: 'providencia_juridica_id', pivotForeignKeyToTarget: 'documento_rascunho_id' })
-  documentosRascunho!: ManyToManyCollection<DocumentoRascunho>;
+  documentosRascunhos!: ManyToManyCollection<DocumentoRascunho>;
 
   @HasMany({ target: () => ProvidenciaJuridicaSolicitacao, foreignKey: 'providencia_juridica_id' })
-  providenciasJuridicaSolicitacao!: HasManyCollection<ProvidenciaJuridicaSolicitacao>;
+  providenciasJuridicasSolicitacoes!: HasManyCollection<ProvidenciaJuridicaSolicitacao>;
 
   @HasMany({ target: () => DocumentoRascunhoProvidenciaJuridica, foreignKey: 'providencia_juridica_id' })
-  documentosRascunhoProvidenciaJuridica!: HasManyCollection<DocumentoRascunhoProvidenciaJuridica>;
+  documentosRascunhosProvidenciasJuridicas!: HasManyCollection<DocumentoRascunhoProvidenciaJuridica>;
 
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'providencia_juridica_id' })
-  documentosAnexoRascunho!: HasManyCollection<DocumentoAnexoRascunho>;
+  documentosAnexosRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'providencia_juridica_id' })
-  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => HistoricoPrazo, foreignKey: 'providencia_juridica_id' })
-  historicosPrazo!: HasManyCollection<HistoricoPrazo>;
+  historicosPrazos!: HasManyCollection<HistoricoPrazo>;
 
   @BelongsTo({ target: () => Comunicacao, foreignKey: 'comunicacao_id' })
   comunicacao!: BelongsToReference<Comunicacao>;

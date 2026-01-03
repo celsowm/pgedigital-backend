@@ -59,9 +59,9 @@ export class Protocolizacao {
   usuario!: BelongsToReference<Usuario>;
 
   @HasMany({ target: () => DocumentoProtocolizacao, foreignKey: 'protocolizacao_id' })
-  documentosProtocolizacao!: HasManyCollection<DocumentoProtocolizacao>;
+  documentosProtocolizacoes!: HasManyCollection<DocumentoProtocolizacao>;
 
   @HasMany({ target: () => RespostaTj, foreignKey: 'protocolizacao_id' })
-  respostasTj!: HasManyCollection<RespostaTj>;
+  respostasTjs!: HasManyCollection<RespostaTj>;
 
 }

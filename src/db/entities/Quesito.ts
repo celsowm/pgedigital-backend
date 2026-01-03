@@ -49,9 +49,9 @@ export class Quesito {
   usuario!: BelongsToReference<Usuario>;
 
   @HasMany({ target: () => CorreicaoQuesito, foreignKey: 'quesito_id' })
-  correicoesQuesito!: HasManyCollection<CorreicaoQuesito>;
+  correicoesQuesitos!: HasManyCollection<CorreicaoQuesito>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativoQuesito, foreignKey: 'quesito_id' })
-  sorteiosCorreicaoProcessoAdministrativoQuesito!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
+  sorteiosCorreicoesProcessosAdministrativosQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
 
 }

@@ -99,22 +99,22 @@ export class Solicitacao {
   equipe_retorno?: number;
 
   @BelongsToMany({ target: () => ProvidenciaJuridica, pivotTable: () => ProvidenciaJuridicaSolicitacao, pivotForeignKeyToRoot: 'solicitacao_id', pivotForeignKeyToTarget: 'providencia_juridica_id' })
-  providenciasJuridica!: ManyToManyCollection<ProvidenciaJuridica>;
+  providenciasJuridicas!: ManyToManyCollection<ProvidenciaJuridica>;
 
   @HasMany({ target: () => ProvidenciaJuridicaSolicitacao, foreignKey: 'solicitacao_id' })
-  providenciasJuridicaSolicitacao!: HasManyCollection<ProvidenciaJuridicaSolicitacao>;
+  providenciasJuridicasSolicitacoes!: HasManyCollection<ProvidenciaJuridicaSolicitacao>;
 
   @HasMany({ target: () => EstadoSolicitacao, foreignKey: 'solicitacao_id' })
-  estadosSolicitacao!: HasManyCollection<EstadoSolicitacao>;
+  estadosSolicitacoes!: HasManyCollection<EstadoSolicitacao>;
 
   @HasMany({ target: () => DocumentoRascunho, foreignKey: 'solicitacao_id' })
-  documentosRascunho!: HasManyCollection<DocumentoRascunho>;
+  documentosRascunhos!: HasManyCollection<DocumentoRascunho>;
 
   @HasMany({ target: () => DescricaoSolicitacao, foreignKey: 'solicitacao_id' })
-  descricoesSolicitacao!: HasManyCollection<DescricaoSolicitacao>;
+  descricoesSolicitacoes!: HasManyCollection<DescricaoSolicitacao>;
 
   @HasMany({ target: () => RegistroTramitacao, foreignKey: 'solicitacao_id' })
-  registrosTramitacao!: HasManyCollection<RegistroTramitacao>;
+  registrosTramitacoes!: HasManyCollection<RegistroTramitacao>;
 
   @BelongsTo({ target: () => Usuario, foreignKey: 'solicitante_id' })
   solicitante!: BelongsToReference<Usuario>;

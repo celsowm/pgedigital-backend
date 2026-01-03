@@ -46,7 +46,7 @@ export class Equipe {
   usuarios!: ManyToManyCollection<Usuario>;
 
   @HasMany({ target: () => RetornoProgramado, foreignKey: 'equipe_id' })
-  retornosProgramado!: HasManyCollection<RetornoProgramado>;
+  retornosProgramados!: HasManyCollection<RetornoProgramado>;
 
   @BelongsTo({ target: () => Especializada, foreignKey: 'especializada_id' })
   especializada!: BelongsToReference<Especializada>;
@@ -55,15 +55,15 @@ export class Equipe {
   filaCircular!: BelongsToReference<FilaCircular>;
 
   @HasMany({ target: () => AcervoEquipeApoio, foreignKey: 'equipe_apoio_id' })
-  acervosEquipeApoio!: HasManyCollection<AcervoEquipeApoio>;
+  acervosEquipesApoios!: HasManyCollection<AcervoEquipeApoio>;
 
   @HasMany({ target: () => Especializada, foreignKey: 'equipe_triagem_id' })
   especializadas!: HasManyCollection<Especializada>;
 
   @HasMany({ target: () => EquipeUsuario, foreignKey: 'equipe_id' })
-  equipesUsuario!: HasManyCollection<EquipeUsuario>;
+  equipesUsuarios!: HasManyCollection<EquipeUsuario>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'equipe_id' })
-  tramitacoesAutomaticaAcervoTema!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
+  tramitacoesAutomaticasAcervosTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
 }

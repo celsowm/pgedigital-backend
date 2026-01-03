@@ -21,12 +21,12 @@ export class Instancia {
   descricao!: string;
 
   @BelongsToMany({ target: () => MniTribunal, pivotTable: () => InstanciaMniTribunal, pivotForeignKeyToRoot: 'instancia_id', pivotForeignKeyToTarget: 'mni_tribunal_id' })
-  mnisTribunal!: ManyToManyCollection<MniTribunal>;
+  mnisTribunais!: ManyToManyCollection<MniTribunal>;
 
   @HasMany({ target: () => InstanciaMniTribunal, foreignKey: 'instancia_id' })
-  instanciasMniTribunal!: HasManyCollection<InstanciaMniTribunal>;
+  instanciasMnisTribunais!: HasManyCollection<InstanciaMniTribunal>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'instancia_id' })
-  tramitacoesAutomaticaAcervoTema!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
+  tramitacoesAutomaticasAcervosTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
 }

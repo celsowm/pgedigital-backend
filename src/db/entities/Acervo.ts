@@ -130,31 +130,31 @@ export class Acervo {
   pessoas!: ManyToManyCollection<Pessoa>;
 
   @HasMany({ target: () => AcervoEquipeApoio, foreignKey: 'acervo_id' })
-  acervosEquipeApoio!: HasManyCollection<AcervoEquipeApoio>;
+  acervosEquipesApoios!: HasManyCollection<AcervoEquipeApoio>;
 
   @HasMany({ target: () => AcervoDestinatarioPa, foreignKey: 'acervo_id' })
-  acervosDestinatarioPa!: HasManyCollection<AcervoDestinatarioPa>;
+  acervosDestinatariosPas!: HasManyCollection<AcervoDestinatarioPa>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'acervo_id' })
-  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoAcervo, foreignKey: 'acervo_id' })
-  historicosDistribuicaoAcervo!: HasManyCollection<HistoricoDistribuicaoAcervo>;
+  historicosDistribuicoesAcervos!: HasManyCollection<HistoricoDistribuicaoAcervo>;
 
   @HasMany({ target: () => AcervoClassificacao, foreignKey: 'acervo_id' })
-  acervosClassificacao!: HasManyCollection<AcervoClassificacao>;
+  acervosClassificacoes!: HasManyCollection<AcervoClassificacao>;
 
   @HasMany({ target: () => AcervoMateria, foreignKey: 'acervo_id' })
-  acervosMateria!: HasManyCollection<AcervoMateria>;
+  acervosMaterias!: HasManyCollection<AcervoMateria>;
 
   @HasMany({ target: () => AcervoTema, foreignKey: 'acervo_id' })
-  acervosTema!: HasManyCollection<AcervoTema>;
+  acervosTemas!: HasManyCollection<AcervoTema>;
 
   @HasMany({ target: () => RaizCnpjAcervo, foreignKey: 'acervo_id' })
-  raizesCnpjAcervo!: HasManyCollection<RaizCnpjAcervo>;
+  raizesCnpjsAcervos!: HasManyCollection<RaizCnpjAcervo>;
 
   @HasMany({ target: () => MapeamentoAcervoSicaj, foreignKey: 'acervo_id' })
-  mapeamentosAcervoSicaj!: HasManyCollection<MapeamentoAcervoSicaj>;
+  mapeamentosAcervosSicajs!: HasManyCollection<MapeamentoAcervoSicaj>;
 
   @BelongsTo({ target: () => Equipe, foreignKey: 'equipe_responsavel_id' })
   equipeResponsavel!: BelongsToReference<Equipe>;

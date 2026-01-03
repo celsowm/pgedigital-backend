@@ -27,7 +27,7 @@ export class TipoAtividade {
   dispensa_especifica?: boolean;
 
   @BelongsToMany({ target: () => ProcessoJudicial, pivotTable: () => Atividade, pivotForeignKeyToRoot: 'tipo_atividade_id', pivotForeignKeyToTarget: 'processo_judicial_id' })
-  processosJudicial!: ManyToManyCollection<ProcessoJudicial>;
+  processosJudiciais!: ManyToManyCollection<ProcessoJudicial>;
 
   @HasMany({ target: () => Atividade, foreignKey: 'tipo_atividade_id' })
   atividades!: HasManyCollection<Atividade>;

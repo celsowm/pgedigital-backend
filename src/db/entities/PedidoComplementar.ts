@@ -20,9 +20,9 @@ export class PedidoComplementar {
   nome!: string;
 
   @BelongsToMany({ target: () => ProcessoAdministrativo, pivotTable: () => PedidoComplementarProcessoAdministrativo, pivotForeignKeyToRoot: 'pedido_complementar_id', pivotForeignKeyToTarget: 'processo_administrativo_id' })
-  processosAdministrativo!: ManyToManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => PedidoComplementarProcessoAdministrativo, foreignKey: 'pedido_complementar_id' })
-  pedidosComplementarProcessoAdministrativo!: HasManyCollection<PedidoComplementarProcessoAdministrativo>;
+  pedidosComplementaresProcessosAdministrativos!: HasManyCollection<PedidoComplementarProcessoAdministrativo>;
 
 }

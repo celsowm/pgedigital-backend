@@ -40,6 +40,6 @@ export class TipoDispensa {
   especializada!: BelongsToReference<Especializada>;
 
   @HasMany({ target: () => DispensaGenerica, foreignKey: 'tipo_dispensa_id' })
-  dispensasGenerica!: HasManyCollection<DispensaGenerica>;
+  dispensasGenericas!: HasManyCollection<DispensaGenerica>;
 
 }

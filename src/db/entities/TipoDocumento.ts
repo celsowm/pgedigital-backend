@@ -35,28 +35,28 @@ export class TipoDocumento {
   tipo_acao_id?: number;
 
   @BelongsToMany({ target: () => TipoProcessoAdministrativo, pivotTable: () => TipoDocumentoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_documento_id', pivotForeignKeyToTarget: 'tipo_processo_administrativo_id' })
-  tiposProcessoAdministrativo!: ManyToManyCollection<TipoProcessoAdministrativo>;
+  tiposProcessosAdministrativos!: ManyToManyCollection<TipoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoRascunho, foreignKey: 'tipo_documento_id' })
-  documentosRascunho!: HasManyCollection<DocumentoRascunho>;
+  documentosRascunhos!: HasManyCollection<DocumentoRascunho>;
 
   @HasMany({ target: () => DocumentoAcordoContencioso, foreignKey: 'tipo_documento_id' })
-  documentosAcordoContencioso!: HasManyCollection<DocumentoAcordoContencioso>;
+  documentosAcordosContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
 
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'tipo_documento_id' })
-  documentosAnexoRascunho!: HasManyCollection<DocumentoAnexoRascunho>;
+  documentosAnexosRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'tipo_documento_id' })
-  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoDocumentoTipoProcessoAdministrativo, foreignKey: 'tipo_documento_id' })
-  tiposDocumentoTipoProcessoAdministrativo!: HasManyCollection<TipoDocumentoTipoProcessoAdministrativo>;
+  tiposDocumentosTiposProcessosAdministrativos!: HasManyCollection<TipoDocumentoTipoProcessoAdministrativo>;
 
   @HasMany({ target: () => Protocolizacao, foreignKey: 'tipo_documento_id' })
   protocolizacoes!: HasManyCollection<Protocolizacao>;
 
   @HasMany({ target: () => DocumentoProtocolizacao, foreignKey: 'tipo_documento_id' })
-  documentosProtocolizacao!: HasManyCollection<DocumentoProtocolizacao>;
+  documentosProtocolizacoes!: HasManyCollection<DocumentoProtocolizacao>;
 
   @HasMany({ target: () => Modelo, foreignKey: 'tipo_documento_id' })
   modelos!: HasManyCollection<Modelo>;

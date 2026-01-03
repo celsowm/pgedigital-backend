@@ -269,52 +269,52 @@ export class ProcessoAdministrativo {
   valor_estimativa_impacto?: number;
 
   @BelongsToMany({ target: () => PalavraChave, pivotTable: () => PalavraChaveProcessoAdministrativo, pivotForeignKeyToRoot: 'processo_administrativo_id', pivotForeignKeyToTarget: 'palavra_chave_id' })
-  palavrasChave!: ManyToManyCollection<PalavraChave>;
+  palavrasChaves!: ManyToManyCollection<PalavraChave>;
 
   @BelongsToMany({ target: () => Tema, pivotTable: () => ProcessoAdministrativoTema, pivotForeignKeyToRoot: 'processo_administrativo_id', pivotForeignKeyToTarget: 'tema_id' })
   temas!: ManyToManyCollection<Tema>;
 
   @BelongsToMany({ target: () => CodigoExterno, pivotTable: () => CodigoExternoProcessoAdministrativo, pivotForeignKeyToRoot: 'processo_administrativo_id', pivotForeignKeyToTarget: 'codigo_externo_id' })
-  codigosExterno!: ManyToManyCollection<CodigoExterno>;
+  codigosExternos!: ManyToManyCollection<CodigoExterno>;
 
   @BelongsToMany({ target: () => PedidoComplementar, pivotTable: () => PedidoComplementarProcessoAdministrativo, pivotForeignKeyToRoot: 'processo_administrativo_id', pivotForeignKeyToTarget: 'pedido_complementar_id' })
-  pedidosComplementar!: ManyToManyCollection<PedidoComplementar>;
+  pedidosComplementares!: ManyToManyCollection<PedidoComplementar>;
 
   @BelongsToMany({ target: () => Usuario, pivotTable: () => UsuarioPermitidoAcessarProcessoAdministrativoSigiloso, pivotForeignKeyToRoot: 'processo_administrativo_id', pivotForeignKeyToTarget: 'usuario_id' })
   usuarios!: ManyToManyCollection<Usuario>;
 
   @HasMany({ target: () => PalavraChaveProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  palavrasChaveProcessoAdministrativo!: HasManyCollection<PalavraChaveProcessoAdministrativo>;
+  palavrasChavesProcessosAdministrativos!: HasManyCollection<PalavraChaveProcessoAdministrativo>;
 
   @HasMany({ target: () => ProcessoAdministrativoTema, foreignKey: 'processo_administrativo_id' })
-  processosAdministrativoTema!: HasManyCollection<ProcessoAdministrativoTema>;
+  processosAdministrativosTemas!: HasManyCollection<ProcessoAdministrativoTema>;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  modelosFormularioProcessoAdministrativo!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
+  modelosFormulariosProcessosAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
 
   @HasMany({ target: () => RetornoProgramado, foreignKey: 'processo_administrativo_id' })
-  retornosProgramado!: HasManyCollection<RetornoProgramado>;
+  retornosProgramados!: HasManyCollection<RetornoProgramado>;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'processo_administrativo_id' })
   manifestacoes!: HasManyCollection<Manifestacao>;
 
   @HasMany({ target: () => DocumentoRascunho, foreignKey: 'processo_administrativo_id' })
-  documentosRascunho!: HasManyCollection<DocumentoRascunho>;
+  documentosRascunhos!: HasManyCollection<DocumentoRascunho>;
 
   @HasMany({ target: () => Carga, foreignKey: 'processo_administrativo_id' })
   cargas!: HasManyCollection<Carga>;
 
   @HasMany({ target: () => DocumentoAcordoContencioso, foreignKey: 'processo_contencioso_id' })
-  documentosAcordoContencioso!: HasManyCollection<DocumentoAcordoContencioso>;
+  documentosAcordosContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
 
   @HasMany({ target: () => EstadoProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  estadosProcessoAdministrativo!: HasManyCollection<EstadoProcessoAdministrativo>;
+  estadosProcessosAdministrativos!: HasManyCollection<EstadoProcessoAdministrativo>;
 
   @HasMany({ target: () => InteressadoConsultivo, foreignKey: 'processo_administrativo_id' })
-  interessadosConsultivo!: HasManyCollection<InteressadoConsultivo>;
+  interessadosConsultivos!: HasManyCollection<InteressadoConsultivo>;
 
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'processo_administrativo_id' })
-  documentosAnexoRascunho!: HasManyCollection<DocumentoAnexoRascunho>;
+  documentosAnexosRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
 
   @BelongsTo({ target: () => ExitoSucumbencia, foreignKey: 'exito_sucumbencia_id' })
   exitoSucumbencia!: BelongsToReference<ExitoSucumbencia>;
@@ -353,46 +353,46 @@ export class ProcessoAdministrativo {
   tipoProcessoAdministrativo!: BelongsToReference<TipoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoAcervo, foreignKey: 'processo_administrativo_id' })
-  historicosDistribuicaoAcervo!: HasManyCollection<HistoricoDistribuicaoAcervo>;
+  historicosDistribuicoesAcervos!: HasManyCollection<HistoricoDistribuicaoAcervo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoEspecializada, foreignKey: 'processo_administrativo_id' })
-  historicosDistribuicaoEspecializada!: HasManyCollection<HistoricoDistribuicaoEspecializada>;
+  historicosDistribuicoesEspecializadas!: HasManyCollection<HistoricoDistribuicaoEspecializada>;
 
   @HasMany({ target: () => Acordo, foreignKey: 'processo_administrativo_id' })
   acordos!: HasManyCollection<Acordo>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  sorteiosCorreicaoProcessoAdministrativo!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
+  sorteiosCorreicoesProcessosAdministrativos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
 
   @HasMany({ target: () => RegistroTramitacao, foreignKey: 'processo_administrativo_id' })
-  registrosTramitacao!: HasManyCollection<RegistroTramitacao>;
+  registrosTramitacoes!: HasManyCollection<RegistroTramitacao>;
 
   @HasMany({ target: () => ProcessoAdministrativoProcessoAdministrativo, foreignKey: 'processo_administrativo_associado_id' })
-  processosAdministrativoProcessoAdministrativo!: HasManyCollection<ProcessoAdministrativoProcessoAdministrativo>;
+  processosAdministrativosProcessosAdministrativos!: HasManyCollection<ProcessoAdministrativoProcessoAdministrativo>;
 
   @HasMany({ target: () => Audiencia, foreignKey: 'processo_administrativo_id' })
   audiencias!: HasManyCollection<Audiencia>;
 
   @HasMany({ target: () => CodigoExternoProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  codigosExternoProcessoAdministrativo!: HasManyCollection<CodigoExternoProcessoAdministrativo>;
+  codigosExternosProcessosAdministrativos!: HasManyCollection<CodigoExternoProcessoAdministrativo>;
 
   @HasMany({ target: () => ProcessoFisicoAssociado, foreignKey: 'processo_administrativo_id' })
-  processosFisicoAssociado!: HasManyCollection<ProcessoFisicoAssociado>;
+  processosFisicosAssociados!: HasManyCollection<ProcessoFisicoAssociado>;
 
   @HasMany({ target: () => Interessado, foreignKey: 'processo_administrativo_id' })
   interessados!: HasManyCollection<Interessado>;
 
   @HasMany({ target: () => PedidoComplementarProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  pedidosComplementarProcessoAdministrativo!: HasManyCollection<PedidoComplementarProcessoAdministrativo>;
+  pedidosComplementaresProcessosAdministrativos!: HasManyCollection<PedidoComplementarProcessoAdministrativo>;
 
   @HasMany({ target: () => UsuarioPermitidoAcessarProcessoAdministrativoSigiloso, foreignKey: 'processo_administrativo_id' })
-  usuariosPermitidoAcessarProcessoAdministrativoSigiloso!: HasManyCollection<UsuarioPermitidoAcessarProcessoAdministrativoSigiloso>;
+  usuariosPermitidosAcessaresProcessosAdministrativosSigilosos!: HasManyCollection<UsuarioPermitidoAcessarProcessoAdministrativoSigiloso>;
 
   @HasMany({ target: () => ValorAdicional, foreignKey: 'processo_administrativo_id' })
-  valoresAdicional!: HasManyCollection<ValorAdicional>;
+  valoresAdicionais!: HasManyCollection<ValorAdicional>;
 
   @HasMany({ target: () => Solicitacao, foreignKey: 'processo_administrativo_id' })
   solicitacoes!: HasManyCollection<Solicitacao>;

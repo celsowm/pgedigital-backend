@@ -42,7 +42,7 @@ export class CodigoExterno {
   procedimento_sei_id?: number;
 
   @BelongsToMany({ target: () => ProcessoAdministrativo, pivotTable: () => CodigoExternoProcessoAdministrativo, pivotForeignKeyToRoot: 'codigo_externo_id', pivotForeignKeyToTarget: 'processo_administrativo_id' })
-  processosAdministrativo!: ManyToManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
 
   @BelongsTo({ target: () => SistemaOrigem, foreignKey: 'sistema_origem_id' })
   sistemaOrigem!: BelongsToReference<SistemaOrigem>;
@@ -51,6 +51,6 @@ export class CodigoExterno {
   procedimentoSei!: BelongsToReference<ProcedimentoSei>;
 
   @HasMany({ target: () => CodigoExternoProcessoAdministrativo, foreignKey: 'codigo_externo_id' })
-  codigosExternoProcessoAdministrativo!: HasManyCollection<CodigoExternoProcessoAdministrativo>;
+  codigosExternosProcessosAdministrativos!: HasManyCollection<CodigoExternoProcessoAdministrativo>;
 
 }

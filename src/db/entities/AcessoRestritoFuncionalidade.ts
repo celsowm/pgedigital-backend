@@ -46,9 +46,9 @@ export class AcessoRestritoFuncionalidade {
   usuarios!: ManyToManyCollection<Usuario>;
 
   @HasMany({ target: () => AcessoRestritoFuncionalidadePerfil, foreignKey: 'acesso_restrito_funcionalidade_id' })
-  acessosRestritoFuncionalidadePerfil!: HasManyCollection<AcessoRestritoFuncionalidadePerfil>;
+  acessosRestritosFuncionalidadesPerfis!: HasManyCollection<AcessoRestritoFuncionalidadePerfil>;
 
   @HasMany({ target: () => AcessoRestritoFuncionalidadeUsuario, foreignKey: 'acesso_restrito_funcionalidade_id' })
-  acessosRestritoFuncionalidadeUsuario!: HasManyCollection<AcessoRestritoFuncionalidadeUsuario>;
+  acessosRestritosFuncionalidadesUsuarios!: HasManyCollection<AcessoRestritoFuncionalidadeUsuario>;
 
 }

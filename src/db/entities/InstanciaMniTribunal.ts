@@ -29,7 +29,7 @@ export class InstanciaMniTribunal {
   mni_tribunal_id!: number;
 
   @HasMany({ target: () => DecisaoJudicial, foreignKey: 'instancia_mni_tribunal_id' })
-  decisoesJudicial!: HasManyCollection<DecisaoJudicial>;
+  decisoesJudiciais!: HasManyCollection<DecisaoJudicial>;
 
   @BelongsTo({ target: () => Instancia, foreignKey: 'instancia_id' })
   instancia!: BelongsToReference<Instancia>;

@@ -58,6 +58,6 @@ export class EstadoSolicitacao {
   usuario!: BelongsToReference<Usuario>;
 
   @HasMany({ target: () => RegistroTramitacao, foreignKey: 'estado_solicitacao_id' })
-  registrosTramitacao!: HasManyCollection<RegistroTramitacao>;
+  registrosTramitacoes!: HasManyCollection<RegistroTramitacao>;
 
 }

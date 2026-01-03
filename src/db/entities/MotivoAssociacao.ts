@@ -20,9 +20,9 @@ export class MotivoAssociacao {
   nome!: string;
 
   @HasMany({ target: () => ProcessoAdministrativoProcessoAdministrativo, foreignKey: 'motivo_associacao_id' })
-  processosAdministrativoProcessoAdministrativo!: HasManyCollection<ProcessoAdministrativoProcessoAdministrativo>;
+  processosAdministrativosProcessosAdministrativos!: HasManyCollection<ProcessoAdministrativoProcessoAdministrativo>;
 
   @HasMany({ target: () => ProcessoFisicoAssociado, foreignKey: 'motivo_associacao_id' })
-  processosFisicoAssociado!: HasManyCollection<ProcessoFisicoAssociado>;
+  processosFisicosAssociados!: HasManyCollection<ProcessoFisicoAssociado>;
 
 }

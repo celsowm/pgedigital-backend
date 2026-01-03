@@ -28,10 +28,10 @@ export class TipoSolicitacao {
   solicitacao_externa?: boolean;
 
   @BelongsToMany({ target: () => TipoProcessoAdministrativo, pivotTable: () => TipoSolicitacaoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_solicitacao_id', pivotForeignKeyToTarget: 'tipo_processo_administrativo_id' })
-  tiposProcessoAdministrativo!: ManyToManyCollection<TipoProcessoAdministrativo>;
+  tiposProcessosAdministrativos!: ManyToManyCollection<TipoProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoSolicitacaoTipoProcessoAdministrativo, foreignKey: 'tipo_solicitacao_id' })
-  tiposSolicitacaoTipoProcessoAdministrativo!: HasManyCollection<TipoSolicitacaoTipoProcessoAdministrativo>;
+  tiposSolicitacoesTiposProcessosAdministrativos!: HasManyCollection<TipoSolicitacaoTipoProcessoAdministrativo>;
 
   @HasMany({ target: () => Modelo, foreignKey: 'tipo_solicitacao_id' })
   modelos!: HasManyCollection<Modelo>;

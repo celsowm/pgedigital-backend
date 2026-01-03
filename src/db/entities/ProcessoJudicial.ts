@@ -135,10 +135,10 @@ export class ProcessoJudicial {
   originario_id?: number;
 
   @BelongsToMany({ target: () => AssuntoLocal, pivotTable: () => AssuntoProcessoJudicial, pivotForeignKeyToRoot: 'processo_judicial_id', pivotForeignKeyToTarget: 'assunto_local_id' })
-  assuntosLocal!: ManyToManyCollection<AssuntoLocal>;
+  assuntosLocais!: ManyToManyCollection<AssuntoLocal>;
 
   @BelongsToMany({ target: () => TipoAtividade, pivotTable: () => Atividade, pivotForeignKeyToRoot: 'processo_judicial_id', pivotForeignKeyToTarget: 'tipo_atividade_id' })
-  tiposAtividade!: ManyToManyCollection<TipoAtividade>;
+  tiposAtividades!: ManyToManyCollection<TipoAtividade>;
 
   @BelongsToMany({ target: () => Especializada, pivotTable: () => PredicaoEspecializadaMachineLearning, pivotForeignKeyToRoot: 'processo_judicial_id', pivotForeignKeyToTarget: 'especializada_id' })
   especializadas!: ManyToManyCollection<Especializada>;
@@ -162,7 +162,7 @@ export class ProcessoJudicial {
   parent!: BelongsToReference<ProcessoJudicial>;
 
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'parent_id' })
-  processosJudicial!: HasManyCollection<ProcessoJudicial>;
+  processosJudiciais!: HasManyCollection<ProcessoJudicial>;
 
   @BelongsTo({ target: () => Localidade, foreignKey: 'localidade_id' })
   localidade!: BelongsToReference<Localidade>;
@@ -171,34 +171,34 @@ export class ProcessoJudicial {
   originario!: BelongsToReference<ProcessoJudicial>;
 
   @HasMany({ target: () => ProcessoJudicialOriginario, foreignKey: 'processo_judicial_id' })
-  processosJudicialOriginario!: HasManyCollection<ProcessoJudicialOriginario>;
+  processosJudiciaisOriginarios!: HasManyCollection<ProcessoJudicialOriginario>;
 
   @HasMany({ target: () => ProcessoJudicialOutroNumero, foreignKey: 'processo_judicial_id' })
-  processosJudicialOutroNumero!: HasManyCollection<ProcessoJudicialOutroNumero>;
+  processosJudiciaisOutrosNumeros!: HasManyCollection<ProcessoJudicialOutroNumero>;
 
   @HasMany({ target: () => Parte, foreignKey: 'processo_judicial_id' })
   partes!: HasManyCollection<Parte>;
 
   @HasMany({ target: () => RaioXJuridico, foreignKey: 'processo_judicial_id' })
-  raiosXJuridico!: HasManyCollection<RaioXJuridico>;
+  raiosXJuridicos!: HasManyCollection<RaioXJuridico>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'processo_judicial_id' })
-  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => DecisaoJudicial, foreignKey: 'processo_judicial_id' })
-  decisoesJudicial!: HasManyCollection<DecisaoJudicial>;
+  decisoesJudiciais!: HasManyCollection<DecisaoJudicial>;
 
   @HasMany({ target: () => RegistroMigracaoSicaj, foreignKey: 'processo_judicial_id' })
-  registrosMigracaoSicaj!: HasManyCollection<RegistroMigracaoSicaj>;
+  registrosMigracoesSicajs!: HasManyCollection<RegistroMigracaoSicaj>;
 
   @HasMany({ target: () => ProcessoVinculado, foreignKey: 'processo_judicial_id' })
-  processosVinculado!: HasManyCollection<ProcessoVinculado>;
+  processosVinculados!: HasManyCollection<ProcessoVinculado>;
 
   @HasMany({ target: () => Acompanhamento, foreignKey: 'processo_judicial_id' })
   acompanhamentos!: HasManyCollection<Acompanhamento>;
 
   @HasMany({ target: () => AssuntoProcessoJudicial, foreignKey: 'processo_judicial_id' })
-  assuntosProcessoJudicial!: HasManyCollection<AssuntoProcessoJudicial>;
+  assuntosProcessosJudiciais!: HasManyCollection<AssuntoProcessoJudicial>;
 
   @HasMany({ target: () => Atividade, foreignKey: 'processo_judicial_id' })
   atividades!: HasManyCollection<Atividade>;
@@ -207,7 +207,7 @@ export class ProcessoJudicial {
   comunicacoes!: HasManyCollection<Comunicacao>;
 
   @HasMany({ target: () => MemoriaCalculo, foreignKey: 'processo_judicial_id' })
-  memoriasCalculo!: HasManyCollection<MemoriaCalculo>;
+  memoriasCalculos!: HasManyCollection<MemoriaCalculo>;
 
   @HasOne({ target: () => ProcessoJudicialHash, foreignKey: 'processo_judicial_id' })
   processoJudicialHash!: HasOneReference<ProcessoJudicialHash>;
@@ -216,9 +216,9 @@ export class ProcessoJudicial {
   cdas!: HasManyCollection<Cda>;
 
   @HasMany({ target: () => PredicaoEspecializadaMachineLearning, foreignKey: 'processo_judicial_id' })
-  predicoesEspecializadaMachineLearning!: HasManyCollection<PredicaoEspecializadaMachineLearning>;
+  predicoesEspecializadasMachinesLearnings!: HasManyCollection<PredicaoEspecializadaMachineLearning>;
 
   @HasMany({ target: () => MagistradoProcesso, foreignKey: 'processo_judicial_id' })
-  magistradosProcesso!: HasManyCollection<MagistradoProcesso>;
+  magistradosProcessos!: HasManyCollection<MagistradoProcesso>;
 
 }

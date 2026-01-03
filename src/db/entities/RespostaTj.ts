@@ -80,7 +80,7 @@ export class RespostaTj {
   protocolizacao_id?: number;
 
   @HasMany({ target: () => ReciboTj, foreignKey: 'resposta_tj_id' })
-  recibosTj!: HasManyCollection<ReciboTj>;
+  recibosTjs!: HasManyCollection<ReciboTj>;
 
   @BelongsTo({ target: () => Entrega, foreignKey: 'entrega_id' })
   entrega!: BelongsToReference<Entrega>;

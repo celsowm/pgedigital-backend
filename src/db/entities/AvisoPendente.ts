@@ -83,15 +83,15 @@ export class AvisoPendente {
   comunicacoes!: ManyToManyCollection<Comunicacao>;
 
   @HasMany({ target: () => ConsumoTeorAvisoErro, foreignKey: 'aviso_pendente_id' })
-  consumosTeorAvisoErro!: HasManyCollection<ConsumoTeorAvisoErro>;
+  consumosTeoresAvisosErros!: HasManyCollection<ConsumoTeorAvisoErro>;
 
   @HasMany({ target: () => InstantaneoAvisoPendente, foreignKey: 'aviso_pendente_id' })
-  instantaneosAvisoPendente!: HasManyCollection<InstantaneoAvisoPendente>;
+  instantaneosAvisosPendentes!: HasManyCollection<InstantaneoAvisoPendente>;
 
   @HasMany({ target: () => RegistroEnvioComunicacao, foreignKey: 'aviso_pendente_id' })
-  registrosEnvioComunicacao!: HasManyCollection<RegistroEnvioComunicacao>;
+  registrosEnviosComunicacoes!: HasManyCollection<RegistroEnvioComunicacao>;
 
   @HasMany({ target: () => AvisoPendenteOutroParametro, foreignKey: 'aviso_pendente_id' })
-  avisosPendenteOutroParametro!: HasManyCollection<AvisoPendenteOutroParametro>;
+  avisosPendentesOutrosParametros!: HasManyCollection<AvisoPendenteOutroParametro>;
 
 }

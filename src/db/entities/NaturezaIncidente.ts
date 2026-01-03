@@ -19,6 +19,6 @@ export class NaturezaIncidente {
   nome!: string;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'natureza_incidente_id' })
-  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
 }

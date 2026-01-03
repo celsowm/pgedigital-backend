@@ -24,7 +24,7 @@ export class TipoDivisaoCargaTrabalho {
   especializadas!: HasManyCollection<Especializada>;
 
   @HasMany({ target: () => AfastamentoPessoa, foreignKey: 'tipo_divisao_carga_trabalho_id' })
-  afastamentosPessoa!: HasManyCollection<AfastamentoPessoa>;
+  afastamentosPessoas!: HasManyCollection<AfastamentoPessoa>;
 
   @HasMany({ target: () => Acervo, foreignKey: 'tipo_divisao_carga_trabalho_id' })
   acervos!: HasManyCollection<Acervo>;

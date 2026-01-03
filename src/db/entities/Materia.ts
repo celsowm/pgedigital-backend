@@ -42,15 +42,15 @@ export class Materia {
   acervos!: ManyToManyCollection<Acervo>;
 
   @HasMany({ target: () => EspecializadaMateria, foreignKey: 'materia_id' })
-  especializadasMateria!: HasManyCollection<EspecializadaMateria>;
+  especializadasMaterias!: HasManyCollection<EspecializadaMateria>;
 
   @BelongsTo({ target: () => TipoProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
   tipoProcessoAdministrativo!: BelongsToReference<TipoProcessoAdministrativo>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'materia_id' })
-  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => AcervoMateria, foreignKey: 'materia_id' })
-  acervosMateria!: HasManyCollection<AcervoMateria>;
+  acervosMaterias!: HasManyCollection<AcervoMateria>;
 
 }

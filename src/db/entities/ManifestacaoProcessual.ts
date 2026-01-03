@@ -50,12 +50,12 @@ export class ManifestacaoProcessual {
   data_entrada?: Date;
 
   @HasMany({ target: () => RespostaTj, foreignKey: 'manifestacao_processual_id' })
-  respostasTj!: HasManyCollection<RespostaTj>;
+  respostasTjs!: HasManyCollection<RespostaTj>;
 
   @BelongsTo({ target: () => ManifestacaoProcessual, foreignKey: 'parent_id' })
   parent!: BelongsToReference<ManifestacaoProcessual>;
 
   @HasMany({ target: () => ManifestacaoProcessual, foreignKey: 'parent_id' })
-  manifestacoesProcessual!: HasManyCollection<ManifestacaoProcessual>;
+  manifestacoesProcessuais!: HasManyCollection<ManifestacaoProcessual>;
 
 }

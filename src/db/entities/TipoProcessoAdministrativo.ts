@@ -30,30 +30,30 @@ export class TipoProcessoAdministrativo {
   glyphicon?: string;
 
   @BelongsToMany({ target: () => TipoAcao, pivotTable: () => TipoAcaoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_processo_administrativo_id', pivotForeignKeyToTarget: 'tipo_acao_id' })
-  tiposAcao!: ManyToManyCollection<TipoAcao>;
+  tiposAcoes!: ManyToManyCollection<TipoAcao>;
 
   @BelongsToMany({ target: () => TipoSolicitacao, pivotTable: () => TipoSolicitacaoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_processo_administrativo_id', pivotForeignKeyToTarget: 'tipo_solicitacao_id' })
-  tiposSolicitacao!: ManyToManyCollection<TipoSolicitacao>;
+  tiposSolicitacoes!: ManyToManyCollection<TipoSolicitacao>;
 
   @BelongsToMany({ target: () => TipoDocumento, pivotTable: () => TipoDocumentoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_processo_administrativo_id', pivotForeignKeyToTarget: 'tipo_documento_id' })
-  tiposDocumento!: ManyToManyCollection<TipoDocumento>;
+  tiposDocumentos!: ManyToManyCollection<TipoDocumento>;
 
   @HasMany({ target: () => Materia, foreignKey: 'tipo_processo_administrativo_id' })
   materias!: HasManyCollection<Materia>;
 
   @HasMany({ target: () => TipoAcaoTipoProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  tiposAcaoTipoProcessoAdministrativo!: HasManyCollection<TipoAcaoTipoProcessoAdministrativo>;
+  tiposAcoesTiposProcessosAdministrativos!: HasManyCollection<TipoAcaoTipoProcessoAdministrativo>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoSolicitacaoTipoProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  tiposSolicitacaoTipoProcessoAdministrativo!: HasManyCollection<TipoSolicitacaoTipoProcessoAdministrativo>;
+  tiposSolicitacoesTiposProcessosAdministrativos!: HasManyCollection<TipoSolicitacaoTipoProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoDocumentoTipoProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  tiposDocumentoTipoProcessoAdministrativo!: HasManyCollection<TipoDocumentoTipoProcessoAdministrativo>;
+  tiposDocumentosTiposProcessosAdministrativos!: HasManyCollection<TipoDocumentoTipoProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoAudiencia, foreignKey: 'tipo_processo_administrativo_id' })
-  tiposAudiencia!: HasManyCollection<TipoAudiencia>;
+  tiposAudiencias!: HasManyCollection<TipoAudiencia>;
 
 }

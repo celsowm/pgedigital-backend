@@ -158,10 +158,10 @@ export class DocumentoProcessoAdministrativo {
   rght?: number;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativoAcordo, foreignKey: 'documento_processo_administrativo_id' })
-  documentosProcessoAdministrativoAcordo!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
+  documentosProcessosAdministrativosAcordos!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativo, foreignKey: 'documento_processo_administrativo_id' })
-  modelosFormularioProcessoAdministrativo!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
+  modelosFormulariosProcessosAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'documento_processo_administrativo_id' })
   manifestacoes!: HasManyCollection<Manifestacao>;
@@ -173,7 +173,7 @@ export class DocumentoProcessoAdministrativo {
   parent!: BelongsToReference<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'parent_id' })
-  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @BelongsTo({ target: () => Usuario, foreignKey: 'usuario_id' })
   usuario!: BelongsToReference<Usuario>;
@@ -194,6 +194,6 @@ export class DocumentoProcessoAdministrativo {
   protocolizacoes!: HasManyCollection<Protocolizacao>;
 
   @HasMany({ target: () => DocumentoProtocolizacao, foreignKey: 'documento_processo_administrativo_id' })
-  documentosProtocolizacao!: HasManyCollection<DocumentoProtocolizacao>;
+  documentosProtocolizacoes!: HasManyCollection<DocumentoProtocolizacao>;
 
 }

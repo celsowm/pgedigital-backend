@@ -20,7 +20,7 @@ export class ClassificacaoRelevancia {
   nome!: string;
 
   @BelongsToMany({ target: () => ClassificacaoRecorrencia, pivotTable: () => Classificacao, pivotForeignKeyToRoot: 'classificacao_relevancia_id', pivotForeignKeyToTarget: 'classificacao_recorrencia_id' })
-  classificacoesRecorrencia!: ManyToManyCollection<ClassificacaoRecorrencia>;
+  classificacoesRecorrencias!: ManyToManyCollection<ClassificacaoRecorrencia>;
 
   @HasMany({ target: () => Classificacao, foreignKey: 'classificacao_relevancia_id' })
   classificacoes!: HasManyCollection<Classificacao>;

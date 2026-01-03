@@ -20,9 +20,9 @@ export class ExitoSucumbencia {
   nome!: string;
 
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'exito_sucumbencia_id' })
-  especializadasTema!: HasManyCollection<EspecializadaTema>;
+  especializadasTemas!: HasManyCollection<EspecializadaTema>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'exito_sucumbencia_id' })
-  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
 }

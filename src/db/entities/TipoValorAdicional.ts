@@ -15,6 +15,6 @@ export class TipoValorAdicional {
   descricao!: string;
 
   @HasMany({ target: () => ValorAdicional, foreignKey: 'tipo_valor_adicional_id' })
-  valoresAdicional!: HasManyCollection<ValorAdicional>;
+  valoresAdicionais!: HasManyCollection<ValorAdicional>;
 
 }
