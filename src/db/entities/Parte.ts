@@ -71,7 +71,7 @@ export class Parte {
   inclusao_manual!: boolean;
 
   @BelongsToMany({ target: () => RepresentanteJudicial, pivotTable: () => ParteRepresentante, pivotForeignKeyToRoot: 'parte_id', pivotForeignKeyToTarget: 'representante_judicial_id' })
-  representanteJudicials!: ManyToManyCollection<RepresentanteJudicial>;
+  representantesJudicial!: ManyToManyCollection<RepresentanteJudicial>;
 
   @BelongsTo({ target: () => Pessoa, foreignKey: 'pessoa_id' })
   pessoa!: BelongsToReference<Pessoa>;
@@ -86,6 +86,6 @@ export class Parte {
   tipoPolo!: BelongsToReference<TipoPolo>;
 
   @HasMany({ target: () => ParteRepresentante, foreignKey: 'parte_id' })
-  parteRepresentantes!: HasManyCollection<ParteRepresentante>;
+  partesRepresentante!: HasManyCollection<ParteRepresentante>;
 
 }

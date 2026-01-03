@@ -58,15 +58,15 @@ export class TipoProvidenciaJuridica {
   pedido_final?: string;
 
   @HasMany({ target: () => HistoricoPrazo, foreignKey: 'tipo_providencia_juridica_id' })
-  historicoPrazos!: HasManyCollection<HistoricoPrazo>;
+  historicosPrazo!: HasManyCollection<HistoricoPrazo>;
 
   @HasMany({ target: () => TipoDocumentoProvidencia, foreignKey: 'tipo_providencia_juridica_id' })
-  tipoDocumentoProvidencias!: HasManyCollection<TipoDocumentoProvidencia>;
+  tiposDocumentoProvidencia!: HasManyCollection<TipoDocumentoProvidencia>;
 
   @HasMany({ target: () => ProvidenciaJuridica, foreignKey: 'tipo_providencia_juridica_id' })
-  providenciaJuridicas!: HasManyCollection<ProvidenciaJuridica>;
+  providenciasJuridica!: HasManyCollection<ProvidenciaJuridica>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'tipo_providencia_juridica_id' })
-  tramitacaoAutomaticaAcervoTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
+  tramitacoesAutomaticaAcervoTema!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
 }

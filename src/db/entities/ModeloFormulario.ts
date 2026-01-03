@@ -50,7 +50,7 @@ export class ModeloFormulario {
   especializada_id?: number;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativo, foreignKey: 'modelo_formulario_id' })
-  modeloFormularioProcessoAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
+  modelosFormularioProcessoAdministrativo!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
 
   @BelongsTo({ target: () => Usuario, foreignKey: 'criador_id' })
   criador!: BelongsToReference<Usuario>;

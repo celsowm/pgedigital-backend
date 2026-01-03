@@ -97,6 +97,6 @@ export class Manifestacao {
   documentoAcordoContencioso!: BelongsToReference<DocumentoAcordoContencioso>;
 
   @HasMany({ target: () => ManifestacaoEstado, foreignKey: 'manifestacao_id' })
-  manifestacaoEstados!: HasManyCollection<ManifestacaoEstado>;
+  manifestacoesEstado!: HasManyCollection<ManifestacaoEstado>;
 
 }

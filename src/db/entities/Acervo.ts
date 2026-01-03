@@ -118,7 +118,7 @@ export class Acervo {
   usuarios!: ManyToManyCollection<Usuario>;
 
   @BelongsToMany({ target: () => Classificacao, pivotTable: () => AcervoClassificacao, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'classificacao_id' })
-  classificacaos!: ManyToManyCollection<Classificacao>;
+  classificacoes!: ManyToManyCollection<Classificacao>;
 
   @BelongsToMany({ target: () => Materia, pivotTable: () => AcervoMateria, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'materia_id' })
   materias!: ManyToManyCollection<Materia>;
@@ -130,31 +130,31 @@ export class Acervo {
   pessoas!: ManyToManyCollection<Pessoa>;
 
   @HasMany({ target: () => AcervoEquipeApoio, foreignKey: 'acervo_id' })
-  acervoEquipeApoios!: HasManyCollection<AcervoEquipeApoio>;
+  acervosEquipeApoio!: HasManyCollection<AcervoEquipeApoio>;
 
   @HasMany({ target: () => AcervoDestinatarioPa, foreignKey: 'acervo_id' })
-  acervoDestinatarioPas!: HasManyCollection<AcervoDestinatarioPa>;
+  acervosDestinatarioPa!: HasManyCollection<AcervoDestinatarioPa>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'acervo_id' })
-  processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoAcervo, foreignKey: 'acervo_id' })
-  historicoDistribuicaoAcervos!: HasManyCollection<HistoricoDistribuicaoAcervo>;
+  historicosDistribuicaoAcervo!: HasManyCollection<HistoricoDistribuicaoAcervo>;
 
   @HasMany({ target: () => AcervoClassificacao, foreignKey: 'acervo_id' })
-  acervoClassificacaos!: HasManyCollection<AcervoClassificacao>;
+  acervosClassificacao!: HasManyCollection<AcervoClassificacao>;
 
   @HasMany({ target: () => AcervoMateria, foreignKey: 'acervo_id' })
-  acervoMaterias!: HasManyCollection<AcervoMateria>;
+  acervosMateria!: HasManyCollection<AcervoMateria>;
 
   @HasMany({ target: () => AcervoTema, foreignKey: 'acervo_id' })
-  acervoTemas!: HasManyCollection<AcervoTema>;
+  acervosTema!: HasManyCollection<AcervoTema>;
 
   @HasMany({ target: () => RaizCnpjAcervo, foreignKey: 'acervo_id' })
-  raizCnpjAcervos!: HasManyCollection<RaizCnpjAcervo>;
+  raizesCnpjAcervo!: HasManyCollection<RaizCnpjAcervo>;
 
   @HasMany({ target: () => MapeamentoAcervoSicaj, foreignKey: 'acervo_id' })
-  mapeamentoAcervoSicajs!: HasManyCollection<MapeamentoAcervoSicaj>;
+  mapeamentosAcervoSicaj!: HasManyCollection<MapeamentoAcervoSicaj>;
 
   @BelongsTo({ target: () => Equipe, foreignKey: 'equipe_responsavel_id' })
   equipeResponsavel!: BelongsToReference<Equipe>;

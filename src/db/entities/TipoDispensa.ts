@@ -34,12 +34,12 @@ export class TipoDispensa {
   especializada_id!: number;
 
   @BelongsToMany({ target: () => Comunicacao, pivotTable: () => DispensaGenerica, pivotForeignKeyToRoot: 'tipo_dispensa_id', pivotForeignKeyToTarget: 'comunicacao_id' })
-  comunicacaos!: ManyToManyCollection<Comunicacao>;
+  comunicacoes!: ManyToManyCollection<Comunicacao>;
 
   @BelongsTo({ target: () => Especializada, foreignKey: 'especializada_id' })
   especializada!: BelongsToReference<Especializada>;
 
   @HasMany({ target: () => DispensaGenerica, foreignKey: 'tipo_dispensa_id' })
-  dispensaGenericas!: HasManyCollection<DispensaGenerica>;
+  dispensasGenerica!: HasManyCollection<DispensaGenerica>;
 
 }

@@ -37,42 +37,42 @@ export class Estado {
   classificacao?: string;
 
   @BelongsToMany({ target: () => TipoAcao, pivotTable: () => TipoAcaoEstado, pivotForeignKeyToRoot: 'estado_id', pivotForeignKeyToTarget: 'tipo_acao_id' })
-  tipoAcaos!: ManyToManyCollection<TipoAcao>;
+  tiposAcao!: ManyToManyCollection<TipoAcao>;
 
   @HasMany({ target: () => EstadoSolicitacao, foreignKey: 'estado_id' })
-  estadoSolicitacaos!: HasManyCollection<EstadoSolicitacao>;
+  estadosSolicitacao!: HasManyCollection<EstadoSolicitacao>;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'estado_id' })
-  manifestacaos!: HasManyCollection<Manifestacao>;
+  manifestacoes!: HasManyCollection<Manifestacao>;
 
   @HasMany({ target: () => DocumentoRascunhoEstado, foreignKey: 'estado_id' })
-  documentoRascunhoEstados!: HasManyCollection<DocumentoRascunhoEstado>;
+  documentosRascunhoEstado!: HasManyCollection<DocumentoRascunhoEstado>;
 
   @HasMany({ target: () => EstadoProcessoAdministrativo, foreignKey: 'estado_id' })
-  estadoProcessoAdministrativos!: HasManyCollection<EstadoProcessoAdministrativo>;
+  estadosProcessoAdministrativo!: HasManyCollection<EstadoProcessoAdministrativo>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'estado_id' })
-  processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoAcaoEstado, foreignKey: 'estado_id' })
-  tipoAcaoEstados!: HasManyCollection<TipoAcaoEstado>;
+  tiposAcaoEstado!: HasManyCollection<TipoAcaoEstado>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativo, foreignKey: 'estado_id' })
-  sorteioCorreicaoProcessoAdministrativos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
+  sorteiosCorreicaoProcessoAdministrativo!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
 
   @HasMany({ target: () => ProvidenciaJuridica, foreignKey: 'estado_id' })
-  providenciaJuridicas!: HasManyCollection<ProvidenciaJuridica>;
+  providenciasJuridica!: HasManyCollection<ProvidenciaJuridica>;
 
   @HasMany({ target: () => Comunicacao, foreignKey: 'estado_id' })
-  comunicacaos!: HasManyCollection<Comunicacao>;
+  comunicacoes!: HasManyCollection<Comunicacao>;
 
   @HasMany({ target: () => ComunicacaoEstado, foreignKey: 'estado_id' })
-  comunicacaoEstados!: HasManyCollection<ComunicacaoEstado>;
+  comunicacoesEstado!: HasManyCollection<ComunicacaoEstado>;
 
   @HasMany({ target: () => Solicitacao, foreignKey: 'estado_id' })
-  solicitacaos!: HasManyCollection<Solicitacao>;
+  solicitacoes!: HasManyCollection<Solicitacao>;
 
   @HasMany({ target: () => ManifestacaoEstado, foreignKey: 'estado_id' })
-  manifestacaoEstados!: HasManyCollection<ManifestacaoEstado>;
+  manifestacoesEstado!: HasManyCollection<ManifestacaoEstado>;
 
 }

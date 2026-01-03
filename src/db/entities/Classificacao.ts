@@ -48,7 +48,7 @@ export class Classificacao {
   acervos!: ManyToManyCollection<Acervo>;
 
   @HasMany({ target: () => ClassificacaoEspecializadaTema, foreignKey: 'classificacao_id' })
-  classificacaoEspecializadaTemas!: HasManyCollection<ClassificacaoEspecializadaTema>;
+  classificacoesEspecializadaTema!: HasManyCollection<ClassificacaoEspecializadaTema>;
 
   @BelongsTo({ target: () => ClassificacaoRelevancia, foreignKey: 'classificacao_relevancia_id' })
   classificacaoRelevancia!: BelongsToReference<ClassificacaoRelevancia>;
@@ -57,9 +57,9 @@ export class Classificacao {
   classificacaoRecorrencia!: BelongsToReference<ClassificacaoRecorrencia>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'classificacao_id' })
-  processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativo!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => AcervoClassificacao, foreignKey: 'classificacao_id' })
-  acervoClassificacaos!: HasManyCollection<AcervoClassificacao>;
+  acervosClassificacao!: HasManyCollection<AcervoClassificacao>;
 
 }

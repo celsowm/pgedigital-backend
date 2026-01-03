@@ -39,7 +39,7 @@ export class Entrega {
   usuario_id?: number;
 
   @HasMany({ target: () => RespostaTj, foreignKey: 'entrega_id' })
-  respostaTjs!: HasManyCollection<RespostaTj>;
+  respostasTj!: HasManyCollection<RespostaTj>;
 
   @BelongsTo({ target: () => Usuario, foreignKey: 'usuario_id' })
   usuario!: BelongsToReference<Usuario>;

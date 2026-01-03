@@ -68,10 +68,10 @@ export class Tema {
   peso?: number;
 
   @BelongsToMany({ target: () => ProcessoAdministrativo, pivotTable: () => ProcessoAdministrativoTema, pivotForeignKeyToRoot: 'tema_id', pivotForeignKeyToTarget: 'processo_administrativo_id' })
-  processoAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
+  processosAdministrativo!: ManyToManyCollection<ProcessoAdministrativo>;
 
   @BelongsToMany({ target: () => PalavraChave, pivotTable: () => PalavraChaveTema, pivotForeignKeyToRoot: 'tema_id', pivotForeignKeyToTarget: 'palavra_chave_id' })
-  palavraChaves!: ManyToManyCollection<PalavraChave>;
+  palavrasChave!: ManyToManyCollection<PalavraChave>;
 
   @BelongsToMany({ target: () => Materia, pivotTable: () => Tema, pivotForeignKeyToRoot: 'parent_id', pivotForeignKeyToTarget: 'materia_id' })
   materias!: ManyToManyCollection<Materia>;
@@ -83,16 +83,16 @@ export class Tema {
   modelos!: ManyToManyCollection<Modelo>;
 
   @HasMany({ target: () => ClassificacaoEspecializadaTema, foreignKey: 'tema_id' })
-  classificacaoEspecializadaTemas!: HasManyCollection<ClassificacaoEspecializadaTema>;
+  classificacoesEspecializadaTema!: HasManyCollection<ClassificacaoEspecializadaTema>;
 
   @HasMany({ target: () => ProcessoAdministrativoTema, foreignKey: 'tema_id' })
-  processoAdministrativoTemas!: HasManyCollection<ProcessoAdministrativoTema>;
+  processosAdministrativoTema!: HasManyCollection<ProcessoAdministrativoTema>;
 
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'tema_id' })
-  especializadaTemas!: HasManyCollection<EspecializadaTema>;
+  especializadasTema!: HasManyCollection<EspecializadaTema>;
 
   @HasMany({ target: () => PalavraChaveTema, foreignKey: 'tema_id' })
-  palavraChaveTemas!: HasManyCollection<PalavraChaveTema>;
+  palavrasChaveTema!: HasManyCollection<PalavraChaveTema>;
 
   @BelongsTo({ target: () => Tema, foreignKey: 'parent_id' })
   parent!: BelongsToReference<Tema>;
@@ -104,9 +104,9 @@ export class Tema {
   materia!: BelongsToReference<Materia>;
 
   @HasMany({ target: () => AcervoTema, foreignKey: 'tema_id' })
-  acervoTemas!: HasManyCollection<AcervoTema>;
+  acervosTema!: HasManyCollection<AcervoTema>;
 
   @HasMany({ target: () => ModeloTema, foreignKey: 'tema_id' })
-  modeloTemas!: HasManyCollection<ModeloTema>;
+  modelosTema!: HasManyCollection<ModeloTema>;
 
 }

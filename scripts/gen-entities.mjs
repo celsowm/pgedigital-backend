@@ -42,7 +42,7 @@ const buildUrlFromEnv = () => {
 };
 
 const schema = process.env.PGE_DIGITAL_SCHEMA ?? "dbo";
-const locale = process.env.METAL_ORM_LOCALE ?? process.env.PGE_DIGITAL_LOCALE;
+const locale = process.env.METAL_ORM_LOCALE ?? process.env.PGE_DIGITAL_LOCALE ?? "pt-BR";
 const url = process.env.DATABASE_URL ?? buildUrlFromEnv();
 
 const args = [

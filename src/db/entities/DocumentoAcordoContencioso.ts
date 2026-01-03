@@ -63,7 +63,7 @@ export class DocumentoAcordoContencioso {
   rght?: number;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'documento_acordo_contencioso_id' })
-  manifestacaos!: HasManyCollection<Manifestacao>;
+  manifestacoes!: HasManyCollection<Manifestacao>;
 
   @BelongsTo({ target: () => ProcessoAdministrativo, foreignKey: 'processo_contencioso_id' })
   processoContencioso!: BelongsToReference<ProcessoAdministrativo>;
@@ -78,6 +78,6 @@ export class DocumentoAcordoContencioso {
   parent!: BelongsToReference<DocumentoAcordoContencioso>;
 
   @HasMany({ target: () => DocumentoAcordoContencioso, foreignKey: 'parent_id' })
-  documentoAcordoContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
+  documentosAcordoContencioso!: HasManyCollection<DocumentoAcordoContencioso>;
 
 }

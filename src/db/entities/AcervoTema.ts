@@ -41,6 +41,6 @@ export class AcervoTema {
   acervo!: BelongsToReference<Acervo>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'acervo_tema_id' })
-  tramitacaoAutomaticaAcervoTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
+  tramitacoesAutomaticaAcervoTema!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
 }

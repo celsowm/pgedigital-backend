@@ -26,7 +26,7 @@ export class TipoIncidente {
   descricao?: string;
 
   @BelongsToMany({ target: () => DesabilitaTipoIntegracao, pivotTable: () => Incidente, pivotForeignKeyToRoot: 'tipo_incidente_id', pivotForeignKeyToTarget: 'desabilita_tipo_integracao_id' })
-  desabilitaTipoIntegracaos!: ManyToManyCollection<DesabilitaTipoIntegracao>;
+  desabilitasTipoIntegracao!: ManyToManyCollection<DesabilitaTipoIntegracao>;
 
   @HasMany({ target: () => Incidente, foreignKey: 'tipo_incidente_id' })
   incidentes!: HasManyCollection<Incidente>;

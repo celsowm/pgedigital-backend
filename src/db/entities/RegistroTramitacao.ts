@@ -111,7 +111,7 @@ export class RegistroTramitacao {
   usuarios!: ManyToManyCollection<Usuario>;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'registro_tramitacao_id' })
-  manifestacaos!: HasManyCollection<Manifestacao>;
+  manifestacoes!: HasManyCollection<Manifestacao>;
 
   @HasMany({ target: () => Carga, foreignKey: 'registro_tramitacao_id' })
   cargas!: HasManyCollection<Carga>;

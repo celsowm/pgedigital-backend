@@ -102,22 +102,22 @@ export class Pessoa {
   acervos!: ManyToManyCollection<Acervo>;
 
   @BelongsToMany({ target: () => TipoDocumentoPessoa, pivotTable: () => DocumentoPessoa, pivotForeignKeyToRoot: 'pessoa_id', pivotForeignKeyToTarget: 'tipo_documento_pessoa_id' })
-  tipoDocumentoPessoas!: ManyToManyCollection<TipoDocumentoPessoa>;
+  tiposDocumentoPessoa!: ManyToManyCollection<TipoDocumentoPessoa>;
 
   @HasMany({ target: () => Parte, foreignKey: 'pessoa_id' })
   partes!: HasManyCollection<Parte>;
 
   @HasMany({ target: () => InteressadoConsultivo, foreignKey: 'pessoa_id' })
-  interessadoConsultivos!: HasManyCollection<InteressadoConsultivo>;
+  interessadosConsultivo!: HasManyCollection<InteressadoConsultivo>;
 
   @HasMany({ target: () => RaizCnpjAcervo, foreignKey: 'matriz_id' })
-  raizCnpjAcervos!: HasManyCollection<RaizCnpjAcervo>;
+  raizesCnpjAcervo!: HasManyCollection<RaizCnpjAcervo>;
 
   @HasMany({ target: () => DocumentoPessoa, foreignKey: 'pessoa_id' })
-  documentoPessoas!: HasManyCollection<DocumentoPessoa>;
+  documentosPessoa!: HasManyCollection<DocumentoPessoa>;
 
   @HasMany({ target: () => EnderecoPessoa, foreignKey: 'pessoa_id' })
-  enderecoPessoas!: HasManyCollection<EnderecoPessoa>;
+  enderecosPessoa!: HasManyCollection<EnderecoPessoa>;
 
   @HasMany({ target: () => Interessado, foreignKey: 'pessoa_id' })
   interessados!: HasManyCollection<Interessado>;

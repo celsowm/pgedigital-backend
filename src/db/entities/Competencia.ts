@@ -33,7 +33,7 @@ export class Competencia {
   descricao?: string;
 
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'competencia_id' })
-  processoJudicials!: HasManyCollection<ProcessoJudicial>;
+  processosJudicial!: HasManyCollection<ProcessoJudicial>;
 
   @BelongsTo({ target: () => MniTribunal, foreignKey: 'tribunal_id' })
   tribunal!: BelongsToReference<MniTribunal>;

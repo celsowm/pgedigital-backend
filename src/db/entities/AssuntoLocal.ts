@@ -57,15 +57,15 @@ export class AssuntoLocal {
   especializadas!: ManyToManyCollection<Especializada>;
 
   @BelongsToMany({ target: () => ProcessoJudicial, pivotTable: () => AssuntoProcessoJudicial, pivotForeignKeyToRoot: 'assunto_local_id', pivotForeignKeyToTarget: 'processo_judicial_id' })
-  processoJudicials!: ManyToManyCollection<ProcessoJudicial>;
+  processosJudicial!: ManyToManyCollection<ProcessoJudicial>;
 
   @HasMany({ target: () => PredicaoAssuntoEspecializada, foreignKey: 'assunto_id' })
-  predicaoAssuntoEspecializadas!: HasManyCollection<PredicaoAssuntoEspecializada>;
+  predicoesAssuntoEspecializada!: HasManyCollection<PredicaoAssuntoEspecializada>;
 
   @BelongsTo({ target: () => MniTribunal, foreignKey: 'tribunal_id' })
   tribunal!: BelongsToReference<MniTribunal>;
 
   @HasMany({ target: () => AssuntoProcessoJudicial, foreignKey: 'assunto_local_id' })
-  assuntoProcessoJudicials!: HasManyCollection<AssuntoProcessoJudicial>;
+  assuntosProcessoJudicial!: HasManyCollection<AssuntoProcessoJudicial>;
 
 }

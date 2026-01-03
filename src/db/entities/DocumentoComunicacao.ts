@@ -92,10 +92,10 @@ export class DocumentoComunicacao {
   dummy?: boolean;
 
   @BelongsToMany({ target: () => Comunicacao, pivotTable: () => DocumentoComunicacao, pivotForeignKeyToRoot: 'parent_id', pivotForeignKeyToTarget: 'comunicacao_id' })
-  comunicacaos!: ManyToManyCollection<Comunicacao>;
+  comunicacoes!: ManyToManyCollection<Comunicacao>;
 
   @HasMany({ target: () => OutroParametroDocumentoComunicacao, foreignKey: 'documento_comunicacao_id' })
-  outroParametroDocumentoComunicacaos!: HasManyCollection<OutroParametroDocumentoComunicacao>;
+  outrosParametroDocumentoComunicacao!: HasManyCollection<OutroParametroDocumentoComunicacao>;
 
   @BelongsTo({ target: () => Comunicacao, foreignKey: 'comunicacao_id' })
   comunicacao!: BelongsToReference<Comunicacao>;
@@ -104,12 +104,12 @@ export class DocumentoComunicacao {
   parent!: BelongsToReference<DocumentoComunicacao>;
 
   @HasMany({ target: () => DocumentoComunicacao, foreignKey: 'parent_id' })
-  documentoComunicacaos!: HasManyCollection<DocumentoComunicacao>;
+  documentosComunicacao!: HasManyCollection<DocumentoComunicacao>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'documento_comunicacao_id' })
-  documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoComunicacaoOutroParametro, foreignKey: 'documento_comunicacao_id' })
-  documentoComunicacaoOutroParametros!: HasManyCollection<DocumentoComunicacaoOutroParametro>;
+  documentosComunicacaoOutroParametro!: HasManyCollection<DocumentoComunicacaoOutroParametro>;
 
 }

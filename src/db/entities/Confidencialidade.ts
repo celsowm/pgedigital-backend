@@ -91,6 +91,6 @@ export class Confidencialidade {
   especializada!: BelongsToReference<Especializada>;
 
   @HasMany({ target: () => ConfidencialidadeEspecializada, foreignKey: 'confidencialidade_id' })
-  confidencialidadeEspecializadas!: HasManyCollection<ConfidencialidadeEspecializada>;
+  confidencialidadesEspecializada!: HasManyCollection<ConfidencialidadeEspecializada>;
 
 }

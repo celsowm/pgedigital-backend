@@ -18,6 +18,6 @@ export class TipoRepresentante {
   descricao?: string;
 
   @HasMany({ target: () => RepresentanteJudicial, foreignKey: 'tipo_representante_id' })
-  representanteJudicials!: HasManyCollection<RepresentanteJudicial>;
+  representantesJudicial!: HasManyCollection<RepresentanteJudicial>;
 
 }

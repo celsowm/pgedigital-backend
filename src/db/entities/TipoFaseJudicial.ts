@@ -19,6 +19,6 @@ export class TipoFaseJudicial {
   nome!: string;
 
   @HasMany({ target: () => DecisaoJudicial, foreignKey: 'tipo_fase_judicial_id' })
-  decisaoJudicials!: HasManyCollection<DecisaoJudicial>;
+  decisoesJudicial!: HasManyCollection<DecisaoJudicial>;
 
 }

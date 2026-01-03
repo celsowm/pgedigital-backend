@@ -50,12 +50,12 @@ export class RepresentanteJudicial {
   partes!: ManyToManyCollection<Parte>;
 
   @HasMany({ target: () => ParteRepresentante, foreignKey: 'representante_judicial_id' })
-  parteRepresentantes!: HasManyCollection<ParteRepresentante>;
+  partesRepresentante!: HasManyCollection<ParteRepresentante>;
 
   @BelongsTo({ target: () => TipoRepresentante, foreignKey: 'tipo_representante_id' })
   tipoRepresentante!: BelongsToReference<TipoRepresentante>;
 
   @HasMany({ target: () => EnderecoRepresentanteJudicial, foreignKey: 'representante_judicial_id' })
-  enderecoRepresentanteJudicials!: HasManyCollection<EnderecoRepresentanteJudicial>;
+  enderecosRepresentanteJudicial!: HasManyCollection<EnderecoRepresentanteJudicial>;
 
 }

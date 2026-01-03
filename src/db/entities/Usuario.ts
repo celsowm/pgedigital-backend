@@ -154,10 +154,10 @@ export class Usuario {
   especializadas!: ManyToManyCollection<Especializada>;
 
   @BelongsToMany({ target: () => Perfil, pivotTable: () => UsuarioPerfil, pivotForeignKeyToRoot: 'usuario_id', pivotForeignKeyToTarget: 'perfil_id' })
-  perfils!: ManyToManyCollection<Perfil>;
+  perfis!: ManyToManyCollection<Perfil>;
 
   @BelongsToMany({ target: () => RegistroTramitacao, pivotTable: () => Despacho, pivotForeignKeyToRoot: 'usuario_id', pivotForeignKeyToTarget: 'registro_tramitacao_id' })
-  registroTramitacaos!: ManyToManyCollection<RegistroTramitacao>;
+  registrosTramitacao!: ManyToManyCollection<RegistroTramitacao>;
 
   @BelongsToMany({ target: () => Acervo, pivotTable: () => AcervoDestinatarioPa, pivotForeignKeyToRoot: 'destinatario_pa_id', pivotForeignKeyToTarget: 'acervo_id' })
   acervos!: ManyToManyCollection<Acervo>;
@@ -166,133 +166,133 @@ export class Usuario {
   equipes!: ManyToManyCollection<Equipe>;
 
   @BelongsToMany({ target: () => AcessoRestritoFuncionalidade, pivotTable: () => AcessoRestritoFuncionalidadeUsuario, pivotForeignKeyToRoot: 'usuario_id', pivotForeignKeyToTarget: 'acesso_restrito_funcionalidade_id' })
-  acessoRestritoFuncionalidades!: ManyToManyCollection<AcessoRestritoFuncionalidade>;
+  acessosRestritoFuncionalidade!: ManyToManyCollection<AcessoRestritoFuncionalidade>;
 
   @BelongsToMany({ target: () => AfastamentoPessoa, pivotTable: () => AfastamentoPessoaUsuario, pivotForeignKeyToRoot: 'usuario_id', pivotForeignKeyToTarget: 'afastamento_pessoa_id' })
-  afastamentoPessoas!: ManyToManyCollection<AfastamentoPessoa>;
+  afastamentosPessoa!: ManyToManyCollection<AfastamentoPessoa>;
 
   @BelongsToMany({ target: () => ProcessoAdministrativo, pivotTable: () => UsuarioPermitidoAcessarProcessoAdministrativoSigiloso, pivotForeignKeyToRoot: 'usuario_id', pivotForeignKeyToTarget: 'processo_administrativo_id' })
-  processoAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
+  processosAdministrativo!: ManyToManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativoAcordo, foreignKey: 'usuario_id' })
-  documentoProcessoAdministrativoAcordos!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
+  documentosProcessoAdministrativoAcordo!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
 
   @HasMany({ target: () => PreferenciaUsuario, foreignKey: 'usuario_id' })
-  preferenciaUsuarios!: HasManyCollection<PreferenciaUsuario>;
+  preferenciasUsuario!: HasManyCollection<PreferenciaUsuario>;
 
   @HasMany({ target: () => EstadoSolicitacao, foreignKey: 'usuario_id' })
-  estadoSolicitacaos!: HasManyCollection<EstadoSolicitacao>;
+  estadosSolicitacao!: HasManyCollection<EstadoSolicitacao>;
 
   @HasMany({ target: () => Correicao, foreignKey: 'usuario_id' })
-  correicaos!: HasManyCollection<Correicao>;
+  correicoes!: HasManyCollection<Correicao>;
 
   @HasMany({ target: () => MarcadorDocumentoProcessoJudicial, foreignKey: 'usuario_id' })
-  marcadorDocumentoProcessoJudicials!: HasManyCollection<MarcadorDocumentoProcessoJudicial>;
+  marcadoresDocumentoProcessoJudicial!: HasManyCollection<MarcadorDocumentoProcessoJudicial>;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativo, foreignKey: 'usuario_id' })
-  modeloFormularioProcessoAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
+  modelosFormularioProcessoAdministrativo!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
 
   @HasMany({ target: () => RetornoProgramado, foreignKey: 'destinatario_id' })
-  retornoProgramados!: HasManyCollection<RetornoProgramado>;
+  retornosProgramado!: HasManyCollection<RetornoProgramado>;
 
   @HasMany({ target: () => EspecializadaDistribuidor, foreignKey: 'distribuidor_id' })
-  especializadaDistribuidors!: HasManyCollection<EspecializadaDistribuidor>;
+  especializadasDistribuidor!: HasManyCollection<EspecializadaDistribuidor>;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativoEstadoModeloFormulario, foreignKey: 'usuario_id' })
-  modeloFormularioProcessoAdministrativoEstadoModeloFormularios!: HasManyCollection<ModeloFormularioProcessoAdministrativoEstadoModeloFormulario>;
+  modelosFormularioProcessoAdministrativoEstadoModeloFormulario!: HasManyCollection<ModeloFormularioProcessoAdministrativoEstadoModeloFormulario>;
 
   @HasMany({ target: () => DocumentoRascunho, foreignKey: 'usuario_id' })
-  documentoRascunhos!: HasManyCollection<DocumentoRascunho>;
+  documentosRascunho!: HasManyCollection<DocumentoRascunho>;
 
   @HasMany({ target: () => Carga, foreignKey: 'usuario_id' })
   cargas!: HasManyCollection<Carga>;
 
   @HasMany({ target: () => DocumentoRascunhoEstado, foreignKey: 'usuario_id' })
-  documentoRascunhoEstados!: HasManyCollection<DocumentoRascunhoEstado>;
+  documentosRascunhoEstado!: HasManyCollection<DocumentoRascunhoEstado>;
 
   @HasMany({ target: () => ModeloFormulario, foreignKey: 'criador_id' })
-  modeloFormularios!: HasManyCollection<ModeloFormulario>;
+  modelosFormulario!: HasManyCollection<ModeloFormulario>;
 
   @HasMany({ target: () => DocumentoAcordoContencioso, foreignKey: 'usuario_id' })
-  documentoAcordoContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
+  documentosAcordoContencioso!: HasManyCollection<DocumentoAcordoContencioso>;
 
   @HasMany({ target: () => UsuarioPerfil, foreignKey: 'usuario_id' })
-  usuarioPerfils!: HasManyCollection<UsuarioPerfil>;
+  usuariosPerfil!: HasManyCollection<UsuarioPerfil>;
 
   @HasMany({ target: () => EstadoProcessoAdministrativo, foreignKey: 'usuario_id' })
-  estadoProcessoAdministrativos!: HasManyCollection<EstadoProcessoAdministrativo>;
+  estadosProcessoAdministrativo!: HasManyCollection<EstadoProcessoAdministrativo>;
 
   @HasMany({ target: () => EspecializadaAssistente, foreignKey: 'assistente_id' })
-  especializadaAssistentes!: HasManyCollection<EspecializadaAssistente>;
+  especializadasAssistente!: HasManyCollection<EspecializadaAssistente>;
 
   @HasMany({ target: () => Despacho, foreignKey: 'usuario_id' })
   despachos!: HasManyCollection<Despacho>;
 
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'usuario_id' })
-  documentoAnexoRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
+  documentosAnexoRascunho!: HasManyCollection<DocumentoAnexoRascunho>;
 
   @HasMany({ target: () => AcervoDestinatarioPa, foreignKey: 'destinatario_pa_id' })
-  acervoDestinatarioPas!: HasManyCollection<AcervoDestinatarioPa>;
+  acervosDestinatarioPa!: HasManyCollection<AcervoDestinatarioPa>;
 
   @HasMany({ target: () => EquipeUsuario, foreignKey: 'usuario_id' })
-  equipeUsuarios!: HasManyCollection<EquipeUsuario>;
+  equipesUsuario!: HasManyCollection<EquipeUsuario>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'usuario_id' })
-  documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessoAdministrativo!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoAcervo, foreignKey: 'usuario_acao_id' })
-  historicoDistribuicaoAcervos!: HasManyCollection<HistoricoDistribuicaoAcervo>;
+  historicosDistribuicaoAcervo!: HasManyCollection<HistoricoDistribuicaoAcervo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoEspecializada, foreignKey: 'usuario_acao_id' })
-  historicoDistribuicaoEspecializadas!: HasManyCollection<HistoricoDistribuicaoEspecializada>;
+  historicosDistribuicaoEspecializada!: HasManyCollection<HistoricoDistribuicaoEspecializada>;
 
   @HasMany({ target: () => HistoricoUsuarioEspecializada, foreignKey: 'usuario_acao_id' })
-  historicoUsuarioEspecializadas!: HasManyCollection<HistoricoUsuarioEspecializada>;
+  historicosUsuarioEspecializada!: HasManyCollection<HistoricoUsuarioEspecializada>;
 
   @HasMany({ target: () => Quesito, foreignKey: 'usuario_id' })
   quesitos!: HasManyCollection<Quesito>;
 
   @HasMany({ target: () => Protocolizacao, foreignKey: 'usuario_id' })
-  protocolizacaos!: HasManyCollection<Protocolizacao>;
+  protocolizacoes!: HasManyCollection<Protocolizacao>;
 
   @HasMany({ target: () => Acordo, foreignKey: 'mediador_id' })
   acordos!: HasManyCollection<Acordo>;
 
   @HasMany({ target: () => SorteioCorreicao, foreignKey: 'usuario_id' })
-  sorteioCorreicaos!: HasManyCollection<SorteioCorreicao>;
+  sorteiosCorreicao!: HasManyCollection<SorteioCorreicao>;
 
   @HasMany({ target: () => EspecializadaUsuarioNotificacao, foreignKey: 'usuario_id' })
-  especializadaUsuarioNotificacaos!: HasManyCollection<EspecializadaUsuarioNotificacao>;
+  especializadasUsuarioNotificacao!: HasManyCollection<EspecializadaUsuarioNotificacao>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativo, foreignKey: 'avaliador_id' })
-  sorteioCorreicaoProcessoAdministrativos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
+  sorteiosCorreicaoProcessoAdministrativo!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativoQuesito, foreignKey: 'usuario_id' })
-  sorteioCorreicaoProcessoAdministrativoQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
+  sorteiosCorreicaoProcessoAdministrativoQuesito!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
 
   @HasMany({ target: () => AcessoRestritoFuncionalidadeUsuario, foreignKey: 'usuario_id' })
-  acessoRestritoFuncionalidadeUsuarios!: HasManyCollection<AcessoRestritoFuncionalidadeUsuario>;
+  acessosRestritoFuncionalidadeUsuario!: HasManyCollection<AcessoRestritoFuncionalidadeUsuario>;
 
   @HasMany({ target: () => PastaCaixaEntrada, foreignKey: 'usuario_id' })
-  pastaCaixaEntradas!: HasManyCollection<PastaCaixaEntrada>;
+  pastasCaixaEntrada!: HasManyCollection<PastaCaixaEntrada>;
 
   @HasMany({ target: () => AfastamentoPessoaUsuario, foreignKey: 'usuario_id' })
-  afastamentoPessoaUsuarios!: HasManyCollection<AfastamentoPessoaUsuario>;
+  afastamentosPessoaUsuario!: HasManyCollection<AfastamentoPessoaUsuario>;
 
   @HasMany({ target: () => HistoricoPrazo, foreignKey: 'usuario_id' })
-  historicoPrazos!: HasManyCollection<HistoricoPrazo>;
+  historicosPrazo!: HasManyCollection<HistoricoPrazo>;
 
   @BelongsTo({ target: () => Especializada, foreignKey: 'especializada_id' })
   especializada!: BelongsToReference<Especializada>;
 
   @HasMany({ target: () => ProvidenciaJuridica, foreignKey: 'usuario_id' })
-  providenciaJuridicas!: HasManyCollection<ProvidenciaJuridica>;
+  providenciasJuridica!: HasManyCollection<ProvidenciaJuridica>;
 
   @HasMany({ target: () => Audiencia, foreignKey: 'usuario_criador_id' })
   audiencias!: HasManyCollection<Audiencia>;
 
   @HasMany({ target: () => Comunicacao, foreignKey: 'responsavel_id' })
-  comunicacaos!: HasManyCollection<Comunicacao>;
+  comunicacoes!: HasManyCollection<Comunicacao>;
 
   @HasMany({ target: () => Modelo, foreignKey: 'usuario_id' })
   modelos!: HasManyCollection<Modelo>;
@@ -301,18 +301,18 @@ export class Usuario {
   entregas!: HasManyCollection<Entrega>;
 
   @HasMany({ target: () => ComunicacaoEstado, foreignKey: 'usuario_id' })
-  comunicacaoEstados!: HasManyCollection<ComunicacaoEstado>;
+  comunicacoesEstado!: HasManyCollection<ComunicacaoEstado>;
 
   @HasMany({ target: () => UsuarioPermitidoAcessarProcessoAdministrativoSigiloso, foreignKey: 'usuario_id' })
-  usuarioPermitidoAcessarProcessoAdministrativoSigilosos!: HasManyCollection<UsuarioPermitidoAcessarProcessoAdministrativoSigiloso>;
+  usuariosPermitidoAcessarProcessoAdministrativoSigiloso!: HasManyCollection<UsuarioPermitidoAcessarProcessoAdministrativoSigiloso>;
 
   @HasMany({ target: () => ValorAdicional, foreignKey: 'usuario_id' })
-  valorAdicionals!: HasManyCollection<ValorAdicional>;
+  valoresAdicional!: HasManyCollection<ValorAdicional>;
 
   @HasMany({ target: () => Solicitacao, foreignKey: 'solicitante_id' })
-  solicitacaos!: HasManyCollection<Solicitacao>;
+  solicitacoes!: HasManyCollection<Solicitacao>;
 
   @HasMany({ target: () => ManifestacaoEstado, foreignKey: 'usuario_id' })
-  manifestacaoEstados!: HasManyCollection<ManifestacaoEstado>;
+  manifestacoesEstado!: HasManyCollection<ManifestacaoEstado>;
 
 }

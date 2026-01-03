@@ -183,28 +183,28 @@ export class Comunicacao {
   numero_comunicacao?: string;
 
   @BelongsToMany({ target: () => TipoDispensa, pivotTable: () => DispensaGenerica, pivotForeignKeyToRoot: 'comunicacao_id', pivotForeignKeyToTarget: 'tipo_dispensa_id' })
-  tipoDispensas!: ManyToManyCollection<TipoDispensa>;
+  tiposDispensa!: ManyToManyCollection<TipoDispensa>;
 
   @BelongsToMany({ target: () => DocumentoComunicacao, pivotTable: () => DocumentoComunicacao, pivotForeignKeyToRoot: 'comunicacao_id', pivotForeignKeyToTarget: 'parent_id' })
-  documentoComunicacaos!: ManyToManyCollection<DocumentoComunicacao>;
+  documentosComunicacao!: ManyToManyCollection<DocumentoComunicacao>;
 
   @BelongsToMany({ target: () => AvisoPendente, pivotTable: () => RegistroEnvioComunicacao, pivotForeignKeyToRoot: 'comunicacao_id', pivotForeignKeyToTarget: 'aviso_pendente_id' })
-  avisoPendentes!: ManyToManyCollection<AvisoPendente>;
+  avisosPendente!: ManyToManyCollection<AvisoPendente>;
 
   @HasMany({ target: () => DispensaGenerica, foreignKey: 'comunicacao_id' })
-  dispensaGenericas!: HasManyCollection<DispensaGenerica>;
+  dispensasGenerica!: HasManyCollection<DispensaGenerica>;
 
   @HasMany({ target: () => ComunicacaoOutroParametro, foreignKey: 'comunicacao_id' })
-  comunicacaoOutroParametros!: HasManyCollection<ComunicacaoOutroParametro>;
+  comunicacoesOutroParametro!: HasManyCollection<ComunicacaoOutroParametro>;
 
   @HasMany({ target: () => OutroParametroComunicacao, foreignKey: 'comunicacao_id' })
-  outroParametroComunicacaos!: HasManyCollection<OutroParametroComunicacao>;
+  outrosParametroComunicacao!: HasManyCollection<OutroParametroComunicacao>;
 
   @HasMany({ target: () => DecisaoJudicial, foreignKey: 'comunicacao_id' })
-  decisaoJudicials!: HasManyCollection<DecisaoJudicial>;
+  decisoesJudicial!: HasManyCollection<DecisaoJudicial>;
 
   @HasMany({ target: () => ProvidenciaJuridica, foreignKey: 'comunicacao_id' })
-  providenciaJuridicas!: HasManyCollection<ProvidenciaJuridica>;
+  providenciasJuridica!: HasManyCollection<ProvidenciaJuridica>;
 
   @BelongsTo({ target: () => TipoComunicacao, foreignKey: 'tipo_comunicacao_id' })
   tipoComunicacao!: BelongsToReference<TipoComunicacao>;
@@ -228,9 +228,9 @@ export class Comunicacao {
   estado!: BelongsToReference<Estado>;
 
   @HasMany({ target: () => ComunicacaoEstado, foreignKey: 'comunicacao_id' })
-  comunicacaoEstados!: HasManyCollection<ComunicacaoEstado>;
+  comunicacoesEstado!: HasManyCollection<ComunicacaoEstado>;
 
   @HasMany({ target: () => RegistroEnvioComunicacao, foreignKey: 'comunicacao_id' })
-  registroEnvioComunicacaos!: HasManyCollection<RegistroEnvioComunicacao>;
+  registrosEnvioComunicacao!: HasManyCollection<RegistroEnvioComunicacao>;
 
 }

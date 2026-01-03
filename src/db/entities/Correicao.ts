@@ -78,9 +78,9 @@ export class Correicao {
   corregedor!: BelongsToReference<Usuario>;
 
   @HasMany({ target: () => SorteioCorreicao, foreignKey: 'correicao_id' })
-  sorteioCorreicaos!: HasManyCollection<SorteioCorreicao>;
+  sorteiosCorreicao!: HasManyCollection<SorteioCorreicao>;
 
   @HasMany({ target: () => CorreicaoQuesito, foreignKey: 'correicao_id' })
-  correicaoQuesitos!: HasManyCollection<CorreicaoQuesito>;
+  correicoesQuesito!: HasManyCollection<CorreicaoQuesito>;
 
 }

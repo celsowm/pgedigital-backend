@@ -18,6 +18,6 @@ export class TipoModalidadeVinculacaoProcessual {
   nome!: string;
 
   @HasMany({ target: () => ProcessoVinculado, foreignKey: 'tipo_modalidade_vinculacao_processual_id' })
-  processoVinculados!: HasManyCollection<ProcessoVinculado>;
+  processosVinculado!: HasManyCollection<ProcessoVinculado>;
 
 }

@@ -22,6 +22,6 @@ export class TipoDocumentoPessoa {
   pessoas!: ManyToManyCollection<Pessoa>;
 
   @HasMany({ target: () => DocumentoPessoa, foreignKey: 'tipo_documento_pessoa_id' })
-  documentoPessoas!: HasManyCollection<DocumentoPessoa>;
+  documentosPessoa!: HasManyCollection<DocumentoPessoa>;
 
 }

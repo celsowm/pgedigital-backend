@@ -83,8 +83,8 @@ export class EspecializadaController {
   @QueryStyle({ style: "deepObject" })
   async list(
     where?: EspecializadaWhere,
-  ): Promise<EspecializadaService.EspecializadaResponse[]> {
-    
+  ): Promise<Especializada[]> {
+
     const filters = toEspecializadaFilters(where);
 
     return withSession(session => EspecializadaService.list(session, filters));

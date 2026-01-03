@@ -25,9 +25,9 @@ export class NivelSigilo {
   descricao?: string;
 
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'nivel_sigilo_id' })
-  processoJudicials!: HasManyCollection<ProcessoJudicial>;
+  processosJudicial!: HasManyCollection<ProcessoJudicial>;
 
   @HasMany({ target: () => Comunicacao, foreignKey: 'nivel_sigilo_id' })
-  comunicacaos!: HasManyCollection<Comunicacao>;
+  comunicacoes!: HasManyCollection<Comunicacao>;
 
 }
