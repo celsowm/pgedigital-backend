@@ -84,7 +84,7 @@ const toResponsavelSummary = (responsavel?: Usuario | null): EspecializadaRespon
 
 const toResponse = (entity: Especializada): EspecializadaResponse => ({
   ...copyBaseColumns(entity),
-  responsavel: toResponsavelSummary(entity.responsavel ?? null),
+  responsavel: toResponsavelSummary(entity.responsavel?.get?.() ?? null),
 });
 
 export const list = async (session: OrmSession, filters?: EspecializadaFilters) => {

@@ -1,59 +1,36 @@
 import { Controller, Get, Post, Put, QueryStyle } from "adorn-api";
 import type { SearchWhere } from "adorn-api/metal";
-import type { BelongsToReference } from "metal-orm";
 import type { Especializada } from "../db/entities/Especializada.js";
-import type { Usuario } from "../db/entities/Usuario.js";
 import { withSession } from "../db/orm.js";
+import type { EspecializadaFilters } from "../repositories/EspecializadaRepository.js";
 import * as EspecializadaService from "../services/EspecializadaService.js";
 
-type EspecializadaWhereModel = Pick<
-  Especializada,
-  | "responsavel_id"
-  | "tipo_especializada_id"
-  | "usa_pge_digital"
-  | "usa_plantao_audiencia"
-  | "restricao_ponto_focal"
-  | "especializada_triagem"
-  | "codigo_ad"
-  | "nome"
-  | "sigla"
-> & {
-  responsavel?: BelongsToReference<Pick<Usuario, "id" | "nome">>;
-};
-
-type EspecializadaWhere = SearchWhere<EspecializadaWhereModel, { maxDepth: 1 }>;
-
-type EspecializadaFilters = {
-  responsavel_id?: number;
-  responsavel_nome?: string;
-  tipo_especializada_id?: number;
-  usa_pge_digital?: boolean;
-  usa_plantao_audiencia?: boolean;
-  restricao_ponto_focal?: boolean;
-  especializada_triagem?: boolean;
-  codigo_ad?: number;
-  nome?: string;
-  sigla?: string;
-};
+type EspecializadaWhere = SearchWhere<Especializada, {
+  maxDepth: 1;
+  include: [
+    "responsavel_id",
+    "tipo_especializada_id",
+    "usa_pge_digital",
+    "usa_plantao_audiencia",
+    "restricao_ponto_focal",
+    "especializada_triagem",
+    "codigo_ad",
+    "nome",
+    "sigla",
+    "responsavel.id",
+    "responsavel.nome",
+  ];
+}>;
 
 const toEspecializadaFilters = (
   where?: EspecializadaWhere,
 ): EspecializadaFilters | undefined => {
-  if (!where || Object.keys(where).length === 0) {
-    return undefined;
-  }
+  if (!where) return undefined;
 
   const filters: EspecializadaFilters = {};
-  const responsavelWhere = where.responsavel;
 
   if (where.responsavel_id !== undefined) {
     filters.responsavel_id = where.responsavel_id;
-  } else if (responsavelWhere?.id !== undefined) {
-    filters.responsavel_id = responsavelWhere.id;
-  }
-
-  if (responsavelWhere?.nome !== undefined) {
-    filters.responsavel_nome = responsavelWhere.nome;
   }
 
   if (where.tipo_especializada_id !== undefined) {
@@ -88,8 +65,17 @@ const toEspecializadaFilters = (
     filters.sigla = where.sigla;
   }
 
-  return filters;
+  if (where.responsavel?.id !== undefined && filters.responsavel_id === undefined) {
+    filters.responsavel_id = where.responsavel.id;
+  }
+
+  if (where.responsavel?.nome !== undefined) {
+    filters.responsavel_nome = where.responsavel.nome;
+  }
+
+  return Object.keys(filters).length ? filters : undefined;
 };
+
 
 @Controller("/especializada")
 export class EspecializadaController {
@@ -98,6 +84,7 @@ export class EspecializadaController {
   async list(
     where?: EspecializadaWhere,
   ): Promise<EspecializadaService.EspecializadaResponse[]> {
+    
     const filters = toEspecializadaFilters(where);
 
     return withSession(session => EspecializadaService.list(session, filters));
