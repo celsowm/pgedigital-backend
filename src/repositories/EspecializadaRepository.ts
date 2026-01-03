@@ -2,6 +2,7 @@ import type { OrmSession } from "metal-orm";
 import { selectFromEntity, entityRefs, eq, like } from "metal-orm";
 import { Especializada } from "../db/entities/Especializada.js";
 import { Usuario } from "../db/entities/Usuario.js";
+import type { Pagination, PagedResult } from "../utils/pagination.js";
 
 export type EspecializadaFilters = {
   responsavel_id?: number;
@@ -100,6 +101,22 @@ const applyFilters = (
 export const listEspecializadas = async (session: OrmSession, filters?: EspecializadaFilters): Promise<Especializada[]> => {
   const query = applyFilters(createBaseQuery(), filters);
   return query.execute(session);
+};
+
+export const listEspecializadasPaged = async (
+  session: OrmSession,
+  filters?: EspecializadaFilters,
+  pagination?: Pagination,
+): Promise<PagedResult<Especializada>> => {
+  const query = applyFilters(createBaseQuery(), filters);
+  const paginationParams = pagination || { page: 1, pageSize: 50 };
+  const result = await query.executePaged(session, paginationParams);
+  
+  return {
+    ...result,
+    page: paginationParams.page,
+    pageSize: paginationParams.pageSize,
+  };
 };
 
 export const findEspecializada = async (session: OrmSession, id: number) => {

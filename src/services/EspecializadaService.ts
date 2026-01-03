@@ -3,10 +3,12 @@ import { Especializada } from "../db/entities/Especializada.js";
 import { Usuario } from "../db/entities/Usuario.js";
 import {
   listEspecializadas,
+  listEspecializadasPaged,
   findEspecializada,
   type EspecializadaFilters,
   ESPECIALIZADA_COLUMNS,
 } from "../repositories/EspecializadaRepository.js";
+import type { Pagination, PagedResult } from "../utils/pagination.js";
 
 type EspecializadaOptionalInput = Partial<
   Pick<
@@ -90,6 +92,19 @@ const toResponse = (entity: Especializada): EspecializadaResponse => ({
 export const list = async (session: OrmSession, filters?: EspecializadaFilters): Promise<Especializada[]> => {
   const rows = await listEspecializadas(session, filters);
   return rows;
+};
+
+export const listPaged = async (
+  session: OrmSession,
+  filters?: EspecializadaFilters,
+  pagination?: Pagination,
+): Promise<PagedResult<EspecializadaResponse>> => {
+  const pagedResult = await listEspecializadasPaged(session, filters, pagination);
+  
+  return {
+    ...pagedResult,
+    items: pagedResult.items.map(toResponse),
+  };
 };
 
 export const getById = async (session: OrmSession, id: number): Promise<EspecializadaResponse | null> => {
