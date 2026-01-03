@@ -97,7 +97,7 @@ const applyFilters = (
   return current;
 };
 
-export const listEspecializadas = async (session: OrmSession, filters?: EspecializadaFilters) => {
+export const listEspecializadas = async (session: OrmSession, filters?: EspecializadaFilters): Promise<Especializada[]> => {
   const query = applyFilters(createBaseQuery(), filters);
   return query.execute(session);
 };

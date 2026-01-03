@@ -87,17 +87,17 @@ const toResponse = (entity: Especializada): EspecializadaResponse => ({
   responsavel: toResponsavelSummary(entity.responsavel?.get?.() ?? null),
 });
 
-export const list = async (session: OrmSession, filters?: EspecializadaFilters) => {
+export const list = async (session: OrmSession, filters?: EspecializadaFilters): Promise<Especializada[]> => {
   const rows = await listEspecializadas(session, filters);
-  return rows.map(toResponse);
+  return rows;
 };
 
-export const getById = async (session: OrmSession, id: number) => {
+export const getById = async (session: OrmSession, id: number): Promise<EspecializadaResponse | null> => {
   const record = await findEspecializada(session, id);
   return record ? toResponse(record) : null;
 };
 
-export const create = async (session: OrmSession, input: EspecializadaCreateInput) => {
+export const create = async (session: OrmSession, input: EspecializadaCreateInput): Promise<EspecializadaResponse> => {
   const payload = {
     ...input,
     restricao_ponto_focal: input.restricao_ponto_focal ?? false,
@@ -116,7 +116,7 @@ export const update = async (
   session: OrmSession,
   id: number,
   input: EspecializadaUpdateInput,
-) => {
+): Promise<EspecializadaResponse | null> => {
   const payload = {
     id,
     ...input,
