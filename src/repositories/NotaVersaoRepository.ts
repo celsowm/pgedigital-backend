@@ -56,13 +56,7 @@ export const listNotaVersoesPaged = async (
   }
 
   const paginationParams = pagination || { page: 1, pageSize: 50 };
-  const result = await query.executePaged(session, paginationParams);
-  
-  return {
-    ...result,
-    page: paginationParams.page,
-    pageSize: paginationParams.pageSize,
-  };
+  return query.executePaged(session, paginationParams);
 };
 
 export const findNotaVersao = (session: OrmSession, id: number) => session.find(NotaVersao, id);
