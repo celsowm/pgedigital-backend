@@ -1,7 +1,7 @@
 import type { OrmSession } from "metal-orm";
 import { selectFromEntity, entityRef, eq } from "metal-orm";
 import { NotaVersao } from "../db/entities/NotaVersao.js";
-import type { Pagination, PagedResult } from "../utils/pagination.js";
+import type { PaginatedResult } from "metal-orm";
 
 export type NotaVersaoFilters = {
   ativo?: boolean;
@@ -34,8 +34,8 @@ export const listNotaVersoes = async (session: OrmSession, filters?: NotaVersaoF
 export const listNotaVersoesPaged = async (
   session: OrmSession,
   filters?: NotaVersaoFilters,
-  pagination?: Pagination,
-): Promise<PagedResult<NotaVersao>> => {
+  pagination?: { page?: number; pageSize?: number },
+): Promise<PaginatedResult<NotaVersao>> => {
   const NV = entityRef(NotaVersao);
   let query = selectFromEntity(NotaVersao).select(
     "id",
@@ -55,7 +55,10 @@ export const listNotaVersoesPaged = async (
     query = query.where(eq(NV.sprint, filters.sprint));
   }
 
-  const paginationParams = pagination || { page: 1, pageSize: 50 };
+  const paginationParams = {
+    page: pagination?.page ?? 1,
+    pageSize: pagination?.pageSize ?? 50,
+  };
   return query.executePaged(session, paginationParams);
 };
 

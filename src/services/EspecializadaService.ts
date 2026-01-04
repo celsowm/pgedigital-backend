@@ -8,7 +8,7 @@ import {
   type EspecializadaFilters,
   ESPECIALIZADA_COLUMNS,
 } from "../repositories/EspecializadaRepository.js";
-import type { Pagination, PagedResult } from "../utils/pagination.js";
+import type { PaginatedResult } from "metal-orm";
 
 type EspecializadaOptionalInput = Partial<
   Pick<
@@ -97,8 +97,8 @@ export const list = async (session: OrmSession, filters?: EspecializadaFilters):
 export const listPaged = async (
   session: OrmSession,
   filters?: EspecializadaFilters,
-  pagination?: Pagination,
-): Promise<PagedResult<EspecializadaResponse>> => {
+  pagination?: { page?: number; pageSize?: number },
+): Promise<PaginatedResult<EspecializadaResponse>> => {
   const pagedResult = await listEspecializadasPaged(session, filters, pagination);
   
   return {

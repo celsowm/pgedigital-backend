@@ -4,8 +4,7 @@ import type { Especializada } from "../db/entities/Especializada.js";
 import { withSession } from "../db/orm.js";
 import type { EspecializadaFilters } from "../repositories/EspecializadaRepository.js";
 import * as EspecializadaService from "../services/EspecializadaService.js";
-import type { PaginationQuery, PagedResult } from "../utils/pagination.js";
-import { resolvePagination } from "../utils/pagination.js";
+import type { PaginatedResult } from "metal-orm";
 
 type EspecializadaWhere = SearchWhere<Especializada, {
   maxDepth: 1;
@@ -85,12 +84,11 @@ export class EspecializadaController {
   @QueryStyle({ style: "deepObject" })
   async list(
     where?: EspecializadaWhere,
-    pagination?: PaginationQuery,
-  ): Promise<PagedResult<EspecializadaService.EspecializadaResponse>> {
+    pagination?: { page?: number; pageSize?: number },
+  ): Promise<PaginatedResult<EspecializadaService.EspecializadaResponse>> {
     const filters = toEspecializadaFilters(where);
-    const resolvedPagination = resolvePagination(pagination);
 
-    return withSession(session => EspecializadaService.listPaged(session, filters, resolvedPagination));
+    return withSession(session => EspecializadaService.listPaged(session, filters, pagination));
   }
 
   @Get("/:id")

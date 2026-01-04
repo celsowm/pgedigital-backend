@@ -1,7 +1,7 @@
 import type { OrmSession } from "metal-orm";
 import { NotaVersao } from "../db/entities/NotaVersao.js";
 import { listNotaVersoes, listNotaVersoesPaged, findNotaVersao, type NotaVersaoFilters } from "../repositories/NotaVersaoRepository.js";
-import type { Pagination, PagedResult } from "../utils/pagination.js";
+import type { PaginatedResult } from "metal-orm";
 
 type NotaVersaoDateInput = {
   data: Date;
@@ -28,8 +28,8 @@ export const list = (session: OrmSession, filters?: NotaVersaoFilters) =>
 export const listPaged = (
   session: OrmSession,
   filters?: NotaVersaoFilters,
-  pagination?: Pagination,
-): Promise<PagedResult<NotaVersao>> =>
+  pagination?: { page?: number; pageSize?: number },
+): Promise<PaginatedResult<NotaVersao>> =>
   listNotaVersoesPaged(session, filters, pagination);
 
 export const getById = (session: OrmSession, id: number) =>

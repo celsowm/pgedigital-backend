@@ -2,8 +2,7 @@ import { Controller, Get, Post, Put } from "adorn-api";
 import type { NotaVersao } from "../db/entities/NotaVersao.js";
 import { withSession } from "../db/orm.js";
 import * as NotaVersaoService from "../services/NotaVersaoService.js";
-import type { PaginationQuery, PagedResult } from "../utils/pagination.js";
-import { resolvePagination } from "../utils/pagination.js";
+import type { PaginatedResult } from "metal-orm";
 
 type NotaVersaoQuery = {
   ativo?: boolean;
@@ -15,9 +14,9 @@ type NotaVersaoQuery = {
 @Controller("/nota-versao")
 export class NotaVersaoController {
   @Get("/")
-  async list(query?: NotaVersaoQuery): Promise<PagedResult<NotaVersao>> {
+  async list(query?: NotaVersaoQuery): Promise<PaginatedResult<NotaVersao>> {
     const { page, pageSize, ...filters } = query || {};
-    const pagination = resolvePagination({ page, pageSize });
+    const pagination = { page, pageSize };
     return withSession(session => NotaVersaoService.listPaged(session, filters, pagination));
   }
 
