@@ -85,21 +85,21 @@ export class EspecializadaController {
   async list(
     where?: EspecializadaWhere,
     pagination?: { page?: number; pageSize?: number },
-  ): Promise<PaginatedResult<EspecializadaService.EspecializadaResponse>> {
+  ): Promise<PaginatedResult<Especializada>> {
     const filters = toEspecializadaFilters(where);
 
     return withSession(session => EspecializadaService.listPaged(session, filters, pagination));
   }
 
   @Get("/:id")
-  async getById(id: number): Promise<EspecializadaService.EspecializadaResponse | null> {
+  async getById(id: number): Promise<Especializada | null> {
     return withSession(session => EspecializadaService.getById(session, id));
   }
 
   @Post("/")
   async create(
     body: EspecializadaService.EspecializadaCreateInput,
-  ): Promise<EspecializadaService.EspecializadaResponse> {
+  ): Promise<Especializada> {
     return withSession(session => EspecializadaService.create(session, body));
   }
 
@@ -107,7 +107,7 @@ export class EspecializadaController {
   async update(
     id: number,
     body: EspecializadaService.EspecializadaUpdateInput,
-  ): Promise<EspecializadaService.EspecializadaResponse | null> {
+  ): Promise<Especializada | null> {
     return withSession(session => EspecializadaService.update(session, id, body));
   }
 }

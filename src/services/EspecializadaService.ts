@@ -51,43 +51,12 @@ export type EspecializadaUpdateInput = Partial<
   >
 >;
 
-type EspecializadaBaseColumn = (typeof ESPECIALIZADA_COLUMNS)[number];
-type EspecializadaSummary = Pick<Especializada, EspecializadaBaseColumn>;
-type EspecializadaResponsavelSummary = Pick<Usuario, "id" | "nome" | "login" | "cargo">;
-
-export type EspecializadaResponse = EspecializadaSummary & {
-  responsavel?: EspecializadaResponsavelSummary | null;
-};
-
 const withGraphDefaults = (session: OrmSession) =>
   session.withSaveGraphDefaults({
     coerce: "json-in",
     flush: true,
     transactional: false,
   });
-
-const copyBaseColumns = (entity: Especializada): EspecializadaSummary => {
-  const snapshot = {} as Record<EspecializadaBaseColumn, Especializada[EspecializadaBaseColumn]>;
-  for (const column of ESPECIALIZADA_COLUMNS) {
-    snapshot[column] = entity[column];
-  }
-  return snapshot as EspecializadaSummary;
-};
-
-const toResponsavelSummary = (responsavel?: Usuario | null): EspecializadaResponsavelSummary | null => {
-  if (!responsavel) return null;
-  return {
-    id: responsavel.id,
-    nome: responsavel.nome,
-    login: responsavel.login,
-    cargo: responsavel.cargo,
-  };
-};
-
-const toResponse = (entity: Especializada): EspecializadaResponse => ({
-  ...copyBaseColumns(entity),
-  responsavel: toResponsavelSummary(entity.responsavel?.get?.() ?? null),
-});
 
 export const list = async (session: OrmSession, filters?: EspecializadaFilters): Promise<Especializada[]> => {
   const rows = await listEspecializadas(session, filters);
@@ -98,21 +67,18 @@ export const listPaged = async (
   session: OrmSession,
   filters?: EspecializadaFilters,
   pagination?: { page?: number; pageSize?: number },
-): Promise<PaginatedResult<EspecializadaResponse>> => {
+): Promise<PaginatedResult<Especializada>> => {
   const pagedResult = await listEspecializadasPaged(session, filters, pagination);
   
-  return {
-    ...pagedResult,
-    items: pagedResult.items.map(toResponse),
-  };
+  return pagedResult;
 };
 
-export const getById = async (session: OrmSession, id: number): Promise<EspecializadaResponse | null> => {
+export const getById = async (session: OrmSession, id: number): Promise<Especializada | null> => {
   const record = await findEspecializada(session, id);
-  return record ? toResponse(record) : null;
+  return record;
 };
 
-export const create = async (session: OrmSession, input: EspecializadaCreateInput): Promise<EspecializadaResponse> => {
+export const create = async (session: OrmSession, input: EspecializadaCreateInput): Promise<Especializada> => {
   const payload = {
     ...input,
     restricao_ponto_focal: input.restricao_ponto_focal ?? false,
@@ -124,14 +90,14 @@ export const create = async (session: OrmSession, input: EspecializadaCreateInpu
   if (!record) {
     throw new Error("Failed to load especializada after insert");
   }
-  return toResponse(record);
+  return record;
 };
 
 export const update = async (
   session: OrmSession,
   id: number,
   input: EspecializadaUpdateInput,
-): Promise<EspecializadaResponse | null> => {
+): Promise<Especializada | null> => {
   const payload = {
     id,
     ...input,
@@ -139,5 +105,5 @@ export const update = async (
 
   await withGraphDefaults(session).updateGraph(Especializada, payload);
   const record = await findEspecializada(session, id);
-  return record ? toResponse(record) : null;
+  return record;
 };
