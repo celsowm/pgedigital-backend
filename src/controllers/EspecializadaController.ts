@@ -6,6 +6,8 @@ import { withSession } from "../db/orm.js";
 import * as EspecializadaService from "../services/EspecializadaService.js";
 import type { PaginatedResult } from "metal-orm";
 
+import type { EspecializadaFilters } from "../repositories/EspecializadaRepository.js";
+
 type EspecializadaWhere = SearchWhere<Especializada, {
   include: [
     "nome",
@@ -17,6 +19,30 @@ type EspecializadaQuery =
   Omit<ListQuery<Especializada>, "where"> & {
     where?: EspecializadaWhere;
   };
+
+type NestedWhere<T> = {
+  [K in keyof T]?: T[K] extends object ? NestedWhere<T[K]> : T[K];
+};
+
+const toEspecializadaFilters = (query?: EspecializadaQuery): EspecializadaFilters => {
+  if (!query?.where) {
+    return {};
+  }
+
+  const filters: EspecializadaFilters = {};
+  const where = query.where as NestedWhere<EspecializadaWhere>;
+
+  if (where.nome !== undefined) {
+    filters.nome = where.nome;
+  }
+
+  const responsavel = where.responsavel as NestedWhere<{ nome?: string }> | undefined;
+  if (responsavel?.nome !== undefined) {
+    filters.responsavel_nome = responsavel.nome;
+  }
+
+  return filters;
+};
 
 @Controller("/especializada")
 export class EspecializadaController {
