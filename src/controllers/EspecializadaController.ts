@@ -3,7 +3,6 @@ import type { SearchWhere, ListQuery } from "adorn-api/metal";
 import { pagedOptions } from "adorn-api/metal";
 import type { Especializada } from "../db/entities/Especializada.js";
 import { withSession } from "../db/orm.js";
-import type { EspecializadaFilters } from "../repositories/EspecializadaRepository.js";
 import * as EspecializadaService from "../services/EspecializadaService.js";
 import type { PaginatedResult } from "metal-orm";
 
