@@ -5,6 +5,13 @@ type ApiConfig = {
   enableSwagger: boolean;
   swaggerPath: string;
   swaggerJsonPath: string;
+  cors: {
+    enabled: boolean;
+    origin: string | string[];
+    methods?: string[];
+    allowedHeaders?: string[];
+    credentials?: boolean;
+  };
 };
 
 const parsePort = (value: string | undefined, fallback: number): number => {
@@ -21,4 +28,11 @@ export const getApiConfig = (): ApiConfig => ({
   enableSwagger: true,
   swaggerPath: "/docs",
   swaggerJsonPath: "/docs/openapi.json",
+  cors: {
+    enabled: process.env.CORS_ENABLED === "true",
+    origin: process.env.CORS_ORIGIN?.split(",") ?? "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: process.env.CORS_CREDENTIALS === "true",
+  },
 });
