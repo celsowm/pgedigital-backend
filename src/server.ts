@@ -4,6 +4,8 @@ import { getApiConfig } from "./config/api.js";
 import { HealthController } from "./controllers/HealthController.js";
 import { EspecializadaController } from "./controllers/EspecializadaController.js";
 import { NotaVersaoController } from "./controllers/NotaVersaoController.js";
+import { EquipeController } from "./controllers/EquipeController.js";
+import { UsuarioController } from "./controllers/UsuarioController.js";
 
 const shutdownSignals = ["SIGINT", "SIGTERM"] as const;
 
@@ -11,7 +13,7 @@ const main = async () => {
   const apiConfig = getApiConfig();
 
   const result = await bootstrap({
-    controllers: [HealthController, NotaVersaoController, EspecializadaController],
+    controllers: [HealthController, NotaVersaoController, EspecializadaController, EquipeController, UsuarioController],
     ...apiConfig,
     coerce: {
       body: true,
