@@ -5,6 +5,10 @@ type ApiConfig = {
   enableSwagger: boolean;
   swaggerPath: string;
   swaggerJsonPath: string;
+  swaggerOptions?: {
+    syntaxHighlight?: boolean;
+    [key: string]: unknown;
+  };
   cors: {
     enabled: boolean;
     origin: string | string[];
@@ -28,6 +32,9 @@ export const getApiConfig = (): ApiConfig => ({
   enableSwagger: true,
   swaggerPath: "/docs",
   swaggerJsonPath: "/docs/openapi.json",
+  swaggerOptions: {
+    syntaxHighlight: false,
+  },
   cors: {
     enabled: process.env.CORS_ENABLED === "true",
     origin: process.env.CORS_ORIGIN?.split(",") ?? "*",
