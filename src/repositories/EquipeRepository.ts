@@ -2,6 +2,7 @@ import type { OrmSession } from "metal-orm";
 import { selectFromEntity, entityRefs, eq, like } from "metal-orm";
 import { Equipe } from "../db/entities/Equipe.js";
 import { Usuario } from "../db/entities/Usuario.js";
+import { Especializada } from "../db/entities/Especializada.js";
 import type { PaginatedResult } from "metal-orm";
 
 export type EquipeFilters = {
@@ -24,7 +25,12 @@ export const USUARIO_COLUMNS = [
   "especializada_id",
 ] as const;
 
-const [E, U] = entityRefs(Equipe, Usuario);
+export const ESPECIALIZADA_COLUMNS = [
+  "nome",
+  "sigla",
+] as const;
+
+const [E, U, ESP] = entityRefs(Equipe, Usuario, Especializada);
 
 const createBaseQuery = (includeUsuarios: boolean) => {
   let query = selectFromEntity(Equipe)
@@ -33,6 +39,8 @@ const createBaseQuery = (includeUsuarios: boolean) => {
   if (includeUsuarios) {
     query = query.includePick("usuarios", [...USUARIO_COLUMNS]);
   }
+
+  query = query.includePick("especializada", [...ESPECIALIZADA_COLUMNS]);
 
   return query;
 };
@@ -88,5 +96,26 @@ export const findEquipe = async (
   const rows = await createBaseQuery(includeUsuarios)
     .where(eq(E.id, id))
     .execute(session);
-  return rows[0] ?? null;
+  
+  if (!rows[0]) {
+    return null;
+  }
+
+  const equipe = rows[0];
+  const result: Partial<Equipe> = {
+    id: equipe.id,
+    nome: equipe.nome,
+    especializada_id: equipe.especializada_id,
+    fila_circular_id: equipe.fila_circular_id,
+  };
+
+  if (includeUsuarios && equipe.usuarios) {
+    (result as any).usuarios = equipe.usuarios;
+  }
+
+  if (equipe.especializada) {
+    (result as any).especializada = equipe.especializada;
+  }
+
+  return result as Equipe;
 };

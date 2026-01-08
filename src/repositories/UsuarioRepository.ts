@@ -1,6 +1,8 @@
 import type { OrmSession } from "metal-orm";
 import { selectFromEntity, entityRefs, eq, like } from "metal-orm";
 import { Usuario } from "../db/entities/Usuario.js";
+import { Especializada } from "../db/entities/Especializada.js";
+import { AfastamentoPessoa } from "../db/entities/AfastamentoPessoa.js";
 import type { PaginatedResult } from "metal-orm";
 
 export type UsuarioFilters = {
@@ -12,13 +14,10 @@ export type UsuarioFilters = {
 export const USUARIO_COLUMNS = [
   "id",
   "nome",
-  "login",
+  "vinculo",
   "cargo",
   "especializada_id",
   "estado_inatividade",
-  "vinculo",
-  "funcao",
-  "matricula",
 ] as const;
 
 export const EQUIPE_COLUMNS = [
@@ -26,11 +25,25 @@ export const EQUIPE_COLUMNS = [
   "nome",
 ] as const;
 
+export const ESPECIALIZADA_COLUMNS = [
+  "id",
+  "nome",
+  "sigla",
+] as const;
+
+export const AFASTAMENTO_COLUMNS = [
+  "id",
+  "data_inicio",
+  "data_fim",
+] as const;
+
 const [U] = entityRefs(Usuario);
 
 const createBaseQuery = (includeEquipes: boolean) => {
   let query = selectFromEntity(Usuario)
-    .select(...USUARIO_COLUMNS);
+    .select(...USUARIO_COLUMNS)
+    .includePick("especializada", [...ESPECIALIZADA_COLUMNS])
+    .includePick("afastamentosPessoas", [...AFASTAMENTO_COLUMNS]);
 
   if (includeEquipes) {
     query = query.includePick("equipes", [...EQUIPE_COLUMNS]);
@@ -91,8 +104,35 @@ export const findUsuario = async (
   id: number,
   includeEquipes = false,
 ): Promise<Usuario | null> => {
-  const rows = await createBaseQuery(includeEquipes)
+  const rows = (await createBaseQuery(includeEquipes)
     .where(eq(U.id, id))
-    .execute(session);
-  return rows[0] ?? null;
+    .execute(session)) as any[];
+  
+  if (!rows[0]) {
+    return null;
+  }
+
+  const usuario = rows[0];
+  const result: any = {
+    id: usuario.id,
+    nome: usuario.nome,
+    vinculo: usuario.vinculo,
+    cargo: usuario.cargo,
+    especializada_id: usuario.especializada_id,
+    estado_inatividade: usuario.estado_inatividade,
+  };
+
+  if (includeEquipes && usuario.equipes) {
+    result.equipes = usuario.equipes;
+  }
+
+  if (usuario.especializada) {
+    result.especializada = usuario.especializada;
+  }
+
+  if (usuario.afastamentosPessoas) {
+    result.afastamentosPessoas = usuario.afastamentosPessoas;
+  }
+
+  return result as Usuario;
 };
