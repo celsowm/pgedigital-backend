@@ -3,5 +3,9 @@
   "version": "1.0.0",
   "description": "PGE Digital - Sistema de Gestão de Processos Eletrônicos",
   "author": "Celso Fontes",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "adorn-api": "^1.0.24",
+    "metal-orm": "^1.0.91"
+  }
 }
