@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "adorn-api": "^1.0.24",
-    "metal-orm": "^1.0.91"
+    "metal-orm": "^1.0.91",
+    "tedious": "^16.7.1"
   }
 }
