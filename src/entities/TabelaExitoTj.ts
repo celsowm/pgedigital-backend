@@ -29,7 +29,7 @@ export class TabelaExitoTj {
   cod_assunto?: number;
 
   @Column(col.varchar(255))
-  desc_ Assunto?: string;
+  desc_Assunto?: string;
 
   @Column(col.float())
   mes?: number;
