@@ -53,18 +53,18 @@ const tediousModule = {
 };
 
 const tediousConfig = {
-  server: process.env.DB_SERVER || 'localhost',
+  server: process.env.PGE_DIGITAL_HOST || 'localhost',
   authentication: {
     type: 'default',
     options: {
-      userName: process.env.DB_USER || 'sa',
-      password: process.env.DB_PASSWORD || '',
+      userName: process.env.PGE_DIGITAL_USER || 'sa',
+      password: process.env.PGE_DIGITAL_PASSWORD || '',
     },
   },
   options: {
     encrypt: true,
     trustServerCertificate: true,
-    database: process.env.DB_NAME || 'pgedigital',
+    database: process.env.PGE_DIGITAL_DATABASE || 'pgedigital',
     port: 1433,
     requestTimeout: 30000,
     rowCollectionOnRequestCompletion: true,
@@ -77,8 +77,9 @@ const poolOptions = {
   max: 20,
   min: 2,
   idleTimeoutMillis: 30000,
-  acquireTimeoutMillis: 60000,
+  acquireTimeoutMillis: 5000,
   reapIntervalMillis: 15000,
+  evictionRunIntervalMillis: 10000,
 };
 
 class TediousPoolAdapter implements PoolAdapter<TediousConnectionLike> {
@@ -222,8 +223,22 @@ export async function withSession<T>(handler: (session: OrmSession) => Promise<T
 }
 
 export async function initializeDatabase(): Promise<void> {
-  const lease = await pool.acquire();
-  await lease.release();
+  console.log(`Connecting to database: ${tediousConfig.options.database}@${tediousConfig.server}`);
+  try {
+    const lease = await Promise.race([
+      pool.acquire(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Connection timeout after 5s')), 5000)
+      ),
+    ]);
+    await lease.release();
+    console.log('Database connection successful');
+  } catch (error) {
+    if (error instanceof Error) {
+      console.warn(`Database connection failed: ${error.message}`);
+      console.warn('Continuing without database - API endpoints that require database will fail');
+    }
+  }
 }
 
 export async function closeDatabase(): Promise<void> {
