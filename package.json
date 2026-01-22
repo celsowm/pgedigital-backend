@@ -10,7 +10,7 @@
     "gen:entities": "metal-orm-gen --dialect=mssql --url=\"mssql://$PGE_DIGITAL_USER:$PGE_DIGITAL_PASSWORD@$PGE_DIGITAL_HOST/$PGE_DIGITAL_DATABASE?encrypt=$PGE_DIGITAL_ENCRYPT&trustServerCertificate=$PGE_DIGITAL_TRUST_CERT\" --out-dir=src/entities --locale=pt-BR"
   },
   "dependencies": {
-    "adorn-api": "^1.0.29",
+    "adorn-api": "^1.0.30",
     "express": "latest",
     "metal-orm": "^1.0.93",
     "tedious": "^16.7.1"
