@@ -8,6 +8,7 @@ const controllers = [HealthController, NotaVersaoController];
 
 const app = createExpressApp({
   controllers,
+  cors: true,
   openApi: {
     path: '/openapi.json',
     info: {
