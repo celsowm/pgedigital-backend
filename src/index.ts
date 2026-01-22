@@ -1,8 +1,10 @@
 import { createExpressApp } from 'adorn-api';
+import { bootstrapEntities } from 'metal-orm';
 import { HealthController } from './controllers/HealthController.js';
+import { NotaVersaoController } from './controllers/nota-versao/nota-versao.controller.js';
 import { createOrm, disposeOrm } from './database/connection.js';
 
-const controllers = [HealthController];
+const controllers = [HealthController, NotaVersaoController];
 
 const app = createExpressApp({
   controllers,
@@ -20,6 +22,7 @@ const app = createExpressApp({
 });
 
 async function bootstrap() {
+  bootstrapEntities();
   await createOrm();
   console.log('Database connection established');
 

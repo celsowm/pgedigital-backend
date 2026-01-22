@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "test:db": "tsx src/database/test-connection.ts",
+    "gen:entities": "metal-orm-gen --dialect=mssql --url=\"mssql://$PGE_DIGITAL_USER:$PGE_DIGITAL_PASSWORD@$PGE_DIGITAL_HOST/$PGE_DIGITAL_DATABASE?encrypt=$PGE_DIGITAL_ENCRYPT&trustServerCertificate=$PGE_DIGITAL_TRUST_CERT\" --out-dir=src/entities --locale=pt-BR"
   },
   "dependencies": {
     "adorn-api": "latest",
