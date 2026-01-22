@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "adorn-api": "latest",
-    "express": "latest"
+    "express": "latest",
+    "metal-orm": "^1.0.93",
+    "tedious": "^16.7.1"
   },
   "devDependencies": {
     "@types/express": "latest",
