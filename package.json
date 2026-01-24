@@ -1,0 +1,25 @@
+{
+  "name": "pgedigital-backend",
+  "version": "1.0.0",
+  "description": "Backend of PGE Digital",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celsowm/pgedigital-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/celsowm/pgedigital-backend/issues"
+  },
+  "homepage": "https://github.com/celsowm/pgedigital-backend#readme",
+  "dependencies": {
+    "adorn-api": "^1.0.32",
+    "metal-orm": "^1.0.94"
+  }
+}
