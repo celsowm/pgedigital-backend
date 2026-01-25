@@ -1,9 +1,10 @@
 import { createExpressApp } from "adorn-api";
+import { NotaVersaoController } from "./controllers/nota-versao/nota-versao.controller";
 import { TestController } from "./controllers/test/test.controller";
 
 export function createApp() {
   return createExpressApp({
-    controllers: [TestController],
+    controllers: [TestController, NotaVersaoController],
     openApi: {
       info: {
         title: "PGE Digital API",

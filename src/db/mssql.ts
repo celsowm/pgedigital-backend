@@ -1,4 +1,4 @@
-import { createTediousExecutor, type QueryResult } from "metal-orm";
+import { createTediousExecutor, Orm, OrmSession, SqlServerDialect, type QueryResult } from "metal-orm";
 import { Connection, type ConnectionConfig, Request, TYPES } from "tedious";
 
 const REQUIRED_ENV_VARS = [
@@ -11,6 +11,26 @@ const REQUIRED_ENV_VARS = [
 ] as const;
 
 type RequiredEnv = typeof REQUIRED_ENV_VARS[number];
+
+let orm: Orm | null = null;
+
+function getOrm(): Orm {
+  if (!orm) {
+    orm = new Orm({
+      dialect: new SqlServerDialect(),
+      executorFactory: {
+        createExecutor: () => {
+          throw new Error("Use withMssqlSession to create sessions.");
+        },
+        createTransactionalExecutor: () => {
+          throw new Error("Use withMssqlSession to create sessions.");
+        },
+        dispose: async () => {}
+      }
+    });
+  }
+  return orm;
+}
 
 function requireEnv(name: RequiredEnv): string {
   const value = process.env[name];
@@ -64,6 +84,24 @@ export async function createTediousConnection(): Promise<Connection> {
 
 export function createMssqlExecutor(connection: Connection) {
   return createTediousExecutor(connection, { Request, TYPES });
+}
+
+export async function withMssqlSession<T>(
+  handler: (session: OrmSession) => Promise<T>
+): Promise<T> {
+  const connection = await createTediousConnection();
+  const executor = createMssqlExecutor(connection);
+  const session = new OrmSession({ orm: getOrm(), executor });
+
+  try {
+    return await handler(session);
+  } finally {
+    try {
+      await session.dispose();
+    } finally {
+      connection.close();
+    }
+  }
 }
 
 export async function testMssqlConnection(): Promise<{
