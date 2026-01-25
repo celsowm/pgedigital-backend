@@ -27,3 +27,12 @@ export class TestsListDto {
   @Field(t.array(t.ref(TestDto)))
   tests!: TestDto[];
 }
+
+@Dto({ description: "Database connection test result." })
+export class DbConnectionTestDto {
+  @Field(t.boolean())
+  ok!: boolean;
+
+  @Field(t.optional(t.string()))
+  databaseName?: string;
+}

@@ -23,10 +23,13 @@
   "homepage": "https://github.com/celsowm/pgedigital-backend#readme",
   "dependencies": {
     "adorn-api": "^1.0.32",
-    "metal-orm": "^1.0.94"
+    "es-abstract": "^1.24.1",
+    "metal-orm": "^1.0.94",
+    "tedious": "^16.7.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/tedious": "^4.0.14",
     "tsx": "^4.7.0",
     "typescript": "^5.4.5"
   }

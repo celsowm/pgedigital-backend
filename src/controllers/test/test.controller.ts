@@ -7,7 +7,8 @@ import {
   Returns,
   type RequestContext
 } from "adorn-api";
-import { TestDto, CreateTestDto, TestsListDto, TestParamsDto } from "../../dtos/test/test.dtos";
+import { testMssqlConnection } from "../../db/mssql";
+import { TestDto, CreateTestDto, TestsListDto, TestParamsDto, DbConnectionTestDto } from "../../dtos/test/test.dtos";
 
 @Controller("/tests")
 export class TestController {
@@ -20,6 +21,12 @@ export class TestController {
         { id: "550e8400-e29b-41d4-a716-446655440001", name: "Test 2", description: undefined }
       ]
     };
+  }
+
+  @Get("/db-connection")
+  @Returns(DbConnectionTestDto)
+  async testDbConnection() {
+    return testMssqlConnection();
   }
 
   @Get("/:id")
