@@ -164,12 +164,14 @@ export class EspecializadaController {
   @Returns(EspecializadaSiglasDto)
   async listSiglas() {
     return withMssqlSession(async (session) => {
-      const rows = await selectFromEntity(Especializada)
-        .select("sigla")
+      type EspecializadaSiglaRow = Pick<Especializada, "sigla">;
+
+      const rows = (await selectFromEntity(Especializada)
+        .select({ sigla: especializadaRef.sigla })
         .distinct(especializadaRef.sigla)
         .where(isNotNull(especializadaRef.sigla))
         .orderBy(especializadaRef.sigla, "ASC")
-        .executePlain(session);
+        .execute(session)) as EspecializadaSiglaRow[];
 
       return {
         siglas: rows
