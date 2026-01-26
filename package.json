@@ -25,7 +25,7 @@
   "dependencies": {
     "adorn-api": "^1.0.32",
     "es-abstract": "^1.24.1",
-    "metal-orm": "^1.0.94",
+    "metal-orm": "^1.0.96",
     "tedious": "^16.7.1"
   },
   "devDependencies": {
