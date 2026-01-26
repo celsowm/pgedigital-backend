@@ -78,12 +78,6 @@ export const EspecializadaPagedResponseDto = createPagedResponseDtoClass({
   description: "Paged especializada list response."
 });
 
-@Dto({ description: "Lista de siglas das especializadas." })
-export class EspecializadaSiglasDto {
-  @Field(t.array(t.string()))
-  siglas!: string[];
-}
-
 export const EspecializadaErrors = Errors(SimpleErrorDto, [
   { status: 400, description: "Invalid especializada id." },
   { status: 404, description: "Especializada not found." }

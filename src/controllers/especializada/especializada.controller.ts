@@ -13,6 +13,7 @@ import {
   parseFilter,
   parseIdOrThrow,
   parsePagination,
+  t,
   type RequestContext
 } from "adorn-api";
 import {
@@ -34,13 +35,12 @@ import {
   EspecializadaParamsDto,
   EspecializadaQueryDto,
   EspecializadaQueryDtoClass,
-  EspecializadaSiglasDto,
   EspecializadaWithResponsavelDto,
   ReplaceEspecializadaDto,
   UpdateEspecializadaDto
 } from "../../dtos/especializada/especializada.dtos";
 
-const especializadaRef = entityRef(Especializada);
+const E = entityRef(Especializada);
 
 type EspecializadaFilterFields = "nome" | "sigla";
 
@@ -89,7 +89,7 @@ async function getEspecializadaWithResponsavelOrThrow(
 ): Promise<Especializada> {
   const query = selectFromEntity(Especializada)
     .includePick("responsavel", ["id", "nome"])
-    .where(eq(especializadaRef.id, id));
+    .where(eq(E.id, id));
   const [especializada] = await query.execute(session);
   if (!especializada) {
     throw new HttpError(404, "Especializada not found.");
@@ -144,7 +144,7 @@ export class EspecializadaController {
       let query = applyFilter(
         selectFromEntity(Especializada)
           .includePick("responsavel", ["id", "nome"])
-          .orderBy(especializadaRef.id, "ASC"),
+          .orderBy(E.id, "ASC"),
         Especializada,
         filters
       );
@@ -161,23 +161,15 @@ export class EspecializadaController {
   }
 
   @Get("/siglas")
-  @Returns(EspecializadaSiglasDto)
+  @Returns(t.array(t.string()))
   async listSiglas() {
     return withMssqlSession(async (session) => {
-      type EspecializadaSiglaRow = Pick<Especializada, "sigla">;
-
-      const rows = (await selectFromEntity(Especializada)
-        .select({ sigla: especializadaRef.sigla })
-        .distinct(especializadaRef.sigla)
-        .where(isNotNull(especializadaRef.sigla))
-        .orderBy(especializadaRef.sigla, "ASC")
-        .execute(session)) as EspecializadaSiglaRow[];
-
-      return {
-        siglas: rows
-          .map((row) => row.sigla)
-          .filter((sigla): sigla is string => typeof sigla === "string")
-      };
+      return selectFromEntity(Especializada)
+        .select("sigla")
+        .distinct(E.sigla)
+        .where(isNotNull(E.sigla))
+        .orderBy(E.sigla, "ASC")
+        .execute(session);
     });
   }
 
