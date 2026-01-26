@@ -5,6 +5,7 @@ import { TestController } from "./controllers/test/test.controller";
 export function createApp() {
   return createExpressApp({
     controllers: [NotaVersaoController, TestController],
+    cors: true,
     openApi: {
       info: {
         title: "PGE Digital API",
