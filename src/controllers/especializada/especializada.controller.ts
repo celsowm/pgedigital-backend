@@ -178,9 +178,10 @@ export class EspecializadaController {
   async listOptions() {
     return withMssqlSession(async (session) => {
       const results = await selectFromEntity(Especializada)
+        .select("id", "nome")
         .orderBy(E.nome, "ASC")
-        .execute(session);
-      return results.map(({ id, nome }) => ({ id, nome }));
+        .executePlain(session);
+      return results as unknown as { id: number; nome: string }[];
     });
   }
 
