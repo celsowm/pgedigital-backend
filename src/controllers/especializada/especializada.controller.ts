@@ -34,6 +34,7 @@ import {
   EspecializadaParamsDto,
   EspecializadaQueryDto,
   EspecializadaQueryDtoClass,
+  EspecializadaOptionsDto,
   EspecializadaSiglasDto,
   EspecializadaWithResponsavelDto,
   ReplaceEspecializadaDto,
@@ -169,6 +170,17 @@ export class EspecializadaController {
         .where(isNotNull(E.sigla))
         .orderBy(E.sigla, "ASC")
         .pluck("sigla", session);
+    });
+  }
+
+  @Get("/options")
+  @Returns(EspecializadaOptionsDto)
+  async listOptions() {
+    return withMssqlSession(async (session) => {
+      const results = await selectFromEntity(Especializada)
+        .orderBy(E.nome, "ASC")
+        .execute(session);
+      return results.map(({ id, nome }) => ({ id, nome }));
     });
   }
 

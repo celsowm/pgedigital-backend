@@ -86,3 +86,16 @@ export const EspecializadaErrors = Errors(SimpleErrorDto, [
 export const EspecializadaSiglasDto = t.array(t.string(), {
   description: "Lista de siglas de especializadas."
 });
+
+@Dto({ description: "Especializada com apenas id e nome." })
+export class EspecializadaOptionDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.string({ minLength: 1 }))
+  nome!: string;
+}
+
+export const EspecializadaOptionsDto = t.array(t.ref(EspecializadaOptionDto), {
+  description: "Lista de especializadas com id e nome."
+});
