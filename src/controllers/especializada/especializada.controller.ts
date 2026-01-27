@@ -176,13 +176,12 @@ export class EspecializadaController {
   @Get("/options")
   @Returns(EspecializadaOptionsDto)
   async listOptions() {
-    return withMssqlSession(async (session) => {
-      const results = await selectFromEntity(Especializada)
+    return withMssqlSession((session) =>
+      selectFromEntity(Especializada)
         .select("id", "nome")
         .orderBy(E.nome, "ASC")
-        .executePlain(session);
-      return results as unknown as { id: number; nome: string }[];
-    });
+        .executePlain(session)
+    );
   }
 
   @Get("/:id")
