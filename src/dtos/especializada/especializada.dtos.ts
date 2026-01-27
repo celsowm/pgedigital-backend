@@ -82,3 +82,7 @@ export const EspecializadaErrors = Errors(SimpleErrorDto, [
   { status: 400, description: "Invalid especializada id." },
   { status: 404, description: "Especializada not found." }
 ]);
+
+export const EspecializadaSiglasDto = t.array(t.string(), {
+  description: "Lista de siglas de especializadas."
+});

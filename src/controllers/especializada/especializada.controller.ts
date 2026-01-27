@@ -13,7 +13,6 @@ import {
   parseFilter,
   parseIdOrThrow,
   parsePagination,
-  t,
   type RequestContext
 } from "adorn-api";
 import {
@@ -35,6 +34,7 @@ import {
   EspecializadaParamsDto,
   EspecializadaQueryDto,
   EspecializadaQueryDtoClass,
+  EspecializadaSiglasDto,
   EspecializadaWithResponsavelDto,
   ReplaceEspecializadaDto,
   UpdateEspecializadaDto
@@ -161,15 +161,14 @@ export class EspecializadaController {
   }
 
   @Get("/siglas")
-  @Returns(t.array(t.string()))
+  @Returns(EspecializadaSiglasDto)
   async listSiglas() {
     return withMssqlSession(async (session) => {
       return selectFromEntity(Especializada)
-        .select("sigla")
         .distinct(E.sigla)
         .where(isNotNull(E.sigla))
         .orderBy(E.sigla, "ASC")
-        .execute(session);
+        .pluck("sigla", session);
     });
   }
 
