@@ -11,7 +11,6 @@ import {
   Query,
   Returns,
   applyInput,
-  getEntityOrThrow,
   parseFilter,
   parseIdOrThrow,
   parsePagination,
@@ -22,7 +21,6 @@ import {
   entityRef,
   isNotNull,
   selectFromEntity,
-  toPagedResponse,
   type OrmSession,
   eq
 } from "metal-orm";
@@ -43,7 +41,7 @@ import {
   ReplaceEspecializadaDto,
   UpdateEspecializadaDto
 } from "../../dtos/especializada/especializada.dtos";
-import { deleteEntity, listOptions } from "../../utils/controller-helpers";
+import { BaseController } from "../../utils/base-controller";
 
 const E = entityRef(Especializada);
 
@@ -87,23 +85,39 @@ async function getEspecializadaWithResponsavelOrThrow(
 }
 
 @Controller("/especializada")
-export class EspecializadaController {
+export class EspecializadaController extends BaseController<Especializada, EspecializadaFilterFields> {
+  get entityClass() {
+    return Especializada;
+  }
+
+  get entityRef(): any {
+    return E;
+  }
+
+  get filterMappings(): Record<string, { field: EspecializadaFilterFields; operator: "equals" | "contains" }> {
+    return ESPECIALIZADA_FILTER_MAPPINGS;
+  }
+
+  get entityName() {
+    return "especializada";
+  }
   @Get("/")
   @Query(EspecializadaQueryDtoClass)
   @Returns(EspecializadaPagedResponseDto)
   async list(ctx: RequestContext<unknown, EspecializadaQueryDto>): Promise<unknown> {
     const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Especializada, EspecializadaFilterFields>(
-      paginationQuery,
-      ESPECIALIZADA_FILTER_MAPPINGS
-    );
     const responsavelFilters = parseFilter<Usuario, ResponsavelFilterFields>(
       paginationQuery,
       RESPONSAVEL_FILTER_MAPPINGS
     );
 
     return withSession(async (session) => {
+      const { page, pageSize } = parsePagination(paginationQuery);
+      const filters = parseFilter<Especializada, EspecializadaFilterFields>(
+        paginationQuery,
+        this.filterMappings
+      );
+
       let query = applyFilter(
         selectFromEntity(Especializada)
           .includePick("responsavel", ["id", "nome"])
@@ -119,6 +133,7 @@ export class EspecializadaController {
       }
 
       const paged = await query.executePaged(session, { page, pageSize });
+      const { toPagedResponse } = await import("metal-orm");
       return toPagedResponse(paged);
     });
   }
@@ -138,9 +153,7 @@ export class EspecializadaController {
   @Get("/options")
   @Returns(EspecializadaOptionsDto)
   async listOptions(): Promise<EspecializadaOptionDto[]> {
-    return withSession((session) =>
-      listOptions(session, Especializada, E)
-    );
+    return super.listOptions();
   }
 
   @Get("/:id")
@@ -190,7 +203,7 @@ export class EspecializadaController {
   ): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
-      const especializada = await getEntityOrThrow(session, Especializada, id, "especializada");
+      const especializada = await super.getEntityOrThrow(session, id);
       applyInput(especializada, ctx.body as Partial<Especializada>, { partial: false });
       await session.commit();
       return (await getEspecializadaWithResponsavelOrThrow(
@@ -210,7 +223,7 @@ export class EspecializadaController {
   ): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
-      const especializada = await getEntityOrThrow(session, Especializada, id, "especializada");
+      const especializada = await super.getEntityOrThrow(session, id);
       applyInput(especializada, ctx.body as Partial<Especializada>, { partial: true });
       await session.commit();
       return (await getEspecializadaWithResponsavelOrThrow(
@@ -227,7 +240,7 @@ export class EspecializadaController {
   async remove(ctx: RequestContext<unknown, undefined, EspecializadaParamsDto>): Promise<void> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
-      await deleteEntity(session, Especializada, id, "especializada");
+      await super.delete(session, id);
     });
   }
 }

@@ -11,17 +11,12 @@ import {
   Query,
   Returns,
   applyInput,
-  getEntityOrThrow,
-  parseFilter,
   parseIdOrThrow,
-  parsePagination,
   type RequestContext
 } from "adorn-api";
 import {
-  applyFilter,
   entityRef,
   selectFromEntity,
-  toPagedResponse,
   type OrmSession
 } from "metal-orm";
 import { withSession } from "../../db/mssql";
@@ -37,7 +32,7 @@ import {
   ReplaceNotaVersaoDto,
   UpdateNotaVersaoDto
 } from "../../dtos/nota-versao/nota-versao.dtos";
-import { deleteEntity } from "../../utils/controller-helpers";
+import { BaseController } from "../../utils/base-controller";
 
 const notaVersaoRef = entityRef(NotaVersao);
 
@@ -56,27 +51,27 @@ const NOTA_VERSAO_FILTER_MAPPINGS = {
 >;
 
 @Controller("/nota-versao")
-export class NotaVersaoController {
+export class NotaVersaoController extends BaseController<NotaVersao, NotaVersaoFilterFields> {
+  get entityClass() {
+    return NotaVersao;
+  }
+
+  get entityRef(): any {
+    return notaVersaoRef;
+  }
+
+  get filterMappings(): Record<string, { field: NotaVersaoFilterFields; operator: "equals" | "contains" }> {
+    return NOTA_VERSAO_FILTER_MAPPINGS;
+  }
+
+  get entityName() {
+    return "nota versao";
+  }
   @Get("/")
   @Query(NotaVersaoQueryDtoClass)
   @Returns(NotaVersaoPagedResponseDto)
   async list(ctx: RequestContext<unknown, NotaVersaoQueryDto>): Promise<unknown> {
-    const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<NotaVersao, NotaVersaoFilterFields>(
-      paginationQuery,
-      NOTA_VERSAO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const query = applyFilter(
-        selectFromEntity(NotaVersao).orderBy(notaVersaoRef.id, "ASC"),
-        NotaVersao,
-        filters
-      );
-      const paged = await query.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
+    return super.list(ctx);
   }
 
   @Get("/:id")
@@ -86,7 +81,7 @@ export class NotaVersaoController {
   async getOne(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      const notaVersao = await getEntityOrThrow(session, NotaVersao, id, "nota versao");
+      const notaVersao = await super.getEntityOrThrow(session, id);
       return notaVersao as NotaVersaoDto;
     });
   }
@@ -114,7 +109,7 @@ export class NotaVersaoController {
   ): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      const notaVersao = await getEntityOrThrow(session, NotaVersao, id, "nota versao");
+      const notaVersao = await super.getEntityOrThrow(session, id);
       applyInput(notaVersao, ctx.body as Partial<NotaVersao>, { partial: false });
       await session.commit();
       return notaVersao as NotaVersaoDto;
@@ -131,7 +126,7 @@ export class NotaVersaoController {
   ): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      const notaVersao = await getEntityOrThrow(session, NotaVersao, id, "nota versao");
+      const notaVersao = await super.getEntityOrThrow(session, id);
       applyInput(notaVersao, ctx.body as Partial<NotaVersao>, { partial: true });
       await session.commit();
       return notaVersao as NotaVersaoDto;
@@ -145,7 +140,7 @@ export class NotaVersaoController {
   async remove(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>): Promise<void> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      await deleteEntity(session, NotaVersao, id, "nota versao");
+      await super.delete(session, id);
     });
   }
 }

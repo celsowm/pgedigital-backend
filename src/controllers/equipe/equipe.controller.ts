@@ -11,17 +11,12 @@ import {
   Query,
   Returns,
   applyInput,
-  getEntityOrThrow,
-  parseFilter,
   parseIdOrThrow,
-  parsePagination,
   type RequestContext
 } from "adorn-api";
 import {
-  applyFilter,
   entityRef,
   selectFromEntity,
-  toPagedResponse,
   type OrmSession,
   eq
 } from "metal-orm";
@@ -40,7 +35,7 @@ import {
   ReplaceEquipeDto,
   UpdateEquipeDto
 } from "../../dtos/equipe/equipe.dtos";
-import { deleteEntity, listOptions } from "../../utils/controller-helpers";
+import { BaseController } from "../../utils/base-controller";
 
 const E = entityRef(Equipe);
 
@@ -71,38 +66,35 @@ async function getEquipeWithEspecializadaOrThrow(
 }
 
 @Controller("/equipe")
-export class EquipeController {
+export class EquipeController extends BaseController<Equipe, EquipeFilterFields> {
+  get entityClass() {
+    return Equipe;
+  }
+
+  get entityRef(): any {
+    return E;
+  }
+
+  get filterMappings(): Record<string, { field: EquipeFilterFields; operator: "equals" | "contains" }> {
+    return EQUIPE_FILTER_MAPPINGS;
+  }
+
+  get entityName() {
+    return "equipe";
+  }
   @Get("/")
   @Query(EquipeQueryDtoClass)
   @Returns(EquipePagedResponseDto)
   async list(ctx: RequestContext<unknown, EquipeQueryDto>): Promise<unknown> {
-    const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Equipe, EquipeFilterFields>(
-      paginationQuery,
-      EQUIPE_FILTER_MAPPINGS
+    return super.list(ctx, (query) =>
+      query.includePick("especializada", ["id", "nome"])
     );
-
-    return withSession(async (session) => {
-      let query = applyFilter(
-        selectFromEntity(Equipe)
-          .includePick("especializada", ["id", "nome"])
-          .orderBy(E.id, "ASC"),
-        Equipe,
-        filters
-      );
-
-      const paged = await query.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
   }
 
   @Get("/options")
   @Returns(EquipeOptionsDto)
   async listOptions(): Promise<EquipeOptionDto[]> {
-    return withSession((session) =>
-      listOptions(session, Equipe, E)
-    );
+    return super.listOptions();
   }
 
   @Get("/:id")
@@ -152,7 +144,7 @@ export class EquipeController {
   ): Promise<EquipeWithEspecializadaDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await getEntityOrThrow(session, Equipe, id, "equipe");
+      const equipe = await super.getEntityOrThrow(session, id);
       applyInput(equipe, ctx.body as Partial<Equipe>, { partial: false });
       await session.commit();
       return (await getEquipeWithEspecializadaOrThrow(
@@ -172,7 +164,7 @@ export class EquipeController {
   ): Promise<EquipeWithEspecializadaDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await getEntityOrThrow(session, Equipe, id, "equipe");
+      const equipe = await super.getEntityOrThrow(session, id);
       applyInput(equipe, ctx.body as Partial<Equipe>, { partial: true });
       await session.commit();
       return (await getEquipeWithEspecializadaOrThrow(
@@ -189,7 +181,7 @@ export class EquipeController {
   async remove(ctx: RequestContext<unknown, undefined, EquipeParamsDto>): Promise<void> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "equipe");
-      await deleteEntity(session, Equipe, id, "equipe");
+      await super.delete(session, id);
     });
   }
 }
