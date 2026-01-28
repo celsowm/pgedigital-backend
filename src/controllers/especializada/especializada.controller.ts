@@ -37,6 +37,7 @@ import {
   EspecializadaOptionsDto,
   EspecializadaSiglasDto,
   EspecializadaWithResponsavelDto,
+  EspecializadaOptionDto,
   ReplaceEspecializadaDto,
   UpdateEspecializadaDto
 } from "../../dtos/especializada/especializada.dtos";
@@ -129,7 +130,7 @@ export class EspecializadaController {
   @Get("/")
   @Query(EspecializadaQueryDtoClass)
   @Returns(EspecializadaPagedResponseDto)
-  async list(ctx: RequestContext<unknown, EspecializadaQueryDto>) {
+  async list(ctx: RequestContext<unknown, EspecializadaQueryDto>): Promise<unknown> {
     const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
     const { page, pageSize } = parsePagination(paginationQuery);
     const filters = parseFilter<Especializada, EspecializadaFilterFields>(
@@ -163,7 +164,7 @@ export class EspecializadaController {
 
   @Get("/siglas")
   @Returns(EspecializadaSiglasDto)
-  async listSiglas() {
+  async listSiglas(): Promise<string[]> {
     return withSession(async (session) => {
       return selectFromEntity(Especializada)
         .distinct(E.sigla)
@@ -175,7 +176,7 @@ export class EspecializadaController {
 
   @Get("/options")
   @Returns(EspecializadaOptionsDto)
-  async listOptions() {
+  async listOptions(): Promise<EspecializadaOptionDto[]> {
     return withSession((session) =>
       selectFromEntity(Especializada)
         .select("id", "nome")
@@ -190,7 +191,7 @@ export class EspecializadaController {
   @EspecializadaErrors
   async getOne(
     ctx: RequestContext<unknown, undefined, EspecializadaParamsDto>
-  ) {
+  ): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaWithResponsavelOrThrow(
@@ -204,7 +205,7 @@ export class EspecializadaController {
   @Post("/")
   @Body(CreateEspecializadaDto)
   @Returns({ status: 201, schema: EspecializadaWithResponsavelDto })
-  async create(ctx: RequestContext<CreateEspecializadaDto>) {
+  async create(ctx: RequestContext<CreateEspecializadaDto>): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const especializada = new Especializada();
       applyEspecializadaMutation(especializada, ctx.body);
@@ -228,7 +229,7 @@ export class EspecializadaController {
       undefined,
       EspecializadaParamsDto
     >
-  ) {
+  ): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaEntityOrThrow(session, id);
@@ -248,7 +249,7 @@ export class EspecializadaController {
   @EspecializadaErrors
   async update(
     ctx: RequestContext<UpdateEspecializadaDto, undefined, EspecializadaParamsDto>
-  ) {
+  ): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaEntityOrThrow(session, id);
@@ -265,7 +266,7 @@ export class EspecializadaController {
   @Params(EspecializadaParamsDto)
   @Returns({ status: 204 })
   @EspecializadaErrors
-  async remove(ctx: RequestContext<unknown, undefined, EspecializadaParamsDto>) {
+  async remove(ctx: RequestContext<unknown, undefined, EspecializadaParamsDto>): Promise<void> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaEntityOrThrow(session, id);

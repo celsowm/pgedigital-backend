@@ -41,7 +41,7 @@ export class UsuarioController {
   @Get("/")
   @Query(UsuarioQueryDtoClass)
   @Returns(UsuarioPagedResponseDto)
-  async list(ctx: RequestContext<unknown, UsuarioQueryDto>) {
+  async list(ctx: RequestContext<unknown, UsuarioQueryDto>): Promise<unknown> {
     const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
     const { page, pageSize } = parsePagination(paginationQuery);
     const filters = parseFilter<Usuario, UsuarioFilterFields>(

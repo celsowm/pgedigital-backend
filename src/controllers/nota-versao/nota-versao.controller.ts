@@ -108,7 +108,7 @@ export class NotaVersaoController {
   @Get("/")
   @Query(NotaVersaoQueryDtoClass)
   @Returns(NotaVersaoPagedResponseDto)
-  async list(ctx: RequestContext<unknown, NotaVersaoQueryDto>) {
+  async list(ctx: RequestContext<unknown, NotaVersaoQueryDto>): Promise<unknown> {
     const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
     const { page, pageSize } = parsePagination(paginationQuery);
     const filters = parseFilter<NotaVersao, NotaVersaoFilterFields>(
@@ -131,7 +131,7 @@ export class NotaVersaoController {
   @Params(NotaVersaoParamsDto)
   @Returns(NotaVersaoDto)
   @NotaVersaoErrors
-  async getOne(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>) {
+  async getOne(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
@@ -142,7 +142,7 @@ export class NotaVersaoController {
   @Post("/")
   @Body(CreateNotaVersaoDto)
   @Returns({ status: 201, schema: NotaVersaoDto })
-  async create(ctx: RequestContext<CreateNotaVersaoDto>) {
+  async create(ctx: RequestContext<CreateNotaVersaoDto>): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const notaVersao = new NotaVersao();
       applyNotaVersaoMutation(notaVersao, ctx.body);
@@ -159,7 +159,7 @@ export class NotaVersaoController {
   @NotaVersaoErrors
   async replace(
     ctx: RequestContext<ReplaceNotaVersaoDto, undefined, NotaVersaoParamsDto>
-  ) {
+  ): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
@@ -176,7 +176,7 @@ export class NotaVersaoController {
   @NotaVersaoErrors
   async update(
     ctx: RequestContext<UpdateNotaVersaoDto, undefined, NotaVersaoParamsDto>
-  ) {
+  ): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
@@ -190,7 +190,7 @@ export class NotaVersaoController {
   @Params(NotaVersaoParamsDto)
   @Returns({ status: 204 })
   @NotaVersaoErrors
-  async remove(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>) {
+  async remove(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>): Promise<void> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
