@@ -10,6 +10,8 @@ import {
   Put,
   Query,
   Returns,
+  applyInput,
+  getEntityOrThrow,
   parseFilter,
   parseIdOrThrow,
   parsePagination,
@@ -38,6 +40,7 @@ import {
   ReplaceEquipeDto,
   UpdateEquipeDto
 } from "../../dtos/equipe/equipe.dtos";
+import { deleteEntity, listOptions } from "../../utils/controller-helpers";
 
 const E = entityRef(Equipe);
 
@@ -53,22 +56,6 @@ const EQUIPE_FILTER_MAPPINGS = {
   }
 >;
 
-type EquipeInput =
-  | CreateEquipeDto
-  | ReplaceEquipeDto
-  | UpdateEquipeDto;
-
-async function getEquipeEntityOrThrow(
-  session: OrmSession,
-  id: number
-): Promise<Equipe> {
-  const equipe = await session.find(Equipe, id);
-  if (!equipe) {
-    throw new HttpError(404, "Equipe not found.");
-  }
-  return equipe;
-}
-
 async function getEquipeWithEspecializadaOrThrow(
   session: OrmSession,
   id: number
@@ -81,32 +68,6 @@ async function getEquipeWithEspecializadaOrThrow(
     throw new HttpError(404, "Equipe not found.");
   }
   return equipe;
-}
-
-function compactUpdates<T extends Record<string, unknown>>(updates: T): Partial<T> {
-  return Object.fromEntries(
-    Object.entries(updates).filter(([, value]) => value !== undefined)
-  ) as Partial<T>;
-}
-
-function applyEquipeInput(
-  entity: Equipe,
-  input: EquipeInput,
-  options: { partial: boolean }
-) {
-  const payload = options.partial ? compactUpdates(input) : input;
-  Object.assign(entity, payload);
-}
-
-function applyEquipeMutation(
-  entity: Equipe,
-  input: CreateEquipeDto | ReplaceEquipeDto
-) {
-  applyEquipeInput(entity, input, { partial: false });
-}
-
-function applyEquipePatch(entity: Equipe, input: UpdateEquipeDto) {
-  applyEquipeInput(entity, input, { partial: true });
 }
 
 @Controller("/equipe")
@@ -140,10 +101,7 @@ export class EquipeController {
   @Returns(EquipeOptionsDto)
   async listOptions(): Promise<EquipeOptionDto[]> {
     return withSession((session) =>
-      selectFromEntity(Equipe)
-        .select("id", "nome")
-        .orderBy(E.nome, "ASC")
-        .executePlain(session)
+      listOptions(session, Equipe, E)
     );
   }
 
@@ -170,7 +128,7 @@ export class EquipeController {
   async create(ctx: RequestContext<CreateEquipeDto>): Promise<EquipeWithEspecializadaDto> {
     return withSession(async (session) => {
       const equipe = new Equipe();
-      applyEquipeMutation(equipe, ctx.body);
+      applyInput(equipe, ctx.body as Partial<Equipe>, { partial: false });
       await session.persist(equipe);
       await session.commit();
       return (await getEquipeWithEspecializadaOrThrow(
@@ -194,8 +152,8 @@ export class EquipeController {
   ): Promise<EquipeWithEspecializadaDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await getEquipeEntityOrThrow(session, id);
-      applyEquipeMutation(equipe, ctx.body);
+      const equipe = await getEntityOrThrow(session, Equipe, id, "equipe");
+      applyInput(equipe, ctx.body as Partial<Equipe>, { partial: false });
       await session.commit();
       return (await getEquipeWithEspecializadaOrThrow(
         session,
@@ -214,8 +172,8 @@ export class EquipeController {
   ): Promise<EquipeWithEspecializadaDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await getEquipeEntityOrThrow(session, id);
-      applyEquipePatch(equipe, ctx.body);
+      const equipe = await getEntityOrThrow(session, Equipe, id, "equipe");
+      applyInput(equipe, ctx.body as Partial<Equipe>, { partial: true });
       await session.commit();
       return (await getEquipeWithEspecializadaOrThrow(
         session,
@@ -231,9 +189,7 @@ export class EquipeController {
   async remove(ctx: RequestContext<unknown, undefined, EquipeParamsDto>): Promise<void> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await getEquipeEntityOrThrow(session, id);
-      await session.remove(equipe);
-      await session.commit();
+      await deleteEntity(session, Equipe, id, "equipe");
     });
   }
 }

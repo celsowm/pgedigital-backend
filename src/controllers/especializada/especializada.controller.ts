@@ -10,6 +10,8 @@ import {
   Put,
   Query,
   Returns,
+  applyInput,
+  getEntityOrThrow,
   parseFilter,
   parseIdOrThrow,
   parsePagination,
@@ -41,6 +43,7 @@ import {
   ReplaceEspecializadaDto,
   UpdateEspecializadaDto
 } from "../../dtos/especializada/especializada.dtos";
+import { deleteEntity, listOptions } from "../../utils/controller-helpers";
 
 const E = entityRef(Especializada);
 
@@ -69,22 +72,6 @@ const RESPONSAVEL_FILTER_MAPPINGS = {
   }
 >;
 
-type EspecializadaInput =
-  | CreateEspecializadaDto
-  | ReplaceEspecializadaDto
-  | UpdateEspecializadaDto;
-
-async function getEspecializadaEntityOrThrow(
-  session: OrmSession,
-  id: number
-): Promise<Especializada> {
-  const especializada = await session.find(Especializada, id);
-  if (!especializada) {
-    throw new HttpError(404, "Especializada not found.");
-  }
-  return especializada;
-}
-
 async function getEspecializadaWithResponsavelOrThrow(
   session: OrmSession,
   id: number
@@ -97,32 +84,6 @@ async function getEspecializadaWithResponsavelOrThrow(
     throw new HttpError(404, "Especializada not found.");
   }
   return especializada;
-}
-
-function compactUpdates<T extends Record<string, unknown>>(updates: T): Partial<T> {
-  return Object.fromEntries(
-    Object.entries(updates).filter(([, value]) => value !== undefined)
-  ) as Partial<T>;
-}
-
-function applyEspecializadaInput(
-  entity: Especializada,
-  input: EspecializadaInput,
-  options: { partial: boolean }
-) {
-  const payload = options.partial ? compactUpdates(input) : input;
-  Object.assign(entity, payload);
-}
-
-function applyEspecializadaMutation(
-  entity: Especializada,
-  input: CreateEspecializadaDto | ReplaceEspecializadaDto
-) {
-  applyEspecializadaInput(entity, input, { partial: false });
-}
-
-function applyEspecializadaPatch(entity: Especializada, input: UpdateEspecializadaDto) {
-  applyEspecializadaInput(entity, input, { partial: true });
 }
 
 @Controller("/especializada")
@@ -178,10 +139,7 @@ export class EspecializadaController {
   @Returns(EspecializadaOptionsDto)
   async listOptions(): Promise<EspecializadaOptionDto[]> {
     return withSession((session) =>
-      selectFromEntity(Especializada)
-        .select("id", "nome")
-        .orderBy(E.nome, "ASC")
-        .executePlain(session)
+      listOptions(session, Especializada, E)
     );
   }
 
@@ -208,7 +166,7 @@ export class EspecializadaController {
   async create(ctx: RequestContext<CreateEspecializadaDto>): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const especializada = new Especializada();
-      applyEspecializadaMutation(especializada, ctx.body);
+      applyInput(especializada, ctx.body as Partial<Especializada>, { partial: false });
       await session.persist(especializada);
       await session.commit();
       return (await getEspecializadaWithResponsavelOrThrow(
@@ -232,8 +190,8 @@ export class EspecializadaController {
   ): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
-      const especializada = await getEspecializadaEntityOrThrow(session, id);
-      applyEspecializadaMutation(especializada, ctx.body);
+      const especializada = await getEntityOrThrow(session, Especializada, id, "especializada");
+      applyInput(especializada, ctx.body as Partial<Especializada>, { partial: false });
       await session.commit();
       return (await getEspecializadaWithResponsavelOrThrow(
         session,
@@ -252,8 +210,8 @@ export class EspecializadaController {
   ): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
-      const especializada = await getEspecializadaEntityOrThrow(session, id);
-      applyEspecializadaPatch(especializada, ctx.body);
+      const especializada = await getEntityOrThrow(session, Especializada, id, "especializada");
+      applyInput(especializada, ctx.body as Partial<Especializada>, { partial: true });
       await session.commit();
       return (await getEspecializadaWithResponsavelOrThrow(
         session,
@@ -269,9 +227,7 @@ export class EspecializadaController {
   async remove(ctx: RequestContext<unknown, undefined, EspecializadaParamsDto>): Promise<void> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
-      const especializada = await getEspecializadaEntityOrThrow(session, id);
-      await session.remove(especializada);
-      await session.commit();
+      await deleteEntity(session, Especializada, id, "especializada");
     });
   }
 }
