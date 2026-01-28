@@ -3,10 +3,11 @@ import { EspecializadaController } from "./controllers/especializada/especializa
 import { NotaVersaoController } from "./controllers/nota-versao/nota-versao.controller";
 import { TestController } from "./controllers/test/test.controller";
 import { UsuarioController } from "./controllers/usuario/usuario.controller";
+import { EquipeController } from "./controllers/equipe/equipe.controller";
 
 export function createApp() {
   return createExpressApp({
-    controllers: [EspecializadaController, NotaVersaoController, TestController, UsuarioController],
+    controllers: [EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController],
     cors: true,
     openApi: {
       info: {
