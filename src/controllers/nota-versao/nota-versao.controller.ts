@@ -22,7 +22,7 @@ import {
   toPagedResponse,
   type OrmSession
 } from "metal-orm";
-import { withMssqlSession } from "../../db/mssql";
+import { withSession } from "../../db/mssql";
 import { NotaVersao } from "../../entities/NotaVersao";
 import {
   CreateNotaVersaoDto,
@@ -116,7 +116,7 @@ export class NotaVersaoController {
       NOTA_VERSAO_FILTER_MAPPINGS
     );
 
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const query = applyFilter(
         selectFromEntity(NotaVersao).orderBy(notaVersaoRef.id, "ASC"),
         NotaVersao,
@@ -132,7 +132,7 @@ export class NotaVersaoController {
   @Returns(NotaVersaoDto)
   @NotaVersaoErrors
   async getOne(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
       return notaVersao as NotaVersaoDto;
@@ -143,7 +143,7 @@ export class NotaVersaoController {
   @Body(CreateNotaVersaoDto)
   @Returns({ status: 201, schema: NotaVersaoDto })
   async create(ctx: RequestContext<CreateNotaVersaoDto>) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const notaVersao = new NotaVersao();
       applyNotaVersaoMutation(notaVersao, ctx.body);
       await session.persist(notaVersao);
@@ -160,7 +160,7 @@ export class NotaVersaoController {
   async replace(
     ctx: RequestContext<ReplaceNotaVersaoDto, undefined, NotaVersaoParamsDto>
   ) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
       applyNotaVersaoMutation(notaVersao, ctx.body);
@@ -177,7 +177,7 @@ export class NotaVersaoController {
   async update(
     ctx: RequestContext<UpdateNotaVersaoDto, undefined, NotaVersaoParamsDto>
   ) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
       applyNotaVersaoPatch(notaVersao, ctx.body);
@@ -191,7 +191,7 @@ export class NotaVersaoController {
   @Returns({ status: 204 })
   @NotaVersaoErrors
   async remove(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "nota versao");
       const notaVersao = await getNotaVersaoOrThrow(session, id);
       await session.remove(notaVersao);

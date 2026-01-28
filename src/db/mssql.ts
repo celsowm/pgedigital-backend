@@ -20,10 +20,10 @@ function getOrm(): Orm {
       dialect: new SqlServerDialect(),
       executorFactory: {
         createExecutor: () => {
-          throw new Error("Use withMssqlSession to create sessions.");
+          throw new Error("Use withSession to create sessions.");
         },
         createTransactionalExecutor: () => {
-          throw new Error("Use withMssqlSession to create sessions.");
+          throw new Error("Use withSession to create sessions.");
         },
         dispose: async () => {}
       }
@@ -86,7 +86,7 @@ export function createMssqlExecutor(connection: Connection) {
   return createTediousExecutor(connection, { Request, TYPES });
 }
 
-export async function withMssqlSession<T>(
+export async function withSession<T>(
   handler: (session: OrmSession) => Promise<T>
 ): Promise<T> {
   const connection = await createTediousConnection();

@@ -13,7 +13,7 @@ import {
   selectFromEntity,
   toPagedResponse
 } from "metal-orm";
-import { withMssqlSession } from "../../db/mssql";
+import { withSession } from "../../db/mssql";
 import { Usuario } from "../../entities/Usuario";
 import {
   UsuarioPagedResponseDto,
@@ -49,7 +49,7 @@ export class UsuarioController {
       USUARIO_FILTER_MAPPINGS
     );
 
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const query = applyFilter(
         selectFromEntity(Usuario)
           .includePick("especializada", ["nome", "sigla"])

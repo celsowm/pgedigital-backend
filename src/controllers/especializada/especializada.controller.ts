@@ -24,7 +24,7 @@ import {
   type OrmSession,
   eq
 } from "metal-orm";
-import { withMssqlSession } from "../../db/mssql";
+import { withSession } from "../../db/mssql";
 import { Especializada } from "../../entities/Especializada";
 import { Usuario } from "../../entities/Usuario";
 import {
@@ -141,7 +141,7 @@ export class EspecializadaController {
       RESPONSAVEL_FILTER_MAPPINGS
     );
 
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       let query = applyFilter(
         selectFromEntity(Especializada)
           .includePick("responsavel", ["id", "nome"])
@@ -164,7 +164,7 @@ export class EspecializadaController {
   @Get("/siglas")
   @Returns(EspecializadaSiglasDto)
   async listSiglas() {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       return selectFromEntity(Especializada)
         .distinct(E.sigla)
         .where(isNotNull(E.sigla))
@@ -176,7 +176,7 @@ export class EspecializadaController {
   @Get("/options")
   @Returns(EspecializadaOptionsDto)
   async listOptions() {
-    return withMssqlSession((session) =>
+    return withSession((session) =>
       selectFromEntity(Especializada)
         .select("id", "nome")
         .orderBy(E.nome, "ASC")
@@ -191,7 +191,7 @@ export class EspecializadaController {
   async getOne(
     ctx: RequestContext<unknown, undefined, EspecializadaParamsDto>
   ) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaWithResponsavelOrThrow(
         session,
@@ -205,7 +205,7 @@ export class EspecializadaController {
   @Body(CreateEspecializadaDto)
   @Returns({ status: 201, schema: EspecializadaWithResponsavelDto })
   async create(ctx: RequestContext<CreateEspecializadaDto>) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const especializada = new Especializada();
       applyEspecializadaMutation(especializada, ctx.body);
       await session.persist(especializada);
@@ -229,7 +229,7 @@ export class EspecializadaController {
       EspecializadaParamsDto
     >
   ) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaEntityOrThrow(session, id);
       applyEspecializadaMutation(especializada, ctx.body);
@@ -249,7 +249,7 @@ export class EspecializadaController {
   async update(
     ctx: RequestContext<UpdateEspecializadaDto, undefined, EspecializadaParamsDto>
   ) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaEntityOrThrow(session, id);
       applyEspecializadaPatch(especializada, ctx.body);
@@ -266,7 +266,7 @@ export class EspecializadaController {
   @Returns({ status: 204 })
   @EspecializadaErrors
   async remove(ctx: RequestContext<unknown, undefined, EspecializadaParamsDto>) {
-    return withMssqlSession(async (session) => {
+    return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "especializada");
       const especializada = await getEspecializadaEntityOrThrow(session, id);
       await session.remove(especializada);
