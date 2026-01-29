@@ -7,11 +7,9 @@ import { ClassificacaoEspecializadaTema } from './ClassificacaoEspecializadaTema
 import { Confidencialidade } from './Confidencialidade';
 import { ConfidencialidadeEspecializada } from './ConfidencialidadeEspecializada';
 import { Equipe } from './Equipe';
-import { EspecializadaAssistente } from './EspecializadaAssistente';
 import { EspecializadaDistribuidor } from './EspecializadaDistribuidor';
 import { EspecializadaMateria } from './EspecializadaMateria';
 import { EspecializadaTema } from './EspecializadaTema';
-import { EspecializadaUsuarioNotificacao } from './EspecializadaUsuarioNotificacao';
 import { FilaCircular } from './FilaCircular';
 import { HistoricoDistribuicaoEspecializada } from './HistoricoDistribuicaoEspecializada';
 import { HistoricoUsuarioEspecializada } from './HistoricoUsuarioEspecializada';
@@ -19,7 +17,6 @@ import { Localidade } from './Localidade';
 import { MapeamentoLocalidadeRegional } from './MapeamentoLocalidadeRegional';
 import { Materia } from './Materia';
 import { Modelo } from './Modelo';
-import { ModeloFormulario } from './ModeloFormulario';
 import { OrgaoJulgador } from './OrgaoJulgador';
 import { PredicaoAssuntoEspecializada } from './PredicaoAssuntoEspecializada';
 import { PredicaoEspecializadaMachineLearning } from './PredicaoEspecializadaMachineLearning';
@@ -158,35 +155,14 @@ export class Especializada {
   @BelongsToMany({ target: () => ProcessoJudicial, pivotTable: () => PredicaoEspecializadaMachineLearning, pivotForeignKeyToRoot: 'especializada_id', pivotForeignKeyToTarget: 'processo_judicial_id' })
   processoJudicials!: ManyToManyCollection<ProcessoJudicial>;
 
-  @HasMany({ target: () => PredicaoOrgaoJulgadorEspecializada, foreignKey: 'especializada_id' })
-  predicaoOrgaoJulgadorEspecializadas!: HasManyCollection<PredicaoOrgaoJulgadorEspecializada>;
-
   @HasMany({ target: () => ClassificacaoEspecializadaTema, foreignKey: 'especializada_id' })
   classificacaoEspecializadaTemas!: HasManyCollection<ClassificacaoEspecializadaTema>;
-
-  @HasMany({ target: () => PredicaoAssuntoEspecializada, foreignKey: 'especializada_id' })
-  predicaoAssuntoEspecializadas!: HasManyCollection<PredicaoAssuntoEspecializada>;
-
-  @HasMany({ target: () => EspecializadaMateria, foreignKey: 'especializada_id' })
-  especializadaMaterias!: HasManyCollection<EspecializadaMateria>;
 
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'especializada_id' })
   especializadaTemas!: HasManyCollection<EspecializadaTema>;
 
-  @HasMany({ target: () => EspecializadaDistribuidor, foreignKey: 'especializada_id' })
-  especializadaDistribuidors!: HasManyCollection<EspecializadaDistribuidor>;
-
-  @HasMany({ target: () => Equipe, foreignKey: 'especializada_id' })
-  equipes!: HasManyCollection<Equipe>;
-
   @HasMany({ target: () => TipoDispensa, foreignKey: 'especializada_id' })
   tipoDispensas!: HasManyCollection<TipoDispensa>;
-
-  @HasMany({ target: () => ModeloFormulario, foreignKey: 'especializada_id' })
-  modeloFormularios!: HasManyCollection<ModeloFormulario>;
-
-  @HasMany({ target: () => EspecializadaAssistente, foreignKey: 'especializada_id' })
-  especializadaAssistentes!: HasManyCollection<EspecializadaAssistente>;
 
   @BelongsTo({ target: () => Especializada, foreignKey: 'id' })
   dboEspecializada!: BelongsToReference<Especializada>;
@@ -221,23 +197,11 @@ export class Especializada {
   @HasMany({ target: () => SorteioCorreicao, foreignKey: 'especializada_id' })
   sorteioCorreicaos!: HasManyCollection<SorteioCorreicao>;
 
-  @HasMany({ target: () => EspecializadaUsuarioNotificacao, foreignKey: 'especializada_id' })
-  especializadaUsuarioNotificacaos!: HasManyCollection<EspecializadaUsuarioNotificacao>;
-
   @HasMany({ target: () => RegistroTramitacao, foreignKey: 'especializada_id' })
   registroTramitacaos!: HasManyCollection<RegistroTramitacao>;
 
-  @HasMany({ target: () => ConfidencialidadeEspecializada, foreignKey: 'especializada_id' })
-  confidencialidadeEspecializadas!: HasManyCollection<ConfidencialidadeEspecializada>;
-
   @HasMany({ target: () => Modelo, foreignKey: 'especializada_id' })
   modelos!: HasManyCollection<Modelo>;
-
-  @HasMany({ target: () => MapeamentoLocalidadeRegional, foreignKey: 'especializada_regional_id' })
-  mapeamentoLocalidadeRegionals!: HasManyCollection<MapeamentoLocalidadeRegional>;
-
-  @HasMany({ target: () => PredicaoEspecializadaMachineLearning, foreignKey: 'especializada_id' })
-  predicaoEspecializadaMachineLearnings!: HasManyCollection<PredicaoEspecializadaMachineLearning>;
 
   @HasMany({ target: () => Acervo, foreignKey: 'especializada_id' })
   acervos!: HasManyCollection<Acervo>;

@@ -41,17 +41,8 @@ export class TipoProcessoAdministrativo {
   @HasMany({ target: () => Materia, foreignKey: 'tipo_processo_administrativo_id' })
   materias!: HasManyCollection<Materia>;
 
-  @HasMany({ target: () => TipoAcaoTipoProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  tipoAcaoTipoProcessoAdministrativos!: HasManyCollection<TipoAcaoTipoProcessoAdministrativo>;
-
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
   processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
-
-  @HasMany({ target: () => TipoSolicitacaoTipoProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  tipoSolicitacaoTipoProcessoAdministrativos!: HasManyCollection<TipoSolicitacaoTipoProcessoAdministrativo>;
-
-  @HasMany({ target: () => TipoDocumentoTipoProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  tipoDocumentoTipoProcessoAdministrativos!: HasManyCollection<TipoDocumentoTipoProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoAudiencia, foreignKey: 'tipo_processo_administrativo_id' })
   tipoAudiencias!: HasManyCollection<TipoAudiencia>;

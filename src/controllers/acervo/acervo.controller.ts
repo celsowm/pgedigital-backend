@@ -32,12 +32,8 @@ import {
   AcervoQueryDto,
   AcervoQueryDtoClass,
   AcervoWithRelationsDto,
-  ClassificacaoResumoDto,
   CreateAcervoDto,
-  DestinatarioResumoDto,
-  RaizCnpjResumoDto,
   ReplaceAcervoDto,
-  TemaComMateriaDto,
   UpdateAcervoDto
 } from "../../dtos/acervo/acervo.dtos";
 import { BaseController } from "../../utils/base-controller";
@@ -51,56 +47,50 @@ const ACERVO_FILTER_MAPPINGS = {
   especializadaId: { field: "especializada_id", operator: "equals" },
   tipoAcervoId: { field: "tipo_acervo_id", operator: "equals" },
   ativo: { field: "ativo", operator: "equals" }
-} satisfies Record<
-  string,
-  {
-    field: AcervoFilterFields;
-    operator: "equals" | "contains";
-  }
->;
-
-async function getAcervoWithRelationsOrThrow(
-  session: OrmSession,
-  id: number
-): Promise<any> {
-  const query = selectFromEntity(Acervo)
-    .includePick("especializada", ["id", "nome"])
-    .includePick("procuradorTitular", ["id", "nome"])
-    .includePick("tipoAcervo", ["id", "nome"])
-    .includePick("tipoMigracaoAcervo", ["id", "nome"])
-    .includePick("equipeResponsavel", ["id", "nome"])
-    .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
-    .where(eq(A.id, id));
-  const [acervo] = await query.execute(session);
-  if (!acervo) {
-    throw new HttpError(404, "Acervo not found.");
-  }
-  return acervo;
-}
+} satisfies Record<string, { field: AcervoFilterFields; operator: "equals" | "contains" }>;
 
 const pick = <T, K extends keyof T>(obj: T | undefined, ...keys: K[]): Pick<T, K> | undefined =>
   obj ? keys.reduce((acc, k) => ((acc[k] = obj[k]), acc), {} as Pick<T, K>) : undefined;
 
-const flattenPivot = <T, R>(arr: any[] | undefined, key: string, mapper: (item: T) => R): R[] =>
-  arr?.filter((p) => p[key]).map((p) => mapper(p[key])) ?? [];
-
-async function getAcervoDetailOrThrow(
-  session: OrmSession,
-  id: number
-): Promise<AcervoDetailDto> {
-  const [acervo] = await selectFromEntity(Acervo)
+const baseAcervoQuery = () =>
+  selectFromEntity(Acervo)
     .includePick("especializada", ["id", "nome"])
     .includePick("procuradorTitular", ["id", "nome"])
     .includePick("tipoAcervo", ["id", "nome"])
     .includePick("tipoMigracaoAcervo", ["id", "nome"])
     .includePick("equipeResponsavel", ["id", "nome"])
-    .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
-    .include({
-      acervoClassificacaos: { include: { classificacao: { columns: ["id", "nome"] } } },
-      acervoTemas: { include: { tema: { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } } } },
-      acervoDestinatarioPas: { include: { destinatarioPa: { columns: ["id", "nome", "login", "cargo", "estado_inatividade"], include: { especializada: { columns: ["nome"] } } } } },
-      raizCnpjAcervos: { columns: ["id", "raiz"] }
+    .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"]);
+
+async function getAcervoWithRelationsOrThrow(session: OrmSession, id: number): Promise<any> {
+  const [acervo] = await baseAcervoQuery().where(eq(A.id, id)).execute(session);
+  if (!acervo) throw new HttpError(404, "Acervo not found.");
+  return acervo;
+}
+
+function mapAcervoToWithRelationsDto(acervo: any): AcervoWithRelationsDto {
+  return {
+    id: acervo.id,
+    nome: acervo.nome,
+    especializada: pick(acervo.especializada, "id", "nome"),
+    procuradorTitular: pick(acervo.procuradorTitular, "id", "nome"),
+    tipoAcervo: pick(acervo.tipoAcervo, "id", "nome"),
+    rotina_sob_demanda: acervo.rotina_sob_demanda,
+    tipoMigracaoAcervo: pick(acervo.tipoMigracaoAcervo, "id", "nome"),
+    equipeResponsavel: pick(acervo.equipeResponsavel, "id", "nome"),
+    tipoDivisaoCargaTrabalho: pick(acervo.tipoDivisaoCargaTrabalho, "id", "nome"),
+    ativo: acervo.ativo
+  };
+}
+
+async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<AcervoDetailDto> {
+  const [acervo] = await baseAcervoQuery()
+    .include("classificacaos", { columns: ["id", "nome"] })
+    .include("temas", { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } })
+    .include("usuarios", {
+      columns: ["id", "nome", "login", "cargo", "estado_inatividade"],
+      include: { especializada: { columns: ["nome"] } }
     })
+    .include("pessoas", { pivot: { columns: ["id", "raiz"] } })
     .where(eq(A.id, id))
     .execute(session) as any[];
 
@@ -117,13 +107,13 @@ async function getAcervoDetailOrThrow(
     equipeResponsavel: pick(acervo.equipeResponsavel, "id", "nome"),
     tipoDivisaoCargaTrabalho: pick(acervo.tipoDivisaoCargaTrabalho, "id", "nome"),
     ativo: acervo.ativo,
-    classificacoes: flattenPivot(acervo.acervoClassificacaos, "classificacao", (c: any) => pick(c, "id", "nome")!),
-    temasRelacionados: flattenPivot(acervo.acervoTemas, "tema", (t: any) => ({ id: t.id, nome: t.nome, materiaNome: t.materia?.nome ?? "" })),
-    destinatarios: flattenPivot(acervo.acervoDestinatarioPas, "destinatarioPa", (u: any) => ({
+    classificacoes: acervo.classificacaos?.map((c: any) => pick(c, "id", "nome")!) ?? [],
+    temasRelacionados: acervo.temas?.map((t: any) => ({ id: t.id, nome: t.nome, materiaNome: t.materia?.nome ?? "" })) ?? [],
+    destinatarios: acervo.usuarios?.map((u: any) => ({
       id: u.id, nome: u.nome, login: u.login, cargo: u.cargo,
       especializada_nome: u.especializada?.nome, ativo: !u.estado_inatividade
-    })),
-    raizesCnpj: acervo.raizCnpjAcervos?.map((r: any) => pick(r, "id", "raiz")!) ?? []
+    })) ?? [],
+    raizesCnpj: acervo.pessoas?.map((p: any) => ({ id: p.$pivot?.id, raiz: p.$pivot?.raiz })).filter((r: any) => r.id) ?? []
   };
 }
 
@@ -185,8 +175,7 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
       applyInput(acervo, ctx.body as Partial<Acervo>, { partial: false });
       await session.persist(acervo);
       await session.commit();
-      const result = await getAcervoWithRelationsOrThrow(session, acervo.id);
-      return this.mapToWithRelationsDto(result);
+      return mapAcervoToWithRelationsDto(await getAcervoWithRelationsOrThrow(session, acervo.id));
     });
   }
 
@@ -195,16 +184,13 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
   @Body(ReplaceAcervoDto)
   @Returns(AcervoWithRelationsDto)
   @AcervoErrors
-  async replace(
-    ctx: RequestContext<ReplaceAcervoDto, undefined, AcervoParamsDto>
-  ): Promise<AcervoWithRelationsDto> {
+  async replace(ctx: RequestContext<ReplaceAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoWithRelationsDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "acervo");
       const acervo = await super.getEntityOrThrow(session, id);
       applyInput(acervo, ctx.body as Partial<Acervo>, { partial: false });
       await session.commit();
-      const result = await getAcervoWithRelationsOrThrow(session, id);
-      return this.mapToWithRelationsDto(result);
+      return mapAcervoToWithRelationsDto(await getAcervoWithRelationsOrThrow(session, id));
     });
   }
 
@@ -213,16 +199,13 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
   @Body(UpdateAcervoDto)
   @Returns(AcervoWithRelationsDto)
   @AcervoErrors
-  async update(
-    ctx: RequestContext<UpdateAcervoDto, undefined, AcervoParamsDto>
-  ): Promise<AcervoWithRelationsDto> {
+  async update(ctx: RequestContext<UpdateAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoWithRelationsDto> {
     return withSession(async (session) => {
       const id = parseIdOrThrow(ctx.params.id, "acervo");
       const acervo = await super.getEntityOrThrow(session, id);
       applyInput(acervo, ctx.body as Partial<Acervo>, { partial: true });
       await session.commit();
-      const result = await getAcervoWithRelationsOrThrow(session, id);
-      return this.mapToWithRelationsDto(result);
+      return mapAcervoToWithRelationsDto(await getAcervoWithRelationsOrThrow(session, id));
     });
   }
 
@@ -235,32 +218,5 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
       const id = parseIdOrThrow(ctx.params.id, "acervo");
       await super.delete(session, id);
     });
-  }
-
-  private mapToWithRelationsDto(acervo: any): AcervoWithRelationsDto {
-    return {
-      id: acervo.id,
-      nome: acervo.nome,
-      especializada: acervo.especializada
-        ? { id: acervo.especializada.id, nome: acervo.especializada.nome }
-        : undefined,
-      procuradorTitular: acervo.procuradorTitular
-        ? { id: acervo.procuradorTitular.id, nome: acervo.procuradorTitular.nome }
-        : undefined,
-      tipoAcervo: acervo.tipoAcervo
-        ? { id: acervo.tipoAcervo.id, nome: acervo.tipoAcervo.nome }
-        : undefined,
-      rotina_sob_demanda: acervo.rotina_sob_demanda,
-      tipoMigracaoAcervo: acervo.tipoMigracaoAcervo
-        ? { id: acervo.tipoMigracaoAcervo.id, nome: acervo.tipoMigracaoAcervo.nome }
-        : undefined,
-      equipeResponsavel: acervo.equipeResponsavel
-        ? { id: acervo.equipeResponsavel.id, nome: acervo.equipeResponsavel.nome }
-        : undefined,
-      tipoDivisaoCargaTrabalho: acervo.tipoDivisaoCargaTrabalho
-        ? { id: acervo.tipoDivisaoCargaTrabalho.id, nome: acervo.tipoDivisaoCargaTrabalho.nome }
-        : undefined,
-      ativo: acervo.ativo
-    };
   }
 }

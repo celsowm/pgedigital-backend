@@ -121,9 +121,6 @@ export class DocumentoRascunho {
   @HasMany({ target: () => DocumentoRascunhoEstado, foreignKey: 'documento_rascunho_id' })
   documentoRascunhoEstados!: HasManyCollection<DocumentoRascunhoEstado>;
 
-  @HasMany({ target: () => DocumentoRascunhoProvidenciaJuridica, foreignKey: 'documento_rascunho_id' })
-  documentoRascunhoProvidenciaJuridicas!: HasManyCollection<DocumentoRascunhoProvidenciaJuridica>;
-
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'documento_rascunho_id' })
   documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 

@@ -51,9 +51,6 @@ export class OrgaoJulgador {
   @BelongsToMany({ target: () => Especializada, pivotTable: () => PredicaoOrgaoJulgadorEspecializada, pivotForeignKeyToRoot: 'orgao_julgador_id', pivotForeignKeyToTarget: 'especializada_id' })
   especializadas!: ManyToManyCollection<Especializada>;
 
-  @HasMany({ target: () => PredicaoOrgaoJulgadorEspecializada, foreignKey: 'orgao_julgador_id' })
-  predicaoOrgaoJulgadorEspecializadas!: HasManyCollection<PredicaoOrgaoJulgadorEspecializada>;
-
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'orgao_julgador_id' })
   processoJudicials!: HasManyCollection<ProcessoJudicial>;
 

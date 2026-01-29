@@ -71,12 +71,6 @@ export class TipoAcao {
   @HasMany({ target: () => TipoAcao, foreignKey: 'parent_id' })
   tipoAcaos!: HasManyCollection<TipoAcao>;
 
-  @HasMany({ target: () => TipoAcaoTipoProcessoAdministrativo, foreignKey: 'tipo_acao_id' })
-  tipoAcaoTipoProcessoAdministrativos!: HasManyCollection<TipoAcaoTipoProcessoAdministrativo>;
-
-  @HasMany({ target: () => TipoAcaoEstado, foreignKey: 'tipo_acao_id' })
-  tipoAcaoEstados!: HasManyCollection<TipoAcaoEstado>;
-
   @HasMany({ target: () => Modelo, foreignKey: 'tipo_acao_id' })
   modelos!: HasManyCollection<Modelo>;
 

@@ -29,9 +29,6 @@ export class TipoAtividade {
   @BelongsToMany({ target: () => ProcessoJudicial, pivotTable: () => Atividade, pivotForeignKeyToRoot: 'tipo_atividade_id', pivotForeignKeyToTarget: 'processo_judicial_id' })
   processoJudicials!: ManyToManyCollection<ProcessoJudicial>;
 
-  @HasMany({ target: () => Atividade, foreignKey: 'tipo_atividade_id' })
-  atividades!: HasManyCollection<Atividade>;
-
   @HasMany({ target: () => Modelo, foreignKey: 'tipo_atividade_id' })
   modelos!: HasManyCollection<Modelo>;
 

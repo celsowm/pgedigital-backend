@@ -283,12 +283,6 @@ export class ProcessoAdministrativo {
   @BelongsToMany({ target: () => Usuario, pivotTable: () => UsuarioPermitidoAcessarProcessoAdministrativoSigiloso, pivotForeignKeyToRoot: 'processo_administrativo_id', pivotForeignKeyToTarget: 'usuario_id' })
   usuarios!: ManyToManyCollection<Usuario>;
 
-  @HasMany({ target: () => PalavraChaveProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  palavraChaveProcessoAdministrativos!: HasManyCollection<PalavraChaveProcessoAdministrativo>;
-
-  @HasMany({ target: () => ProcessoAdministrativoTema, foreignKey: 'processo_administrativo_id' })
-  processoAdministrativoTemas!: HasManyCollection<ProcessoAdministrativoTema>;
-
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
   modeloFormularioProcessoAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
 
@@ -376,20 +370,11 @@ export class ProcessoAdministrativo {
   @HasMany({ target: () => Audiencia, foreignKey: 'processo_administrativo_id' })
   audiencias!: HasManyCollection<Audiencia>;
 
-  @HasMany({ target: () => CodigoExternoProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  codigoExternoProcessoAdministrativos!: HasManyCollection<CodigoExternoProcessoAdministrativo>;
-
   @HasMany({ target: () => ProcessoFisicoAssociado, foreignKey: 'processo_administrativo_id' })
   processoFisicoAssociados!: HasManyCollection<ProcessoFisicoAssociado>;
 
   @HasMany({ target: () => Interessado, foreignKey: 'processo_administrativo_id' })
   interessados!: HasManyCollection<Interessado>;
-
-  @HasMany({ target: () => PedidoComplementarProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
-  pedidoComplementarProcessoAdministrativos!: HasManyCollection<PedidoComplementarProcessoAdministrativo>;
-
-  @HasMany({ target: () => UsuarioPermitidoAcessarProcessoAdministrativoSigiloso, foreignKey: 'processo_administrativo_id' })
-  usuarioPermitidoAcessarProcessoAdministrativoSigilosos!: HasManyCollection<UsuarioPermitidoAcessarProcessoAdministrativoSigiloso>;
 
   @HasMany({ target: () => ValorAdicional, foreignKey: 'processo_administrativo_id' })
   valorAdicionals!: HasManyCollection<ValorAdicional>;

@@ -33,9 +33,6 @@ export class FilaCircular {
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'fila_circular_id' })
   especializadaTemas!: HasManyCollection<EspecializadaTema>;
 
-  @HasMany({ target: () => Equipe, foreignKey: 'fila_circular_id' })
-  equipes!: HasManyCollection<Equipe>;
-
   @HasMany({ target: () => AfastamentoPessoa, foreignKey: 'fila_circular_id' })
   afastamentoPessoas!: HasManyCollection<AfastamentoPessoa>;
 

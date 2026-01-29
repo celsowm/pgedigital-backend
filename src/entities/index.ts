@@ -42,6 +42,7 @@ import { EspecializadaDistribuidor } from './EspecializadaDistribuidor';
 import { ContatoMniTribunal } from './ContatoMniTribunal';
 import { Equipe } from './Equipe';
 import { AcervoEquipeApoio } from './AcervoEquipeApoio';
+import { Simple } from './Simple';
 import { Materia } from './Materia';
 import { ModeloFormularioProcessoAdministrativoEstadoModeloFormulario } from './ModeloFormularioProcessoAdministrativoEstadoModeloFormulario';
 import { TipoDispensa } from './TipoDispensa';
@@ -273,6 +274,7 @@ export {
   ContatoMniTribunal,
   Equipe,
   AcervoEquipeApoio,
+  Simple,
   Materia,
   ModeloFormularioProcessoAdministrativoEstadoModeloFormulario,
   TipoDispensa,
@@ -507,6 +509,7 @@ export const bootstrapEntityTables = () => {
     ContatoMniTribunal: getTableDefFromEntity(ContatoMniTribunal)!,
     Equipe: getTableDefFromEntity(Equipe)!,
     AcervoEquipeApoio: getTableDefFromEntity(AcervoEquipeApoio)!,
+    Simple: getTableDefFromEntity(Simple)!,
     Materia: getTableDefFromEntity(Materia)!,
     ModeloFormularioProcessoAdministrativoEstadoModeloFormulario: getTableDefFromEntity(ModeloFormularioProcessoAdministrativoEstadoModeloFormulario)!,
     TipoDispensa: getTableDefFromEntity(TipoDispensa)!,

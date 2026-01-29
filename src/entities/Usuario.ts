@@ -24,9 +24,7 @@ import { Entrega } from './Entrega';
 import { Equipe } from './Equipe';
 import { EquipeUsuario } from './EquipeUsuario';
 import { Especializada } from './Especializada';
-import { EspecializadaAssistente } from './EspecializadaAssistente';
 import { EspecializadaDistribuidor } from './EspecializadaDistribuidor';
-import { EspecializadaUsuarioNotificacao } from './EspecializadaUsuarioNotificacao';
 import { EstadoProcessoAdministrativo } from './EstadoProcessoAdministrativo';
 import { EstadoSolicitacao } from './EstadoSolicitacao';
 import { HistoricoDistribuicaoAcervo } from './HistoricoDistribuicaoAcervo';
@@ -36,7 +34,6 @@ import { HistoricoUsuarioEspecializada } from './HistoricoUsuarioEspecializada';
 import { ManifestacaoEstado } from './ManifestacaoEstado';
 import { MarcadorDocumentoProcessoJudicial } from './MarcadorDocumentoProcessoJudicial';
 import { Modelo } from './Modelo';
-import { ModeloFormulario } from './ModeloFormulario';
 import { ModeloFormularioProcessoAdministrativo } from './ModeloFormularioProcessoAdministrativo';
 import { ModeloFormularioProcessoAdministrativoEstadoModeloFormulario } from './ModeloFormularioProcessoAdministrativoEstadoModeloFormulario';
 import { PastaCaixaEntrada } from './PastaCaixaEntrada';
@@ -195,9 +192,6 @@ export class Usuario {
   @HasMany({ target: () => RetornoProgramado, foreignKey: 'destinatario_id' })
   retornoProgramados!: HasManyCollection<RetornoProgramado>;
 
-  @HasMany({ target: () => EspecializadaDistribuidor, foreignKey: 'distribuidor_id' })
-  especializadaDistribuidors!: HasManyCollection<EspecializadaDistribuidor>;
-
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativoEstadoModeloFormulario, foreignKey: 'usuario_id' })
   modeloFormularioProcessoAdministrativoEstadoModeloFormularios!: HasManyCollection<ModeloFormularioProcessoAdministrativoEstadoModeloFormulario>;
 
@@ -210,32 +204,14 @@ export class Usuario {
   @HasMany({ target: () => DocumentoRascunhoEstado, foreignKey: 'usuario_id' })
   documentoRascunhoEstados!: HasManyCollection<DocumentoRascunhoEstado>;
 
-  @HasMany({ target: () => ModeloFormulario, foreignKey: 'criador_id' })
-  modeloFormularios!: HasManyCollection<ModeloFormulario>;
-
   @HasMany({ target: () => DocumentoAcordoContencioso, foreignKey: 'usuario_id' })
   documentoAcordoContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
-
-  @HasMany({ target: () => UsuarioPerfil, foreignKey: 'usuario_id' })
-  usuarioPerfils!: HasManyCollection<UsuarioPerfil>;
 
   @HasMany({ target: () => EstadoProcessoAdministrativo, foreignKey: 'usuario_id' })
   estadoProcessoAdministrativos!: HasManyCollection<EstadoProcessoAdministrativo>;
 
-  @HasMany({ target: () => EspecializadaAssistente, foreignKey: 'assistente_id' })
-  especializadaAssistentes!: HasManyCollection<EspecializadaAssistente>;
-
-  @HasMany({ target: () => Despacho, foreignKey: 'usuario_id' })
-  despachos!: HasManyCollection<Despacho>;
-
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'usuario_id' })
   documentoAnexoRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
-
-  @HasMany({ target: () => AcervoDestinatarioPa, foreignKey: 'destinatario_pa_id' })
-  acervoDestinatarioPas!: HasManyCollection<AcervoDestinatarioPa>;
-
-  @HasMany({ target: () => EquipeUsuario, foreignKey: 'usuario_id' })
-  equipeUsuarios!: HasManyCollection<EquipeUsuario>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'usuario_id' })
   documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
@@ -261,23 +237,14 @@ export class Usuario {
   @HasMany({ target: () => SorteioCorreicao, foreignKey: 'usuario_id' })
   sorteioCorreicaos!: HasManyCollection<SorteioCorreicao>;
 
-  @HasMany({ target: () => EspecializadaUsuarioNotificacao, foreignKey: 'usuario_id' })
-  especializadaUsuarioNotificacaos!: HasManyCollection<EspecializadaUsuarioNotificacao>;
-
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativo, foreignKey: 'avaliador_id' })
   sorteioCorreicaoProcessoAdministrativos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativoQuesito, foreignKey: 'usuario_id' })
   sorteioCorreicaoProcessoAdministrativoQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
 
-  @HasMany({ target: () => AcessoRestritoFuncionalidadeUsuario, foreignKey: 'usuario_id' })
-  acessoRestritoFuncionalidadeUsuarios!: HasManyCollection<AcessoRestritoFuncionalidadeUsuario>;
-
   @HasMany({ target: () => PastaCaixaEntrada, foreignKey: 'usuario_id' })
   pastaCaixaEntradas!: HasManyCollection<PastaCaixaEntrada>;
-
-  @HasMany({ target: () => AfastamentoPessoaUsuario, foreignKey: 'usuario_id' })
-  afastamentoPessoaUsuarios!: HasManyCollection<AfastamentoPessoaUsuario>;
 
   @HasMany({ target: () => HistoricoPrazo, foreignKey: 'usuario_id' })
   historicoPrazos!: HasManyCollection<HistoricoPrazo>;
@@ -302,9 +269,6 @@ export class Usuario {
 
   @HasMany({ target: () => ComunicacaoEstado, foreignKey: 'usuario_id' })
   comunicacaoEstados!: HasManyCollection<ComunicacaoEstado>;
-
-  @HasMany({ target: () => UsuarioPermitidoAcessarProcessoAdministrativoSigiloso, foreignKey: 'usuario_id' })
-  usuarioPermitidoAcessarProcessoAdministrativoSigilosos!: HasManyCollection<UsuarioPermitidoAcessarProcessoAdministrativoSigiloso>;
 
   @HasMany({ target: () => ValorAdicional, foreignKey: 'usuario_id' })
   valorAdicionals!: HasManyCollection<ValorAdicional>;

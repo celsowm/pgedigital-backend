@@ -116,9 +116,6 @@ export class RegistroTramitacao {
   @HasMany({ target: () => Carga, foreignKey: 'registro_tramitacao_id' })
   cargas!: HasManyCollection<Carga>;
 
-  @HasMany({ target: () => Despacho, foreignKey: 'registro_tramitacao_id' })
-  despachos!: HasManyCollection<Despacho>;
-
   @BelongsTo({ target: () => Tramitacao, foreignKey: 'tramitacao_id' })
   tramitacao!: BelongsToReference<Tramitacao>;
 

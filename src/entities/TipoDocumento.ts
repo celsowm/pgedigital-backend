@@ -49,9 +49,6 @@ export class TipoDocumento {
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'tipo_documento_id' })
   documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
-  @HasMany({ target: () => TipoDocumentoTipoProcessoAdministrativo, foreignKey: 'tipo_documento_id' })
-  tipoDocumentoTipoProcessoAdministrativos!: HasManyCollection<TipoDocumentoTipoProcessoAdministrativo>;
-
   @HasMany({ target: () => Protocolizacao, foreignKey: 'tipo_documento_id' })
   protocolizacaos!: HasManyCollection<Protocolizacao>;
 

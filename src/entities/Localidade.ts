@@ -56,10 +56,4 @@ export class Localidade {
   @BelongsTo({ target: () => Localidade, foreignKey: 'parent_id' })
   parent!: BelongsToReference<Localidade>;
 
-  @HasMany({ target: () => Localidade, foreignKey: 'parent_id' })
-  localidades!: HasManyCollection<Localidade>;
-
-  @HasMany({ target: () => MapeamentoLocalidadeRegional, foreignKey: 'localidade_id' })
-  mapeamentoLocalidadeRegionals!: HasManyCollection<MapeamentoLocalidadeRegional>;
-
 }

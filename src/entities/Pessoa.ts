@@ -110,12 +110,6 @@ export class Pessoa {
   @HasMany({ target: () => InteressadoConsultivo, foreignKey: 'pessoa_id' })
   interessadoConsultivos!: HasManyCollection<InteressadoConsultivo>;
 
-  @HasMany({ target: () => RaizCnpjAcervo, foreignKey: 'matriz_id' })
-  raizCnpjAcervos!: HasManyCollection<RaizCnpjAcervo>;
-
-  @HasMany({ target: () => DocumentoPessoa, foreignKey: 'pessoa_id' })
-  documentoPessoas!: HasManyCollection<DocumentoPessoa>;
-
   @HasMany({ target: () => EnderecoPessoa, foreignKey: 'pessoa_id' })
   enderecoPessoas!: HasManyCollection<EnderecoPessoa>;
 

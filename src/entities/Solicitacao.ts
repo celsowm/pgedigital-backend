@@ -101,9 +101,6 @@ export class Solicitacao {
   @BelongsToMany({ target: () => ProvidenciaJuridica, pivotTable: () => ProvidenciaJuridicaSolicitacao, pivotForeignKeyToRoot: 'solicitacao_id', pivotForeignKeyToTarget: 'providencia_juridica_id' })
   providenciaJuridicas!: ManyToManyCollection<ProvidenciaJuridica>;
 
-  @HasMany({ target: () => ProvidenciaJuridicaSolicitacao, foreignKey: 'solicitacao_id' })
-  providenciaJuridicaSolicitacaos!: HasManyCollection<ProvidenciaJuridicaSolicitacao>;
-
   @HasMany({ target: () => EstadoSolicitacao, foreignKey: 'solicitacao_id' })
   estadoSolicitacaos!: HasManyCollection<EstadoSolicitacao>;
 

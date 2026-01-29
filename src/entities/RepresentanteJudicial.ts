@@ -49,9 +49,6 @@ export class RepresentanteJudicial {
   @BelongsToMany({ target: () => Parte, pivotTable: () => ParteRepresentante, pivotForeignKeyToRoot: 'representante_judicial_id', pivotForeignKeyToTarget: 'parte_id' })
   partes!: ManyToManyCollection<Parte>;
 
-  @HasMany({ target: () => ParteRepresentante, foreignKey: 'representante_judicial_id' })
-  parteRepresentantes!: HasManyCollection<ParteRepresentante>;
-
   @BelongsTo({ target: () => TipoRepresentante, foreignKey: 'tipo_representante_id' })
   tipoRepresentante!: BelongsToReference<TipoRepresentante>;
 

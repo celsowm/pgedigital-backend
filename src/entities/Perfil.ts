@@ -52,10 +52,4 @@ export class Perfil {
   @HasMany({ target: () => Perfil, foreignKey: 'parent_id' })
   perfils!: HasManyCollection<Perfil>;
 
-  @HasMany({ target: () => UsuarioPerfil, foreignKey: 'perfil_id' })
-  usuarioPerfils!: HasManyCollection<UsuarioPerfil>;
-
-  @HasMany({ target: () => AcessoRestritoFuncionalidadePerfil, foreignKey: 'perfil_id' })
-  acessoRestritoFuncionalidadePerfils!: HasManyCollection<AcessoRestritoFuncionalidadePerfil>;
-
 }

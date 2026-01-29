@@ -88,9 +88,6 @@ export class AvisoPendente {
   @HasMany({ target: () => InstantaneoAvisoPendente, foreignKey: 'aviso_pendente_id' })
   instantaneoAvisoPendentes!: HasManyCollection<InstantaneoAvisoPendente>;
 
-  @HasMany({ target: () => RegistroEnvioComunicacao, foreignKey: 'aviso_pendente_id' })
-  registroEnvioComunicacaos!: HasManyCollection<RegistroEnvioComunicacao>;
-
   @HasMany({ target: () => AvisoPendenteOutroParametro, foreignKey: 'aviso_pendente_id' })
   avisoPendenteOutroParametros!: HasManyCollection<AvisoPendenteOutroParametro>;
 

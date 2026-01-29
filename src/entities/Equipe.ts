@@ -54,14 +54,8 @@ export class Equipe {
   @BelongsTo({ target: () => FilaCircular, foreignKey: 'fila_circular_id' })
   filaCircular!: BelongsToReference<FilaCircular>;
 
-  @HasMany({ target: () => AcervoEquipeApoio, foreignKey: 'equipe_apoio_id' })
-  acervoEquipeApoios!: HasManyCollection<AcervoEquipeApoio>;
-
   @HasMany({ target: () => Especializada, foreignKey: 'equipe_triagem_id' })
   especializadas!: HasManyCollection<Especializada>;
-
-  @HasMany({ target: () => EquipeUsuario, foreignKey: 'equipe_id' })
-  equipeUsuarios!: HasManyCollection<EquipeUsuario>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'equipe_id' })
   tramitacaoAutomaticaAcervoTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;

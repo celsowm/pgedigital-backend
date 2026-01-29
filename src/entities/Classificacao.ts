@@ -59,7 +59,4 @@ export class Classificacao {
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'classificacao_id' })
   processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
-  @HasMany({ target: () => AcervoClassificacao, foreignKey: 'classificacao_id' })
-  acervoClassificacaos!: HasManyCollection<AcervoClassificacao>;
-
 }

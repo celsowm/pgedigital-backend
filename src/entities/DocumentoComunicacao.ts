@@ -103,9 +103,6 @@ export class DocumentoComunicacao {
   @BelongsTo({ target: () => DocumentoComunicacao, foreignKey: 'parent_id' })
   parent!: BelongsToReference<DocumentoComunicacao>;
 
-  @HasMany({ target: () => DocumentoComunicacao, foreignKey: 'parent_id' })
-  documentoComunicacaos!: HasManyCollection<DocumentoComunicacao>;
-
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'documento_comunicacao_id' })
   documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 

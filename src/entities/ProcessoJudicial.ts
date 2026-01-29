@@ -197,12 +197,6 @@ export class ProcessoJudicial {
   @HasMany({ target: () => Acompanhamento, foreignKey: 'processo_judicial_id' })
   acompanhamentos!: HasManyCollection<Acompanhamento>;
 
-  @HasMany({ target: () => AssuntoProcessoJudicial, foreignKey: 'processo_judicial_id' })
-  assuntoProcessoJudicials!: HasManyCollection<AssuntoProcessoJudicial>;
-
-  @HasMany({ target: () => Atividade, foreignKey: 'processo_judicial_id' })
-  atividades!: HasManyCollection<Atividade>;
-
   @HasMany({ target: () => Comunicacao, foreignKey: 'processo_judicial_id' })
   comunicacaos!: HasManyCollection<Comunicacao>;
 
@@ -214,11 +208,5 @@ export class ProcessoJudicial {
 
   @HasMany({ target: () => Cda, foreignKey: 'processo_judicial_id' })
   cdas!: HasManyCollection<Cda>;
-
-  @HasMany({ target: () => PredicaoEspecializadaMachineLearning, foreignKey: 'processo_judicial_id' })
-  predicaoEspecializadaMachineLearnings!: HasManyCollection<PredicaoEspecializadaMachineLearning>;
-
-  @HasMany({ target: () => MagistradoProcesso, foreignKey: 'processo_judicial_id' })
-  magistradoProcessos!: HasManyCollection<MagistradoProcesso>;
 
 }

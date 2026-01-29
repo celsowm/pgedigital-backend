@@ -138,7 +138,4 @@ export class Modelo {
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'modelo_id' })
   tramitacaoAutomaticaAcervoTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
-  @HasMany({ target: () => ModeloTema, foreignKey: 'modelo_id' })
-  modeloTemas!: HasManyCollection<ModeloTema>;
-
 }

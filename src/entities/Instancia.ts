@@ -23,9 +23,6 @@ export class Instancia {
   @BelongsToMany({ target: () => MniTribunal, pivotTable: () => InstanciaMniTribunal, pivotForeignKeyToRoot: 'instancia_id', pivotForeignKeyToTarget: 'mni_tribunal_id' })
   mniTribunals!: ManyToManyCollection<MniTribunal>;
 
-  @HasMany({ target: () => InstanciaMniTribunal, foreignKey: 'instancia_id' })
-  instanciaMniTribunals!: HasManyCollection<InstanciaMniTribunal>;
-
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'instancia_id' })
   tramitacaoAutomaticaAcervoTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 

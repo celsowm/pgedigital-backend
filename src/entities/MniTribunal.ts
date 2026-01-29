@@ -160,12 +160,6 @@ export class MniTribunal {
   @HasMany({ target: () => AssuntoLocal, foreignKey: 'tribunal_id' })
   assuntoLocals!: HasManyCollection<AssuntoLocal>;
 
-  @HasMany({ target: () => OrgaoJulgador, foreignKey: 'tribunal_id' })
-  orgaoJulgadors!: HasManyCollection<OrgaoJulgador>;
-
-  @HasMany({ target: () => InstanciaMniTribunal, foreignKey: 'mni_tribunal_id' })
-  instanciaMniTribunals!: HasManyCollection<InstanciaMniTribunal>;
-
   @HasMany({ target: () => Competencia, foreignKey: 'tribunal_id' })
   competencias!: HasManyCollection<Competencia>;
 

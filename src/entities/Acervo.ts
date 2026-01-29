@@ -129,29 +129,11 @@ export class Acervo {
   @BelongsToMany({ target: () => Pessoa, pivotTable: () => RaizCnpjAcervo, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'matriz_id' })
   pessoas!: ManyToManyCollection<Pessoa>;
 
-  @HasMany({ target: () => AcervoEquipeApoio, foreignKey: 'acervo_id' })
-  acervoEquipeApoios!: HasManyCollection<AcervoEquipeApoio>;
-
-  @HasMany({ target: () => AcervoDestinatarioPa, foreignKey: 'acervo_id' })
-  acervoDestinatarioPas!: HasManyCollection<AcervoDestinatarioPa>;
-
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'acervo_id' })
   processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoAcervo, foreignKey: 'acervo_id' })
   historicoDistribuicaoAcervos!: HasManyCollection<HistoricoDistribuicaoAcervo>;
-
-  @HasMany({ target: () => AcervoClassificacao, foreignKey: 'acervo_id' })
-  acervoClassificacaos!: HasManyCollection<AcervoClassificacao>;
-
-  @HasMany({ target: () => AcervoMateria, foreignKey: 'acervo_id' })
-  acervoMaterias!: HasManyCollection<AcervoMateria>;
-
-  @HasMany({ target: () => AcervoTema, foreignKey: 'acervo_id' })
-  acervoTemas!: HasManyCollection<AcervoTema>;
-
-  @HasMany({ target: () => RaizCnpjAcervo, foreignKey: 'acervo_id' })
-  raizCnpjAcervos!: HasManyCollection<RaizCnpjAcervo>;
 
   @HasMany({ target: () => MapeamentoAcervoSicaj, foreignKey: 'acervo_id' })
   mapeamentoAcervoSicajs!: HasManyCollection<MapeamentoAcervoSicaj>;

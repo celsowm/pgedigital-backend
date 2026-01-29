@@ -54,9 +54,6 @@ export class Estado {
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'estado_id' })
   processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
-  @HasMany({ target: () => TipoAcaoEstado, foreignKey: 'estado_id' })
-  tipoAcaoEstados!: HasManyCollection<TipoAcaoEstado>;
-
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativo, foreignKey: 'estado_id' })
   sorteioCorreicaoProcessoAdministrativos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativo>;
 

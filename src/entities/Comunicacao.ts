@@ -191,9 +191,6 @@ export class Comunicacao {
   @BelongsToMany({ target: () => AvisoPendente, pivotTable: () => RegistroEnvioComunicacao, pivotForeignKeyToRoot: 'comunicacao_id', pivotForeignKeyToTarget: 'aviso_pendente_id' })
   avisoPendentes!: ManyToManyCollection<AvisoPendente>;
 
-  @HasMany({ target: () => DispensaGenerica, foreignKey: 'comunicacao_id' })
-  dispensaGenericas!: HasManyCollection<DispensaGenerica>;
-
   @HasMany({ target: () => ComunicacaoOutroParametro, foreignKey: 'comunicacao_id' })
   comunicacaoOutroParametros!: HasManyCollection<ComunicacaoOutroParametro>;
 
@@ -229,8 +226,5 @@ export class Comunicacao {
 
   @HasMany({ target: () => ComunicacaoEstado, foreignKey: 'comunicacao_id' })
   comunicacaoEstados!: HasManyCollection<ComunicacaoEstado>;
-
-  @HasMany({ target: () => RegistroEnvioComunicacao, foreignKey: 'comunicacao_id' })
-  registroEnvioComunicacaos!: HasManyCollection<RegistroEnvioComunicacao>;
 
 }

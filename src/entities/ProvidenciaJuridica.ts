@@ -93,12 +93,6 @@ export class ProvidenciaJuridica {
   @BelongsToMany({ target: () => DocumentoRascunho, pivotTable: () => DocumentoRascunhoProvidenciaJuridica, pivotForeignKeyToRoot: 'providencia_juridica_id', pivotForeignKeyToTarget: 'documento_rascunho_id' })
   documentoRascunhos!: ManyToManyCollection<DocumentoRascunho>;
 
-  @HasMany({ target: () => ProvidenciaJuridicaSolicitacao, foreignKey: 'providencia_juridica_id' })
-  providenciaJuridicaSolicitacaos!: HasManyCollection<ProvidenciaJuridicaSolicitacao>;
-
-  @HasMany({ target: () => DocumentoRascunhoProvidenciaJuridica, foreignKey: 'providencia_juridica_id' })
-  documentoRascunhoProvidenciaJuridicas!: HasManyCollection<DocumentoRascunhoProvidenciaJuridica>;
-
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'providencia_juridica_id' })
   documentoAnexoRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
 

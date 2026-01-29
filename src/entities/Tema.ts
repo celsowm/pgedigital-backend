@@ -85,28 +85,13 @@ export class Tema {
   @HasMany({ target: () => ClassificacaoEspecializadaTema, foreignKey: 'tema_id' })
   classificacaoEspecializadaTemas!: HasManyCollection<ClassificacaoEspecializadaTema>;
 
-  @HasMany({ target: () => ProcessoAdministrativoTema, foreignKey: 'tema_id' })
-  processoAdministrativoTemas!: HasManyCollection<ProcessoAdministrativoTema>;
-
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'tema_id' })
   especializadaTemas!: HasManyCollection<EspecializadaTema>;
-
-  @HasMany({ target: () => PalavraChaveTema, foreignKey: 'tema_id' })
-  palavraChaveTemas!: HasManyCollection<PalavraChaveTema>;
 
   @BelongsTo({ target: () => Tema, foreignKey: 'parent_id' })
   parent!: BelongsToReference<Tema>;
 
-  @HasMany({ target: () => Tema, foreignKey: 'parent_id' })
-  temas!: HasManyCollection<Tema>;
-
   @BelongsTo({ target: () => Materia, foreignKey: 'materia_id' })
   materia!: BelongsToReference<Materia>;
-
-  @HasMany({ target: () => AcervoTema, foreignKey: 'tema_id' })
-  acervoTemas!: HasManyCollection<AcervoTema>;
-
-  @HasMany({ target: () => ModeloTema, foreignKey: 'tema_id' })
-  modeloTemas!: HasManyCollection<ModeloTema>;
 
 }
