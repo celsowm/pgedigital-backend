@@ -1,5 +1,6 @@
-import { createTediousExecutor, Orm, OrmSession, SqlServerDialect, type QueryResult } from "metal-orm";
+import { createTediousExecutor, Orm, OrmSession, SqlServerDialect, type QueryResult, type QueryLogger } from "metal-orm";
 import { Connection, type ConnectionConfig, Request, TYPES } from "tedious";
+import { setLastQuery } from "./query-context";
 
 const REQUIRED_ENV_VARS = [
   "PGE_DIGITAL_HOST",
@@ -91,7 +92,18 @@ export async function withSession<T>(
 ): Promise<T> {
   const connection = await createTediousConnection();
   const executor = createMssqlExecutor(connection);
-  const session = new OrmSession({ orm: getOrm(), executor });
+
+  // Query logger to help debug SQL issues and capture queries for error handling
+  const queryLogger: QueryLogger = (entry) => {
+    console.log("[SQL]", entry.sql);
+    if (entry.params && entry.params.length > 0) {
+      console.log("[PARAMS]", entry.params);
+    }
+    // Store the query in the async context for error handling
+    setLastQuery(entry.sql);
+  };
+
+  const session = new OrmSession({ orm: getOrm(), executor, queryLogger });
 
   try {
     return await handler(session);

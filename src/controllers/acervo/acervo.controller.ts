@@ -49,8 +49,7 @@ const ACERVO_FILTER_MAPPINGS = {
   ativo: { field: "ativo", operator: "equals" }
 } satisfies Record<string, { field: AcervoFilterFields; operator: "equals" | "contains" }>;
 
-const pick = <T, K extends keyof T>(obj: T | undefined, ...keys: K[]): Pick<T, K> | undefined =>
-  obj ? keys.reduce((acc, k) => ((acc[k] = obj[k]), acc), {} as Pick<T, K>) : undefined;
+
 
 const baseAcervoQuery = () =>
   selectFromEntity(Acervo)
@@ -83,7 +82,7 @@ async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<
 
   return {
     ...acervo,
-    classificacoes: acervo.classificacoes?.map((c: any) => pick(c, "id", "nome")!) ?? [],
+    classificacoes: acervo.classificacoes ?? [],
     temasRelacionados: acervo.temas?.map((t: any) => ({ id: t.id, nome: t.nome, materiaNome: t.materia?.nome ?? "" })) ?? [],
     destinatarios: acervo.usuarios?.map((u: any) => ({
       id: u.id, nome: u.nome, login: u.login, cargo: u.cargo,
