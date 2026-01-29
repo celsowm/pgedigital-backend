@@ -61,25 +61,10 @@ const baseAcervoQuery = () =>
     .includePick("equipeResponsavel", ["id", "nome"])
     .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"]);
 
-async function getAcervoWithRelationsOrThrow(session: OrmSession, id: number): Promise<any> {
+async function getAcervoWithRelationsOrThrow(session: OrmSession, id: number): Promise<AcervoWithRelationsDto> {
   const [acervo] = await baseAcervoQuery().where(eq(A.id, id)).execute(session);
   if (!acervo) throw new HttpError(404, "Acervo not found.");
-  return acervo;
-}
-
-function mapAcervoToWithRelationsDto(acervo: any): AcervoWithRelationsDto {
-  return {
-    id: acervo.id,
-    nome: acervo.nome,
-    especializada: pick(acervo.especializada, "id", "nome"),
-    procuradorTitular: pick(acervo.procuradorTitular, "id", "nome"),
-    tipoAcervo: pick(acervo.tipoAcervo, "id", "nome"),
-    rotina_sob_demanda: acervo.rotina_sob_demanda,
-    tipoMigracaoAcervo: pick(acervo.tipoMigracaoAcervo, "id", "nome"),
-    equipeResponsavel: pick(acervo.equipeResponsavel, "id", "nome"),
-    tipoDivisaoCargaTrabalho: pick(acervo.tipoDivisaoCargaTrabalho, "id", "nome"),
-    ativo: acervo.ativo
-  };
+  return acervo as AcervoWithRelationsDto;
 }
 
 async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<AcervoDetailDto> {
@@ -97,16 +82,7 @@ async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<
   if (!acervo) throw new HttpError(404, "Acervo not found.");
 
   return {
-    id: acervo.id,
-    nome: acervo.nome,
-    especializada: pick(acervo.especializada, "id", "nome"),
-    procuradorTitular: pick(acervo.procuradorTitular, "id", "nome"),
-    tipoAcervo: pick(acervo.tipoAcervo, "id", "nome"),
-    rotina_sob_demanda: acervo.rotina_sob_demanda,
-    tipoMigracaoAcervo: pick(acervo.tipoMigracaoAcervo, "id", "nome"),
-    equipeResponsavel: pick(acervo.equipeResponsavel, "id", "nome"),
-    tipoDivisaoCargaTrabalho: pick(acervo.tipoDivisaoCargaTrabalho, "id", "nome"),
-    ativo: acervo.ativo,
+    ...acervo,
     classificacoes: acervo.classificacaos?.map((c: any) => pick(c, "id", "nome")!) ?? [],
     temasRelacionados: acervo.temas?.map((t: any) => ({ id: t.id, nome: t.nome, materiaNome: t.materia?.nome ?? "" })) ?? [],
     destinatarios: acervo.usuarios?.map((u: any) => ({
@@ -114,7 +90,7 @@ async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<
       especializada_nome: u.especializada?.nome, ativo: !u.estado_inatividade
     })) ?? [],
     raizesCnpj: acervo.pessoas?.map((p: any) => ({ id: p.$pivot?.id, raiz: p.$pivot?.raiz })).filter((r: any) => r.id) ?? []
-  };
+  } as AcervoDetailDto;
 }
 
 @Controller("/acervo")
@@ -175,7 +151,7 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
       applyInput(acervo, ctx.body as Partial<Acervo>, { partial: false });
       await session.persist(acervo);
       await session.commit();
-      return mapAcervoToWithRelationsDto(await getAcervoWithRelationsOrThrow(session, acervo.id));
+      return getAcervoWithRelationsOrThrow(session, acervo.id);
     });
   }
 
@@ -190,7 +166,7 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
       const acervo = await super.getEntityOrThrow(session, id);
       applyInput(acervo, ctx.body as Partial<Acervo>, { partial: false });
       await session.commit();
-      return mapAcervoToWithRelationsDto(await getAcervoWithRelationsOrThrow(session, id));
+      return getAcervoWithRelationsOrThrow(session, id);
     });
   }
 
@@ -205,7 +181,7 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
       const acervo = await super.getEntityOrThrow(session, id);
       applyInput(acervo, ctx.body as Partial<Acervo>, { partial: true });
       await session.commit();
-      return mapAcervoToWithRelationsDto(await getAcervoWithRelationsOrThrow(session, id));
+      return getAcervoWithRelationsOrThrow(session, id);
     });
   }
 
