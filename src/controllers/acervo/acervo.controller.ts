@@ -78,11 +78,17 @@ async function getAcervoWithRelationsOrThrow(
   return acervo;
 }
 
+const pick = <T, K extends keyof T>(obj: T | undefined, ...keys: K[]): Pick<T, K> | undefined =>
+  obj ? keys.reduce((acc, k) => ((acc[k] = obj[k]), acc), {} as Pick<T, K>) : undefined;
+
+const flattenPivot = <T, R>(arr: any[] | undefined, key: string, mapper: (item: T) => R): R[] =>
+  arr?.filter((p) => p[key]).map((p) => mapper(p[key])) ?? [];
+
 async function getAcervoDetailOrThrow(
   session: OrmSession,
   id: number
 ): Promise<AcervoDetailDto> {
-  const query = selectFromEntity(Acervo)
+  const [acervo] = await selectFromEntity(Acervo)
     .includePick("especializada", ["id", "nome"])
     .includePick("procuradorTitular", ["id", "nome"])
     .includePick("tipoAcervo", ["id", "nome"])
@@ -95,35 +101,29 @@ async function getAcervoDetailOrThrow(
       acervoDestinatarioPas: { include: { destinatarioPa: { columns: ["id", "nome", "login", "cargo", "estado_inatividade"], include: { especializada: { columns: ["nome"] } } } } },
       raizCnpjAcervos: { columns: ["id", "raiz"] }
     })
-    .where(eq(A.id, id));
+    .where(eq(A.id, id))
+    .execute(session) as any[];
 
-  const [acervo] = await query.execute(session) as any[];
-  if (!acervo) {
-    throw new HttpError(404, "Acervo not found.");
-  }
+  if (!acervo) throw new HttpError(404, "Acervo not found.");
 
   return {
     id: acervo.id,
     nome: acervo.nome,
-    especializada: acervo.especializada ? { id: acervo.especializada.id, nome: acervo.especializada.nome } : undefined,
-    procuradorTitular: acervo.procuradorTitular ? { id: acervo.procuradorTitular.id, nome: acervo.procuradorTitular.nome } : undefined,
-    tipoAcervo: acervo.tipoAcervo ? { id: acervo.tipoAcervo.id, nome: acervo.tipoAcervo.nome } : undefined,
+    especializada: pick(acervo.especializada, "id", "nome"),
+    procuradorTitular: pick(acervo.procuradorTitular, "id", "nome"),
+    tipoAcervo: pick(acervo.tipoAcervo, "id", "nome"),
     rotina_sob_demanda: acervo.rotina_sob_demanda,
-    tipoMigracaoAcervo: acervo.tipoMigracaoAcervo ? { id: acervo.tipoMigracaoAcervo.id, nome: acervo.tipoMigracaoAcervo.nome } : undefined,
-    equipeResponsavel: acervo.equipeResponsavel ? { id: acervo.equipeResponsavel.id, nome: acervo.equipeResponsavel.nome } : undefined,
-    tipoDivisaoCargaTrabalho: acervo.tipoDivisaoCargaTrabalho ? { id: acervo.tipoDivisaoCargaTrabalho.id, nome: acervo.tipoDivisaoCargaTrabalho.nome } : undefined,
+    tipoMigracaoAcervo: pick(acervo.tipoMigracaoAcervo, "id", "nome"),
+    equipeResponsavel: pick(acervo.equipeResponsavel, "id", "nome"),
+    tipoDivisaoCargaTrabalho: pick(acervo.tipoDivisaoCargaTrabalho, "id", "nome"),
     ativo: acervo.ativo,
-    classificacoes: acervo.acervoClassificacaos?.filter((ac: any) => ac.classificacao).map((ac: any) => ({ id: ac.classificacao.id, nome: ac.classificacao.nome })) ?? [],
-    temasRelacionados: acervo.acervoTemas?.filter((at: any) => at.tema).map((at: any) => ({ id: at.tema.id, nome: at.tema.nome, materiaNome: at.tema.materia?.nome ?? "" })) ?? [],
-    destinatarios: acervo.acervoDestinatarioPas?.filter((adp: any) => adp.destinatarioPa).map((adp: any) => ({
-      id: adp.destinatarioPa.id,
-      nome: adp.destinatarioPa.nome,
-      login: adp.destinatarioPa.login,
-      cargo: adp.destinatarioPa.cargo,
-      especializada_nome: adp.destinatarioPa.especializada?.nome,
-      ativo: !adp.destinatarioPa.estado_inatividade
-    })) ?? [],
-    raizesCnpj: acervo.raizCnpjAcervos?.map((r: any) => ({ id: r.id, raiz: r.raiz })) ?? []
+    classificacoes: flattenPivot(acervo.acervoClassificacaos, "classificacao", (c: any) => pick(c, "id", "nome")!),
+    temasRelacionados: flattenPivot(acervo.acervoTemas, "tema", (t: any) => ({ id: t.id, nome: t.nome, materiaNome: t.materia?.nome ?? "" })),
+    destinatarios: flattenPivot(acervo.acervoDestinatarioPas, "destinatarioPa", (u: any) => ({
+      id: u.id, nome: u.nome, login: u.login, cargo: u.cargo,
+      especializada_nome: u.especializada?.nome, ativo: !u.estado_inatividade
+    })),
+    raizesCnpj: acervo.raizCnpjAcervos?.map((r: any) => pick(r, "id", "raiz")!) ?? []
   };
 }
 
