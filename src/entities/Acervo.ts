@@ -127,7 +127,7 @@ export class Acervo {
   temas!: ManyToManyCollection<Tema>;
 
   @BelongsToMany({ target: () => Pessoa, pivotTable: () => RaizCnpjAcervo, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'matriz_id' })
-  pessoas!: ManyToManyCollection<Pessoa>;
+  raizesCNPJs!: ManyToManyCollection<Pessoa>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'acervo_id' })
   processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;

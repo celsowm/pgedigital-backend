@@ -1,0 +1,7 @@
+{
+  "relationOverrides": {
+    "Acervo": {
+      "pessoas": "raizesCNPJs"
+    }
+  }
+}

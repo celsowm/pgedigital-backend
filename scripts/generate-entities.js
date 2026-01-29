@@ -57,7 +57,8 @@ function buildGeneratorArgs() {
     "--dialect=mssql",
     `--url=${url}`,
     "--out-dir=src/entities",
-    "--locale=pt-BR"
+    "--locale=pt-BR",
+    "--naming-overrides=./scripts/naming-overrides.json"
   ];
 
   const schema = process.env.PGE_DIGITAL_SCHEMA;

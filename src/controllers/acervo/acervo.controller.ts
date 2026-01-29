@@ -74,7 +74,7 @@ async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<
       columns: ["id", "nome", "login", "cargo", "estado_inatividade"],
       include: { especializada: { columns: ["nome"] } }
     })
-    .include("pessoas", { pivot: { columns: ["id", "raiz"] } })
+    .include("raizesCNPJs", { pivot: { columns: ["id", "raiz"] } })
     .where(eq(A.id, id))
     .execute(session) as any[];
 
@@ -88,7 +88,7 @@ async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<
       id: u.id, nome: u.nome, login: u.login, cargo: u.cargo,
       especializada_nome: u.especializada?.nome, ativo: !u.estado_inatividade
     })) ?? [],
-    raizesCnpj: acervo.pessoas?.map((p: any) => ({ id: p.$pivot?.id, raiz: p.$pivot?.raiz })).filter((r: any) => r.id) ?? []
+    raizesCNPJs: acervo.raizesCNPJs ?? []
   } as AcervoDetailDto;
 }
 

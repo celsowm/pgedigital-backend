@@ -143,6 +143,9 @@ export class RaizCnpjResumoDto {
 
   @Field(t.string({ minLength: 1 }))
   raiz!: string;
+
+  @Field(t.string({ minLength: 1 }))
+  nome!: string;
 }
 
 @Dto({ description: "Acervo com dados relacionados resumidos." })
@@ -211,7 +214,7 @@ export class AcervoDetailDto extends AcervoWithRelationsDto {
   destinatarios!: DestinatarioResumoDto[];
 
   @Field(t.array(t.ref(RaizCnpjResumoDto)))
-  raizesCnpj!: RaizCnpjResumoDto[];
+  raizesCNPJs!: RaizCnpjResumoDto[];
 }
 
 export const AcervoQueryDtoClass = createPagedFilterQueryDtoClass({
