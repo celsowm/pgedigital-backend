@@ -45,6 +45,6 @@ export class Materia {
   tipoProcessoAdministrativo!: BelongsToReference<TipoProcessoAdministrativo>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'materia_id' })
-  processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
 }

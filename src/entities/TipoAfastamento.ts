@@ -19,6 +19,6 @@ export class TipoAfastamento {
   nome!: string;
 
   @HasMany({ target: () => AfastamentoPessoa, foreignKey: 'tipo_afastamento_id' })
-  afastamentoPessoas!: HasManyCollection<AfastamentoPessoa>;
+  afastamentosPessoas!: HasManyCollection<AfastamentoPessoa>;
 
 }

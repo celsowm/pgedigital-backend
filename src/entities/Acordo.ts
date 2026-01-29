@@ -60,10 +60,10 @@ export class Acordo {
   estado_arrolado?: number;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativoAcordo, foreignKey: 'acordo_id' })
-  documentoProcessoAdministrativoAcordos!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
+  documentosProcessosAdministrativosAcordos!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'acordo_id' })
-  manifestacaos!: HasManyCollection<Manifestacao>;
+  manifestacoes!: HasManyCollection<Manifestacao>;
 
   @BelongsTo({ target: () => ProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
   processoAdministrativo!: BelongsToReference<ProcessoAdministrativo>;

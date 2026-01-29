@@ -18,6 +18,6 @@ export class TipoManifestacao {
   codigo?: string;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'tipo_manifestacao_id' })
-  manifestacaos!: HasManyCollection<Manifestacao>;
+  manifestacoes!: HasManyCollection<Manifestacao>;
 
 }

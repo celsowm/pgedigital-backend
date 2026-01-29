@@ -70,7 +70,7 @@ export class ProcedimentoSei {
   data_atualizacao?: Date;
 
   @BelongsToMany({ target: () => SistemaOrigem, pivotTable: () => CodigoExterno, pivotForeignKeyToRoot: 'procedimento_sei_id', pivotForeignKeyToTarget: 'sistema_origem_id' })
-  sistemaOrigems!: ManyToManyCollection<SistemaOrigem>;
+  sistemasOrigens!: ManyToManyCollection<SistemaOrigem>;
 
   @BelongsTo({ target: () => TipoProcedimentoSei, foreignKey: 'tipo_procedimento_sei_id' })
   tipoProcedimentoSei!: BelongsToReference<TipoProcedimentoSei>;

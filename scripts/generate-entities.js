@@ -56,7 +56,8 @@ function buildGeneratorArgs() {
     path.join(__dirname, "..", "node_modules", "metal-orm", "scripts", "generate-entities.mjs"),
     "--dialect=mssql",
     `--url=${url}`,
-    "--out-dir=src/entities"
+    "--out-dir=src/entities",
+    "--locale=pt-BR"
   ];
 
   const schema = process.env.PGE_DIGITAL_SCHEMA;

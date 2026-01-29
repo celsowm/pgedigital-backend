@@ -52,10 +52,10 @@ export class TipoDocumentoMni {
   inativo_protocolizacao?: boolean;
 
   @HasMany({ target: () => DocumentoProtocolizacao, foreignKey: 'tipo_documento_mni_id' })
-  documentoProtocolizacaos!: HasManyCollection<DocumentoProtocolizacao>;
+  documentosProtocolizacoes!: HasManyCollection<DocumentoProtocolizacao>;
 
   @HasMany({ target: () => TipoDocumentoProvidencia, foreignKey: 'tipo_documento_mni_id' })
-  tipoDocumentoProvidencias!: HasManyCollection<TipoDocumentoProvidencia>;
+  tiposDocumentosProvidencias!: HasManyCollection<TipoDocumentoProvidencia>;
 
   @BelongsTo({ target: () => MniTribunal, foreignKey: 'tribunal_id' })
   tribunal!: BelongsToReference<MniTribunal>;

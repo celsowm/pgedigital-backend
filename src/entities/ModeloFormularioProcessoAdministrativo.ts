@@ -79,12 +79,12 @@ export class ModeloFormularioProcessoAdministrativo {
   ultimoEstadoModeloFormulario!: BelongsToReference<EstadoModeloFormulario>;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativoEstadoModeloFormulario, foreignKey: 'modelo_formulario_processo_administrativo_id' })
-  modeloFormularioProcessoAdministrativoEstadoModeloFormularios!: HasManyCollection<ModeloFormularioProcessoAdministrativoEstadoModeloFormulario>;
+  modelosFormulariosProcessosAdministrativosEstadosModelosFormularios!: HasManyCollection<ModeloFormularioProcessoAdministrativoEstadoModeloFormulario>;
 
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'modelo_formulario_processo_administrativo_id' })
-  documentoAnexoRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
+  documentosAnexosRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
 
   @HasMany({ target: () => ModeloFormularioValor, foreignKey: 'modelo_formulario_processo_administrativo_id' })
-  modeloFormularioValors!: HasManyCollection<ModeloFormularioValor>;
+  modelosFormulariosValores!: HasManyCollection<ModeloFormularioValor>;
 
 }

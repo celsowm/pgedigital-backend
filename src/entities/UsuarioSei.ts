@@ -32,6 +32,6 @@ export class UsuarioSei {
   nome?: string;
 
   @BelongsToMany({ target: () => UnidadeSei, pivotTable: () => UnidadeSeiUsuarioSei, pivotForeignKeyToRoot: 'usuario_sei_id', pivotForeignKeyToTarget: 'unidade_sei_id' })
-  unidadeSeis!: ManyToManyCollection<UnidadeSei>;
+  unidadesSeis!: ManyToManyCollection<UnidadeSei>;
 
 }

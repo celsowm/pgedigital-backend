@@ -158,13 +158,13 @@ export class DocumentoProcessoAdministrativo {
   rght?: number;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativoAcordo, foreignKey: 'documento_processo_administrativo_id' })
-  documentoProcessoAdministrativoAcordos!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
+  documentosProcessosAdministrativosAcordos!: HasManyCollection<DocumentoProcessoAdministrativoAcordo>;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativo, foreignKey: 'documento_processo_administrativo_id' })
-  modeloFormularioProcessoAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
+  modelosFormulariosProcessosAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
 
   @HasMany({ target: () => Manifestacao, foreignKey: 'documento_processo_administrativo_id' })
-  manifestacaos!: HasManyCollection<Manifestacao>;
+  manifestacoes!: HasManyCollection<Manifestacao>;
 
   @BelongsTo({ target: () => ProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
   processoAdministrativo!: BelongsToReference<ProcessoAdministrativo>;
@@ -173,7 +173,7 @@ export class DocumentoProcessoAdministrativo {
   parent!: BelongsToReference<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'parent_id' })
-  documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @BelongsTo({ target: () => Usuario, foreignKey: 'usuario_id' })
   usuario!: BelongsToReference<Usuario>;
@@ -191,9 +191,9 @@ export class DocumentoProcessoAdministrativo {
   documentoComunicacao!: BelongsToReference<DocumentoComunicacao>;
 
   @HasMany({ target: () => Protocolizacao, foreignKey: 'peticao_id' })
-  protocolizacaos!: HasManyCollection<Protocolizacao>;
+  protocolizacoes!: HasManyCollection<Protocolizacao>;
 
   @HasMany({ target: () => DocumentoProtocolizacao, foreignKey: 'documento_processo_administrativo_id' })
-  documentoProtocolizacaos!: HasManyCollection<DocumentoProtocolizacao>;
+  documentosProtocolizacoes!: HasManyCollection<DocumentoProtocolizacao>;
 
 }

@@ -119,7 +119,7 @@ import { Quesito } from './Quesito';
 import { AcervoClassificacao } from './AcervoClassificacao';
 import { Indexador } from './Indexador';
 import { AfastamentoPessoa } from './AfastamentoPessoa';
-import { Sysdiagram } from './Sysdiagram';
+import { Sysdiagrams } from './Sysdiagrams';
 import { ProcessoJudicialOutroParametro } from './ProcessoJudicialOutroParametro';
 import { Instancia } from './Instancia';
 import { EstadoModeloFormulario } from './EstadoModeloFormulario';
@@ -351,7 +351,7 @@ export {
   AcervoClassificacao,
   Indexador,
   AfastamentoPessoa,
-  Sysdiagram,
+  Sysdiagrams,
   ProcessoJudicialOutroParametro,
   Instancia,
   EstadoModeloFormulario,
@@ -586,7 +586,7 @@ export const bootstrapEntityTables = () => {
     AcervoClassificacao: getTableDefFromEntity(AcervoClassificacao)!,
     Indexador: getTableDefFromEntity(Indexador)!,
     AfastamentoPessoa: getTableDefFromEntity(AfastamentoPessoa)!,
-    Sysdiagram: getTableDefFromEntity(Sysdiagram)!,
+    Sysdiagrams: getTableDefFromEntity(Sysdiagrams)!,
     ProcessoJudicialOutroParametro: getTableDefFromEntity(ProcessoJudicialOutroParametro)!,
     Instancia: getTableDefFromEntity(Instancia)!,
     EstadoModeloFormulario: getTableDefFromEntity(EstadoModeloFormulario)!,

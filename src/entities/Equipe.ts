@@ -46,7 +46,7 @@ export class Equipe {
   usuarios!: ManyToManyCollection<Usuario>;
 
   @HasMany({ target: () => RetornoProgramado, foreignKey: 'equipe_id' })
-  retornoProgramados!: HasManyCollection<RetornoProgramado>;
+  retornosProgramados!: HasManyCollection<RetornoProgramado>;
 
   @BelongsTo({ target: () => Especializada, foreignKey: 'especializada_id' })
   especializada!: BelongsToReference<Especializada>;
@@ -58,6 +58,6 @@ export class Equipe {
   especializadas!: HasManyCollection<Especializada>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'equipe_id' })
-  tramitacaoAutomaticaAcervoTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
+  tramitacoesAutomaticasAcervosTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
 }

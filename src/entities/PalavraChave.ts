@@ -34,7 +34,7 @@ export class PalavraChave {
   obrigatoriedade!: boolean;
 
   @BelongsToMany({ target: () => ProcessoAdministrativo, pivotTable: () => PalavraChaveProcessoAdministrativo, pivotForeignKeyToRoot: 'palavra_chave_id', pivotForeignKeyToTarget: 'processo_administrativo_id' })
-  processoAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
 
   @BelongsToMany({ target: () => Tema, pivotTable: () => PalavraChaveTema, pivotForeignKeyToRoot: 'palavra_chave_id', pivotForeignKeyToTarget: 'tema_id' })
   temas!: ManyToManyCollection<Tema>;

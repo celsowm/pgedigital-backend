@@ -20,6 +20,6 @@ export class DesabilitaTipoIntegracao {
   tipo!: string;
 
   @BelongsToMany({ target: () => TipoIncidente, pivotTable: () => Incidente, pivotForeignKeyToRoot: 'desabilita_tipo_integracao_id', pivotForeignKeyToTarget: 'tipo_incidente_id' })
-  tipoIncidentes!: ManyToManyCollection<TipoIncidente>;
+  tiposIncidentes!: ManyToManyCollection<TipoIncidente>;
 
 }

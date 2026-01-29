@@ -53,6 +53,6 @@ export class RepresentanteJudicial {
   tipoRepresentante!: BelongsToReference<TipoRepresentante>;
 
   @HasMany({ target: () => EnderecoRepresentanteJudicial, foreignKey: 'representante_judicial_id' })
-  enderecoRepresentanteJudicials!: HasManyCollection<EnderecoRepresentanteJudicial>;
+  enderecosRepresentantesJudiciais!: HasManyCollection<EnderecoRepresentanteJudicial>;
 
 }

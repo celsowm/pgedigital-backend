@@ -52,7 +52,7 @@ export class OrgaoJulgador {
   especializadas!: ManyToManyCollection<Especializada>;
 
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'orgao_julgador_id' })
-  processoJudicials!: HasManyCollection<ProcessoJudicial>;
+  processosJudiciais!: HasManyCollection<ProcessoJudicial>;
 
   @BelongsTo({ target: () => MniTribunal, foreignKey: 'tribunal_id' })
   tribunal!: BelongsToReference<MniTribunal>;

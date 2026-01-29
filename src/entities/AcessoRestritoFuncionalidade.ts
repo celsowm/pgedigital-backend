@@ -40,7 +40,7 @@ export class AcessoRestritoFuncionalidade {
   descricao_funcionalidade!: string;
 
   @BelongsToMany({ target: () => Perfil, pivotTable: () => AcessoRestritoFuncionalidadePerfil, pivotForeignKeyToRoot: 'acesso_restrito_funcionalidade_id', pivotForeignKeyToTarget: 'perfil_id' })
-  perfils!: ManyToManyCollection<Perfil>;
+  perfis!: ManyToManyCollection<Perfil>;
 
   @BelongsToMany({ target: () => Usuario, pivotTable: () => AcessoRestritoFuncionalidadeUsuario, pivotForeignKeyToRoot: 'acesso_restrito_funcionalidade_id', pivotForeignKeyToTarget: 'usuario_id' })
   usuarios!: ManyToManyCollection<Usuario>;

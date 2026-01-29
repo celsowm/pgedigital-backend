@@ -35,25 +35,25 @@ export class TipoDocumento {
   tipo_acao_id?: number;
 
   @BelongsToMany({ target: () => TipoProcessoAdministrativo, pivotTable: () => TipoDocumentoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_documento_id', pivotForeignKeyToTarget: 'tipo_processo_administrativo_id' })
-  tipoProcessoAdministrativos!: ManyToManyCollection<TipoProcessoAdministrativo>;
+  tiposProcessosAdministrativos!: ManyToManyCollection<TipoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoRascunho, foreignKey: 'tipo_documento_id' })
-  documentoRascunhos!: HasManyCollection<DocumentoRascunho>;
+  documentosRascunhos!: HasManyCollection<DocumentoRascunho>;
 
   @HasMany({ target: () => DocumentoAcordoContencioso, foreignKey: 'tipo_documento_id' })
-  documentoAcordoContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
+  documentosAcordosContenciosos!: HasManyCollection<DocumentoAcordoContencioso>;
 
   @HasMany({ target: () => DocumentoAnexoRascunho, foreignKey: 'tipo_documento_id' })
-  documentoAnexoRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
+  documentosAnexosRascunhos!: HasManyCollection<DocumentoAnexoRascunho>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'tipo_documento_id' })
-  documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => Protocolizacao, foreignKey: 'tipo_documento_id' })
-  protocolizacaos!: HasManyCollection<Protocolizacao>;
+  protocolizacoes!: HasManyCollection<Protocolizacao>;
 
   @HasMany({ target: () => DocumentoProtocolizacao, foreignKey: 'tipo_documento_id' })
-  documentoProtocolizacaos!: HasManyCollection<DocumentoProtocolizacao>;
+  documentosProtocolizacoes!: HasManyCollection<DocumentoProtocolizacao>;
 
   @HasMany({ target: () => Modelo, foreignKey: 'tipo_documento_id' })
   modelos!: HasManyCollection<Modelo>;

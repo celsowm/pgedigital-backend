@@ -92,10 +92,10 @@ export class DocumentoComunicacao {
   dummy?: boolean;
 
   @BelongsToMany({ target: () => Comunicacao, pivotTable: () => DocumentoComunicacao, pivotForeignKeyToRoot: 'parent_id', pivotForeignKeyToTarget: 'comunicacao_id' })
-  comunicacaos!: ManyToManyCollection<Comunicacao>;
+  comunicacoes!: ManyToManyCollection<Comunicacao>;
 
   @HasMany({ target: () => OutroParametroDocumentoComunicacao, foreignKey: 'documento_comunicacao_id' })
-  outroParametroDocumentoComunicacaos!: HasManyCollection<OutroParametroDocumentoComunicacao>;
+  outrosParametrosDocumentosComunicacoes!: HasManyCollection<OutroParametroDocumentoComunicacao>;
 
   @BelongsTo({ target: () => Comunicacao, foreignKey: 'comunicacao_id' })
   comunicacao!: BelongsToReference<Comunicacao>;
@@ -104,9 +104,9 @@ export class DocumentoComunicacao {
   parent!: BelongsToReference<DocumentoComunicacao>;
 
   @HasMany({ target: () => DocumentoProcessoAdministrativo, foreignKey: 'documento_comunicacao_id' })
-  documentoProcessoAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
+  documentosProcessosAdministrativos!: HasManyCollection<DocumentoProcessoAdministrativo>;
 
   @HasMany({ target: () => DocumentoComunicacaoOutroParametro, foreignKey: 'documento_comunicacao_id' })
-  documentoComunicacaoOutroParametros!: HasManyCollection<DocumentoComunicacaoOutroParametro>;
+  documentosComunicacoesOutrosParametros!: HasManyCollection<DocumentoComunicacaoOutroParametro>;
 
 }

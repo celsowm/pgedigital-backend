@@ -69,6 +69,6 @@ export class SorteioCorreicaoProcessoAdministrativo {
   estado!: BelongsToReference<Estado>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativoQuesito, foreignKey: 'sorteio_correicao_processo_administrativo_id' })
-  sorteioCorreicaoProcessoAdministrativoQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
+  sorteiosCorreicoesProcessosAdministrativosQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
 
 }

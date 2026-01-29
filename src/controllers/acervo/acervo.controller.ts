@@ -69,7 +69,7 @@ async function getAcervoWithRelationsOrThrow(session: OrmSession, id: number): P
 
 async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<AcervoDetailDto> {
   const [acervo] = await baseAcervoQuery()
-    .include("classificacaos", { columns: ["id", "nome"] })
+    .include("classificacoes", { columns: ["id", "nome"] })
     .include("temas", { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } })
     .include("usuarios", {
       columns: ["id", "nome", "login", "cargo", "estado_inatividade"],
@@ -83,7 +83,7 @@ async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<
 
   return {
     ...acervo,
-    classificacoes: acervo.classificacaos?.map((c: any) => pick(c, "id", "nome")!) ?? [],
+    classificacoes: acervo.classificacoes?.map((c: any) => pick(c, "id", "nome")!) ?? [],
     temasRelacionados: acervo.temas?.map((t: any) => ({ id: t.id, nome: t.nome, materiaNome: t.materia?.nome ?? "" })) ?? [],
     destinatarios: acervo.usuarios?.map((u: any) => ({
       id: u.id, nome: u.nome, login: u.login, cargo: u.cargo,

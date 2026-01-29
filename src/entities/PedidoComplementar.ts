@@ -20,6 +20,6 @@ export class PedidoComplementar {
   nome!: string;
 
   @BelongsToMany({ target: () => ProcessoAdministrativo, pivotTable: () => PedidoComplementarProcessoAdministrativo, pivotForeignKeyToRoot: 'pedido_complementar_id', pivotForeignKeyToTarget: 'processo_administrativo_id' })
-  processoAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
 
 }

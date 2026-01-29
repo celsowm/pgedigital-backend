@@ -42,13 +42,13 @@ export class Localidade {
   parent_id?: number;
 
   @BelongsToMany({ target: () => MniTribunal, pivotTable: () => Localidade, pivotForeignKeyToRoot: 'parent_id', pivotForeignKeyToTarget: 'tribunal_id' })
-  mniTribunals!: ManyToManyCollection<MniTribunal>;
+  mnisTribunais!: ManyToManyCollection<MniTribunal>;
 
   @BelongsToMany({ target: () => Especializada, pivotTable: () => MapeamentoLocalidadeRegional, pivotForeignKeyToRoot: 'localidade_id', pivotForeignKeyToTarget: 'especializada_regional_id' })
   especializadas!: ManyToManyCollection<Especializada>;
 
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'localidade_id' })
-  processoJudicials!: HasManyCollection<ProcessoJudicial>;
+  processosJudiciais!: HasManyCollection<ProcessoJudicial>;
 
   @BelongsTo({ target: () => MniTribunal, foreignKey: 'tribunal_id' })
   tribunal!: BelongsToReference<MniTribunal>;

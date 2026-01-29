@@ -33,6 +33,6 @@ export class TipoRespostaCorreicao {
   modified!: Date;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativoQuesito, foreignKey: 'tipo_resposta_correicao_id' })
-  sorteioCorreicaoProcessoAdministrativoQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
+  sorteiosCorreicoesProcessosAdministrativosQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
 
 }

@@ -143,7 +143,7 @@ export class MniTribunal {
   exige_hash?: boolean;
 
   @BelongsToMany({ target: () => TipoOrgaoJulgador, pivotTable: () => OrgaoJulgador, pivotForeignKeyToRoot: 'tribunal_id', pivotForeignKeyToTarget: 'instancia' })
-  tipoOrgaoJulgadors!: ManyToManyCollection<TipoOrgaoJulgador>;
+  tiposOrgaosJulgadores!: ManyToManyCollection<TipoOrgaoJulgador>;
 
   @BelongsToMany({ target: () => Instancia, pivotTable: () => InstanciaMniTribunal, pivotForeignKeyToRoot: 'mni_tribunal_id', pivotForeignKeyToTarget: 'instancia_id' })
   instancias!: ManyToManyCollection<Instancia>;
@@ -152,21 +152,21 @@ export class MniTribunal {
   localidades!: ManyToManyCollection<Localidade>;
 
   @HasMany({ target: () => ProcessoJudicial, foreignKey: 'tribunal_id' })
-  processoJudicials!: HasManyCollection<ProcessoJudicial>;
+  processosJudiciais!: HasManyCollection<ProcessoJudicial>;
 
   @HasMany({ target: () => ContatoMniTribunal, foreignKey: 'mni_tribunal_id' })
-  contatoMniTribunals!: HasManyCollection<ContatoMniTribunal>;
+  contatosMnisTribunais!: HasManyCollection<ContatoMniTribunal>;
 
   @HasMany({ target: () => AssuntoLocal, foreignKey: 'tribunal_id' })
-  assuntoLocals!: HasManyCollection<AssuntoLocal>;
+  assuntosLocais!: HasManyCollection<AssuntoLocal>;
 
   @HasMany({ target: () => Competencia, foreignKey: 'tribunal_id' })
   competencias!: HasManyCollection<Competencia>;
 
   @HasMany({ target: () => TipoDocumentoProvidencia, foreignKey: 'mni_tribunal_id' })
-  tipoDocumentoProvidencias!: HasManyCollection<TipoDocumentoProvidencia>;
+  tiposDocumentosProvidencias!: HasManyCollection<TipoDocumentoProvidencia>;
 
   @HasMany({ target: () => TipoDocumentoMni, foreignKey: 'tribunal_id' })
-  tipoDocumentoMnis!: HasManyCollection<TipoDocumentoMni>;
+  tiposDocumentosMnis!: HasManyCollection<TipoDocumentoMni>;
 
 }

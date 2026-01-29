@@ -136,6 +136,6 @@ export class Modelo {
   tipoAtividade!: BelongsToReference<TipoAtividade>;
 
   @HasMany({ target: () => TramitacaoAutomaticaAcervoTema, foreignKey: 'modelo_id' })
-  tramitacaoAutomaticaAcervoTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
+  tramitacoesAutomaticasAcervosTemas!: HasManyCollection<TramitacaoAutomaticaAcervoTema>;
 
 }

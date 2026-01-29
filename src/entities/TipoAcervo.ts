@@ -20,7 +20,7 @@ export class TipoAcervo {
   nome!: string;
 
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'tipo_acervo_id' })
-  especializadaTemas!: HasManyCollection<EspecializadaTema>;
+  especializadasTemas!: HasManyCollection<EspecializadaTema>;
 
   @HasMany({ target: () => Acervo, foreignKey: 'tipo_acervo_id' })
   acervos!: HasManyCollection<Acervo>;

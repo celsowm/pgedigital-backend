@@ -30,21 +30,21 @@ export class TipoProcessoAdministrativo {
   glyphicon?: string;
 
   @BelongsToMany({ target: () => TipoAcao, pivotTable: () => TipoAcaoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_processo_administrativo_id', pivotForeignKeyToTarget: 'tipo_acao_id' })
-  tipoAcaos!: ManyToManyCollection<TipoAcao>;
+  tiposAcoes!: ManyToManyCollection<TipoAcao>;
 
   @BelongsToMany({ target: () => TipoSolicitacao, pivotTable: () => TipoSolicitacaoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_processo_administrativo_id', pivotForeignKeyToTarget: 'tipo_solicitacao_id' })
-  tipoSolicitacaos!: ManyToManyCollection<TipoSolicitacao>;
+  tiposSolicitacao!: ManyToManyCollection<TipoSolicitacao>;
 
   @BelongsToMany({ target: () => TipoDocumento, pivotTable: () => TipoDocumentoTipoProcessoAdministrativo, pivotForeignKeyToRoot: 'tipo_processo_administrativo_id', pivotForeignKeyToTarget: 'tipo_documento_id' })
-  tipoDocumentos!: ManyToManyCollection<TipoDocumento>;
+  tiposDocumentos!: ManyToManyCollection<TipoDocumento>;
 
   @HasMany({ target: () => Materia, foreignKey: 'tipo_processo_administrativo_id' })
   materias!: HasManyCollection<Materia>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'tipo_processo_administrativo_id' })
-  processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => TipoAudiencia, foreignKey: 'tipo_processo_administrativo_id' })
-  tipoAudiencias!: HasManyCollection<TipoAudiencia>;
+  tiposAudiencias!: HasManyCollection<TipoAudiencia>;
 
 }

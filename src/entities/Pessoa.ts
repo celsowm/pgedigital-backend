@@ -102,16 +102,16 @@ export class Pessoa {
   acervos!: ManyToManyCollection<Acervo>;
 
   @BelongsToMany({ target: () => TipoDocumentoPessoa, pivotTable: () => DocumentoPessoa, pivotForeignKeyToRoot: 'pessoa_id', pivotForeignKeyToTarget: 'tipo_documento_pessoa_id' })
-  tipoDocumentoPessoas!: ManyToManyCollection<TipoDocumentoPessoa>;
+  tiposDocumentosPessoas!: ManyToManyCollection<TipoDocumentoPessoa>;
 
   @HasMany({ target: () => Parte, foreignKey: 'pessoa_id' })
   partes!: HasManyCollection<Parte>;
 
   @HasMany({ target: () => InteressadoConsultivo, foreignKey: 'pessoa_id' })
-  interessadoConsultivos!: HasManyCollection<InteressadoConsultivo>;
+  interessadosConsultivos!: HasManyCollection<InteressadoConsultivo>;
 
   @HasMany({ target: () => EnderecoPessoa, foreignKey: 'pessoa_id' })
-  enderecoPessoas!: HasManyCollection<EnderecoPessoa>;
+  enderecosPessoas!: HasManyCollection<EnderecoPessoa>;
 
   @HasMany({ target: () => Interessado, foreignKey: 'pessoa_id' })
   interessados!: HasManyCollection<Interessado>;

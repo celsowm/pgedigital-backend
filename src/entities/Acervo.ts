@@ -118,7 +118,7 @@ export class Acervo {
   usuarios!: ManyToManyCollection<Usuario>;
 
   @BelongsToMany({ target: () => Classificacao, pivotTable: () => AcervoClassificacao, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'classificacao_id' })
-  classificacaos!: ManyToManyCollection<Classificacao>;
+  classificacoes!: ManyToManyCollection<Classificacao>;
 
   @BelongsToMany({ target: () => Materia, pivotTable: () => AcervoMateria, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'materia_id' })
   materias!: ManyToManyCollection<Materia>;
@@ -130,13 +130,13 @@ export class Acervo {
   pessoas!: ManyToManyCollection<Pessoa>;
 
   @HasMany({ target: () => ProcessoAdministrativo, foreignKey: 'acervo_id' })
-  processoAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: HasManyCollection<ProcessoAdministrativo>;
 
   @HasMany({ target: () => HistoricoDistribuicaoAcervo, foreignKey: 'acervo_id' })
-  historicoDistribuicaoAcervos!: HasManyCollection<HistoricoDistribuicaoAcervo>;
+  historicosDistribuicoesAcervos!: HasManyCollection<HistoricoDistribuicaoAcervo>;
 
   @HasMany({ target: () => MapeamentoAcervoSicaj, foreignKey: 'acervo_id' })
-  mapeamentoAcervoSicajs!: HasManyCollection<MapeamentoAcervoSicaj>;
+  mapeamentosAcervosSicajs!: HasManyCollection<MapeamentoAcervoSicaj>;
 
   @BelongsTo({ target: () => Equipe, foreignKey: 'equipe_responsavel_id' })
   equipeResponsavel!: BelongsToReference<Equipe>;

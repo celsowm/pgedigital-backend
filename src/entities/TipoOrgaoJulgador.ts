@@ -25,6 +25,6 @@ export class TipoOrgaoJulgador {
   descricao?: string;
 
   @BelongsToMany({ target: () => MniTribunal, pivotTable: () => OrgaoJulgador, pivotForeignKeyToRoot: 'instancia', pivotForeignKeyToTarget: 'tribunal_id' })
-  mniTribunals!: ManyToManyCollection<MniTribunal>;
+  mnisTribunais!: ManyToManyCollection<MniTribunal>;
 
 }

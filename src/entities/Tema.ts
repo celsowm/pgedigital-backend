@@ -68,10 +68,10 @@ export class Tema {
   peso?: number;
 
   @BelongsToMany({ target: () => ProcessoAdministrativo, pivotTable: () => ProcessoAdministrativoTema, pivotForeignKeyToRoot: 'tema_id', pivotForeignKeyToTarget: 'processo_administrativo_id' })
-  processoAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
+  processosAdministrativos!: ManyToManyCollection<ProcessoAdministrativo>;
 
   @BelongsToMany({ target: () => PalavraChave, pivotTable: () => PalavraChaveTema, pivotForeignKeyToRoot: 'tema_id', pivotForeignKeyToTarget: 'palavra_chave_id' })
-  palavraChaves!: ManyToManyCollection<PalavraChave>;
+  palavrasChave!: ManyToManyCollection<PalavraChave>;
 
   @BelongsToMany({ target: () => Materia, pivotTable: () => Tema, pivotForeignKeyToRoot: 'parent_id', pivotForeignKeyToTarget: 'materia_id' })
   materias!: ManyToManyCollection<Materia>;
@@ -83,10 +83,10 @@ export class Tema {
   modelos!: ManyToManyCollection<Modelo>;
 
   @HasMany({ target: () => ClassificacaoEspecializadaTema, foreignKey: 'tema_id' })
-  classificacaoEspecializadaTemas!: HasManyCollection<ClassificacaoEspecializadaTema>;
+  classificacoesEspecializadasTemas!: HasManyCollection<ClassificacaoEspecializadaTema>;
 
   @HasMany({ target: () => EspecializadaTema, foreignKey: 'tema_id' })
-  especializadaTemas!: HasManyCollection<EspecializadaTema>;
+  especializadasTemas!: HasManyCollection<EspecializadaTema>;
 
   @BelongsTo({ target: () => Tema, foreignKey: 'parent_id' })
   parent!: BelongsToReference<Tema>;

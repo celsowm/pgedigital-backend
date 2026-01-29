@@ -15,6 +15,6 @@ export class TipoInteressadoConsultivo {
   nome!: string;
 
   @HasMany({ target: () => InteressadoConsultivo, foreignKey: 'tipo_interessado_consultivo_id' })
-  interessadoConsultivos!: HasManyCollection<InteressadoConsultivo>;
+  interessadosConsultivos!: HasManyCollection<InteressadoConsultivo>;
 
 }

@@ -45,6 +45,6 @@ export class Indexador {
   correcao_monetaria!: boolean;
 
   @HasMany({ target: () => FatorCorrecao, foreignKey: 'indexador_id' })
-  fatorCorrecaos!: HasManyCollection<FatorCorrecao>;
+  fatoresCorrecao!: HasManyCollection<FatorCorrecao>;
 
 }

@@ -43,12 +43,12 @@ export class Quesito {
   modified!: Date;
 
   @BelongsToMany({ target: () => Correicao, pivotTable: () => CorreicaoQuesito, pivotForeignKeyToRoot: 'quesito_id', pivotForeignKeyToTarget: 'correicao_id' })
-  correicaos!: ManyToManyCollection<Correicao>;
+  correicoes!: ManyToManyCollection<Correicao>;
 
   @BelongsTo({ target: () => Usuario, foreignKey: 'usuario_id' })
   usuario!: BelongsToReference<Usuario>;
 
   @HasMany({ target: () => SorteioCorreicaoProcessoAdministrativoQuesito, foreignKey: 'quesito_id' })
-  sorteioCorreicaoProcessoAdministrativoQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
+  sorteiosCorreicoesProcessosAdministrativosQuesitos!: HasManyCollection<SorteioCorreicaoProcessoAdministrativoQuesito>;
 
 }

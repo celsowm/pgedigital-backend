@@ -19,9 +19,9 @@ export class EstadoModeloFormulario {
   codigo?: string;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativo, foreignKey: 'ultimo_estado_modelo_formulario_id' })
-  modeloFormularioProcessoAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
+  modelosFormulariosProcessosAdministrativos!: HasManyCollection<ModeloFormularioProcessoAdministrativo>;
 
   @HasMany({ target: () => ModeloFormularioProcessoAdministrativoEstadoModeloFormulario, foreignKey: 'estado_modelo_formulario_id' })
-  modeloFormularioProcessoAdministrativoEstadoModeloFormularios!: HasManyCollection<ModeloFormularioProcessoAdministrativoEstadoModeloFormulario>;
+  modelosFormulariosProcessosAdministrativosEstadosModelosFormularios!: HasManyCollection<ModeloFormularioProcessoAdministrativoEstadoModeloFormulario>;
 
 }

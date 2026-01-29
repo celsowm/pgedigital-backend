@@ -50,7 +50,7 @@ export class EstadoProcessoAdministrativo {
   data_retorno?: Date;
 
   @BelongsToMany({ target: () => MotivoArquivamento, pivotTable: () => EstadoProcessoAdministrativoMotivoArquivamento, pivotForeignKeyToRoot: 'estado_processo_administrativo_id', pivotForeignKeyToTarget: 'motivo_arquivamento_id' })
-  motivoArquivamentos!: ManyToManyCollection<MotivoArquivamento>;
+  motivosArquivamentos!: ManyToManyCollection<MotivoArquivamento>;
 
   @BelongsTo({ target: () => ProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
   processoAdministrativo!: BelongsToReference<ProcessoAdministrativo>;
