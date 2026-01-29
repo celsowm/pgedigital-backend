@@ -115,7 +115,7 @@ export class Acervo {
   equipes!: ManyToManyCollection<Equipe>;
 
   @BelongsToMany({ target: () => Usuario, pivotTable: () => AcervoDestinatarioPa, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'destinatario_pa_id' })
-  usuarios!: ManyToManyCollection<Usuario>;
+  destinatarios!: ManyToManyCollection<Usuario>;
 
   @BelongsToMany({ target: () => Classificacao, pivotTable: () => AcervoClassificacao, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'classificacao_id' })
   classificacoes!: ManyToManyCollection<Classificacao>;
@@ -124,7 +124,7 @@ export class Acervo {
   materias!: ManyToManyCollection<Materia>;
 
   @BelongsToMany({ target: () => Tema, pivotTable: () => AcervoTema, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'tema_id' })
-  temas!: ManyToManyCollection<Tema>;
+  temasRelacionados!: ManyToManyCollection<Tema>;
 
   @BelongsToMany({ target: () => Pessoa, pivotTable: () => RaizCnpjAcervo, pivotForeignKeyToRoot: 'acervo_id', pivotForeignKeyToTarget: 'matriz_id' })
   raizesCNPJs!: ManyToManyCollection<Pessoa>;

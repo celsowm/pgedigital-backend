@@ -1,7 +1,9 @@
 {
   "relationOverrides": {
     "Acervo": {
-      "pessoas": "raizesCNPJs"
+      "pessoas": "raizesCNPJs",
+      "usuarios": "destinatarios",
+      "temas": "temasRelacionados"
     }
   }
 }

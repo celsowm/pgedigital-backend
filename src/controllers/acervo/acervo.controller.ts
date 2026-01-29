@@ -69,27 +69,17 @@ async function getAcervoWithRelationsOrThrow(session: OrmSession, id: number): P
 async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<AcervoDetailDto> {
   const [acervo] = await baseAcervoQuery()
     .include("classificacoes", { columns: ["id", "nome"] })
-    .include("temas", { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } })
-    .include("usuarios", {
+    .include("temasRelacionados", { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } })
+    .include("destinatarios", {
       columns: ["id", "nome", "login", "cargo", "estado_inatividade"],
-      include: { especializada: { columns: ["nome"] } }
+      include: { especializada: { columns: ["id", "nome"] } }
     })
     .include("raizesCNPJs", { pivot: { columns: ["id", "raiz"] } })
     .where(eq(A.id, id))
-    .execute(session) as any[];
+    .execute(session);
 
   if (!acervo) throw new HttpError(404, "Acervo not found.");
-
-  return {
-    ...acervo,
-    classificacoes: acervo.classificacoes ?? [],
-    temasRelacionados: acervo.temas?.map((t: any) => ({ id: t.id, nome: t.nome, materiaNome: t.materia?.nome ?? "" })) ?? [],
-    destinatarios: acervo.usuarios?.map((u: any) => ({
-      id: u.id, nome: u.nome, login: u.login, cargo: u.cargo,
-      especializada_nome: u.especializada?.nome, ativo: !u.estado_inatividade
-    })) ?? [],
-    raizesCNPJs: acervo.raizesCNPJs ?? []
-  } as AcervoDetailDto;
+  return acervo as AcervoDetailDto;
 }
 
 @Controller("/acervo")

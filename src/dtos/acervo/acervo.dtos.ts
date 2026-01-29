@@ -103,6 +103,12 @@ export class TemaResumoDto {
   nome!: string;
 }
 
+@Dto({ description: "Resumo da matéria." })
+export class MateriaResumoDto {
+  @Field(t.string({ minLength: 1 }))
+  nome!: string;
+}
+
 @Dto({ description: "Tema relacionado com informações da matéria." })
 export class TemaComMateriaDto {
   @Field(t.integer())
@@ -111,8 +117,8 @@ export class TemaComMateriaDto {
   @Field(t.string({ minLength: 1 }))
   nome!: string;
 
-  @Field(t.string({ minLength: 1 }))
-  materiaNome!: string;
+  @Field(t.optional(t.ref(MateriaResumoDto)))
+  materia?: MateriaResumoDto;
 }
 
 @Dto({ description: "Resumo de destinatário do acervo." })
@@ -129,11 +135,11 @@ export class DestinatarioResumoDto {
   @Field(t.string({ minLength: 1 }))
   cargo!: string;
 
-  @Field(t.optional(t.string()))
-  especializada_nome?: string;
+  @Field(t.optional(t.ref(EspecializadaResumoDto)))
+  especializada?: EspecializadaResumoDto;
 
-  @Field(t.boolean())
-  ativo!: boolean;
+  @Field(t.optional(t.boolean()))
+  estado_inatividade?: boolean;
 }
 
 @Dto({ description: "Resumo de raiz de CNPJ vinculada ao acervo." })
