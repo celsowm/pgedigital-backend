@@ -22,10 +22,6 @@ import {
 } from "metal-orm";
 import { withSession } from "../../db/mssql";
 import { Acervo } from "../../entities/Acervo";
-import { AcervoClassificacao } from "../../entities/AcervoClassificacao";
-import { AcervoDestinatarioPa } from "../../entities/AcervoDestinatarioPa";
-import { AcervoTema } from "../../entities/AcervoTema";
-import { RaizCnpjAcervo } from "../../entities/RaizCnpjAcervo";
 import {
   AcervoDetailDto,
   AcervoErrors,
@@ -47,10 +43,6 @@ import {
 import { BaseController } from "../../utils/base-controller";
 
 const A = entityRef(Acervo);
-const AC = entityRef(AcervoClassificacao);
-const AT = entityRef(AcervoTema);
-const ADP = entityRef(AcervoDestinatarioPa);
-const RCA = entityRef(RaizCnpjAcervo);
 
 type AcervoFilterFields = "nome" | "especializada_id" | "tipo_acervo_id" | "ativo";
 
@@ -90,106 +82,48 @@ async function getAcervoDetailOrThrow(
   session: OrmSession,
   id: number
 ): Promise<AcervoDetailDto> {
-  const acervo = await getAcervoWithRelationsOrThrow(session, id);
+  const query = selectFromEntity(Acervo)
+    .includePick("especializada", ["id", "nome"])
+    .includePick("procuradorTitular", ["id", "nome"])
+    .includePick("tipoAcervo", ["id", "nome"])
+    .includePick("tipoMigracaoAcervo", ["id", "nome"])
+    .includePick("equipeResponsavel", ["id", "nome"])
+    .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
+    .include({
+      acervoClassificacaos: { include: { classificacao: { columns: ["id", "nome"] } } },
+      acervoTemas: { include: { tema: { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } } } },
+      acervoDestinatarioPas: { include: { destinatarioPa: { columns: ["id", "nome", "login", "cargo", "estado_inatividade"], include: { especializada: { columns: ["nome"] } } } } },
+      raizCnpjAcervos: { columns: ["id", "raiz"] }
+    })
+    .where(eq(A.id, id));
 
-  const acervoClassificacoes = await selectFromEntity(AcervoClassificacao)
-    .includePick("classificacao", ["id", "nome"])
-    .where(eq(AC.acervo_id, id))
-    .execute(session);
-
-  const classificacoes: ClassificacaoResumoDto[] = acervoClassificacoes
-    .filter((ac: any) => ac.classificacao)
-    .map((ac: any) => ({
-      id: ac.classificacao.id,
-      nome: ac.classificacao.nome
-    }));
-
-  const acervoTemas = await selectFromEntity(AcervoTema)
-    .includePick("tema", ["id", "nome", "materia_id"])
-    .where(eq(AT.acervo_id, id))
-    .execute(session);
-
-  const temasRelacionados: TemaComMateriaDto[] = [];
-  for (const at of acervoTemas as any[]) {
-    if (at.tema) {
-      const { Tema } = await import("../../entities/Tema");
-      const { Materia } = await import("../../entities/Materia");
-      const tema = await session.find(Tema, at.tema.id);
-      let materiaNome = "";
-      if (tema?.materia_id) {
-        const materia = await session.find(Materia, tema.materia_id);
-        materiaNome = materia?.nome || "";
-      }
-      temasRelacionados.push({
-        id: at.tema.id,
-        nome: at.tema.nome,
-        materiaNome
-      });
-    }
+  const [acervo] = await query.execute(session) as any[];
+  if (!acervo) {
+    throw new HttpError(404, "Acervo not found.");
   }
-
-  const acervoDestinatarios = await selectFromEntity(AcervoDestinatarioPa)
-    .include("destinatarioPa")
-    .where(eq(ADP.acervo_id, id))
-    .execute(session);
-
-  const destinatarios: DestinatarioResumoDto[] = [];
-  for (const adp of acervoDestinatarios as any[]) {
-    if (adp.destinatarioPa) {
-      const user = adp.destinatarioPa;
-      let especializada_nome: string | undefined;
-      if (user.especializada_id) {
-        const { Especializada } = await import("../../entities/Especializada");
-        const esp = await session.find(Especializada, user.especializada_id);
-        especializada_nome = esp?.nome;
-      }
-      destinatarios.push({
-        id: user.id,
-        nome: user.nome,
-        login: user.login,
-        cargo: user.cargo,
-        especializada_nome,
-        ativo: !user.estado_inatividade
-      });
-    }
-  }
-
-  const raizesCnpjResult = await selectFromEntity(RaizCnpjAcervo)
-    .where(eq(RCA.acervo_id, id))
-    .execute(session);
-
-  const raizesCnpj: RaizCnpjResumoDto[] = (raizesCnpjResult as any[]).map((rcnpj) => ({
-    id: rcnpj.id,
-    raiz: rcnpj.raiz
-  }));
 
   return {
     id: acervo.id,
     nome: acervo.nome,
-    especializada: acervo.especializada
-      ? { id: acervo.especializada.id, nome: acervo.especializada.nome }
-      : undefined,
-    procuradorTitular: acervo.procuradorTitular
-      ? { id: acervo.procuradorTitular.id, nome: acervo.procuradorTitular.nome }
-      : undefined,
-    tipoAcervo: acervo.tipoAcervo
-      ? { id: acervo.tipoAcervo.id, nome: acervo.tipoAcervo.nome }
-      : undefined,
+    especializada: acervo.especializada ? { id: acervo.especializada.id, nome: acervo.especializada.nome } : undefined,
+    procuradorTitular: acervo.procuradorTitular ? { id: acervo.procuradorTitular.id, nome: acervo.procuradorTitular.nome } : undefined,
+    tipoAcervo: acervo.tipoAcervo ? { id: acervo.tipoAcervo.id, nome: acervo.tipoAcervo.nome } : undefined,
     rotina_sob_demanda: acervo.rotina_sob_demanda,
-    tipoMigracaoAcervo: acervo.tipoMigracaoAcervo
-      ? { id: acervo.tipoMigracaoAcervo.id, nome: acervo.tipoMigracaoAcervo.nome }
-      : undefined,
-    equipeResponsavel: acervo.equipeResponsavel
-      ? { id: acervo.equipeResponsavel.id, nome: acervo.equipeResponsavel.nome }
-      : undefined,
-    tipoDivisaoCargaTrabalho: acervo.tipoDivisaoCargaTrabalho
-      ? { id: acervo.tipoDivisaoCargaTrabalho.id, nome: acervo.tipoDivisaoCargaTrabalho.nome }
-      : undefined,
+    tipoMigracaoAcervo: acervo.tipoMigracaoAcervo ? { id: acervo.tipoMigracaoAcervo.id, nome: acervo.tipoMigracaoAcervo.nome } : undefined,
+    equipeResponsavel: acervo.equipeResponsavel ? { id: acervo.equipeResponsavel.id, nome: acervo.equipeResponsavel.nome } : undefined,
+    tipoDivisaoCargaTrabalho: acervo.tipoDivisaoCargaTrabalho ? { id: acervo.tipoDivisaoCargaTrabalho.id, nome: acervo.tipoDivisaoCargaTrabalho.nome } : undefined,
     ativo: acervo.ativo,
-    classificacoes,
-    temasRelacionados,
-    destinatarios,
-    raizesCnpj
+    classificacoes: acervo.acervoClassificacaos?.filter((ac: any) => ac.classificacao).map((ac: any) => ({ id: ac.classificacao.id, nome: ac.classificacao.nome })) ?? [],
+    temasRelacionados: acervo.acervoTemas?.filter((at: any) => at.tema).map((at: any) => ({ id: at.tema.id, nome: at.tema.nome, materiaNome: at.tema.materia?.nome ?? "" })) ?? [],
+    destinatarios: acervo.acervoDestinatarioPas?.filter((adp: any) => adp.destinatarioPa).map((adp: any) => ({
+      id: adp.destinatarioPa.id,
+      nome: adp.destinatarioPa.nome,
+      login: adp.destinatarioPa.login,
+      cargo: adp.destinatarioPa.cargo,
+      especializada_nome: adp.destinatarioPa.especializada?.nome,
+      ativo: !adp.destinatarioPa.estado_inatividade
+    })) ?? [],
+    raizesCnpj: acervo.raizCnpjAcervos?.map((r: any) => ({ id: r.id, raiz: r.raiz })) ?? []
   };
 }
 
