@@ -1,12 +1,12 @@
 import {
-  Errors,
-  SimpleErrorDto,
   createMetalCrudDtoClasses,
   createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { NotaVersao } from "../../entities/NotaVersao";
+import { createCrudErrors } from "../common";
+import type { CreateDto, UpdateDto } from "../common";
 
 const notaVersaoCrud = createMetalCrudDtoClasses(NotaVersao, {
   response: { description: "Nota versao retornada pela API." },
@@ -22,10 +22,10 @@ export const {
 } = notaVersaoCrud;
 
 export type NotaVersaoDto = NotaVersao;
-type NotaVersaoMutationDto = Omit<NotaVersaoDto, "id">;
+type NotaVersaoMutationDto = CreateDto<NotaVersaoDto>;
 export type CreateNotaVersaoDto = NotaVersaoMutationDto;
 export type ReplaceNotaVersaoDto = NotaVersaoMutationDto;
-export type UpdateNotaVersaoDto = Partial<NotaVersaoMutationDto>;
+export type UpdateNotaVersaoDto = UpdateDto<NotaVersaoDto>;
 export type NotaVersaoParamsDto = InstanceType<typeof NotaVersaoParamsDto>;
 
 export const NotaVersaoQueryDtoClass = createPagedFilterQueryDtoClass({
@@ -51,7 +51,4 @@ export const NotaVersaoPagedResponseDto = createPagedResponseDtoClass({
   description: "Paged nota versao list response."
 });
 
-export const NotaVersaoErrors = Errors(SimpleErrorDto, [
-  { status: 400, description: "Invalid nota versao id." },
-  { status: 404, description: "Nota versao not found." }
-]);
+export const NotaVersaoErrors = createCrudErrors("nota versao");

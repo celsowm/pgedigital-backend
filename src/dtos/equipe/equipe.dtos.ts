@@ -1,15 +1,21 @@
 import {
   Dto,
-  Errors,
   Field,
   MergeDto,
-  SimpleErrorDto,
   createMetalCrudDtoClasses,
   createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Equipe } from "../../entities/Equipe";
+import {
+  createCrudErrors,
+  createOptionsArraySchema,
+  createOptionDto,
+  EspecializadaResumoDto,
+  type CreateDto,
+  type UpdateDto
+} from "../common";
 
 const equipeCrud = createMetalCrudDtoClasses(Equipe, {
   response: { description: "Equipe retornada pela API." },
@@ -25,25 +31,16 @@ export const {
 } = equipeCrud;
 
 export type EquipeDto = Equipe;
-type EquipeMutationDto = Omit<EquipeDto, "id">;
+type EquipeMutationDto = CreateDto<EquipeDto>;
 export type CreateEquipeDto = EquipeMutationDto;
 export type ReplaceEquipeDto = EquipeMutationDto;
-export type UpdateEquipeDto = Partial<EquipeMutationDto>;
+export type UpdateEquipeDto = UpdateDto<EquipeDto>;
 export type EquipeParamsDto = InstanceType<typeof EquipeParamsDto>;
-
-@Dto({ description: "Resumo da especializada da equipe." })
-export class EspecializadaResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
 
 @Dto({ description: "Relacionamento com a especializada da equipe." })
 export class EquipeEspecializadaDto {
   @Field(t.ref(EspecializadaResumoDto))
-  especializada!: EspecializadaResumoDto;
+  especializada!: InstanceType<typeof EspecializadaResumoDto>;
 }
 
 @MergeDto([EquipeDto, EquipeEspecializadaDto], {
@@ -73,20 +70,16 @@ export const EquipePagedResponseDto = createPagedResponseDtoClass({
   description: "Paged equipe list response."
 });
 
-export const EquipeErrors = Errors(SimpleErrorDto, [
-  { status: 400, description: "Invalid equipe id." },
-  { status: 404, description: "Equipe not found." }
-]);
+export const EquipeErrors = createCrudErrors("equipe");
 
-@Dto({ description: "Equipe com apenas id e nome." })
-export class EquipeOptionDto {
-  @Field(t.integer())
-  id!: number;
+const EquipeOptionDtoClass = createOptionDto(
+  "EquipeOptionDto",
+  "Equipe com apenas id e nome."
+);
+export { EquipeOptionDtoClass as EquipeOptionDto };
+export type EquipeOptionDto = InstanceType<typeof EquipeOptionDtoClass>;
 
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-export const EquipeOptionsDto = t.array(t.ref(EquipeOptionDto), {
-  description: "Lista de equipes com id e nome."
-});
+export const EquipeOptionsDto = createOptionsArraySchema(
+  EquipeOptionDtoClass,
+  "Lista de equipes com id e nome."
+);

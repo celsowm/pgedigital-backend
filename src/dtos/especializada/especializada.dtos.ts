@@ -1,15 +1,21 @@
 import {
   Dto,
-  Errors,
   Field,
   MergeDto,
-  SimpleErrorDto,
   createMetalCrudDtoClasses,
   createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Especializada } from "../../entities/Especializada";
+import {
+  createCrudErrors,
+  createOptionsArraySchema,
+  createOptionDto,
+  ResponsavelResumoDto,
+  type CreateDto,
+  type UpdateDto
+} from "../common";
 
 const especializadaCrud = createMetalCrudDtoClasses(Especializada, {
   response: { description: "Especializada retornada pela API." },
@@ -25,28 +31,16 @@ export const {
 } = especializadaCrud;
 
 export type EspecializadaDto = Especializada;
-type EspecializadaMutationDto = Omit<EspecializadaDto, "id">;
+type EspecializadaMutationDto = CreateDto<EspecializadaDto>;
 export type CreateEspecializadaDto = EspecializadaMutationDto;
 export type ReplaceEspecializadaDto = EspecializadaMutationDto;
-export type UpdateEspecializadaDto = Partial<EspecializadaMutationDto>;
+export type UpdateEspecializadaDto = UpdateDto<EspecializadaDto>;
 export type EspecializadaParamsDto = InstanceType<typeof EspecializadaParamsDto>;
 
-@Dto({ description: "Resumo do responsavel da especializada." })
-export class ResponsavelResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-/**
- * DTO para relacionamento com o responsavel da especializada.
- */
 @Dto({ description: "Relacionamento com o responsavel da especializada." })
 export class EspecializadaResponsavelDto {
   @Field(t.optional(t.ref(ResponsavelResumoDto)))
-  responsavel?: ResponsavelResumoDto;
+  responsavel?: InstanceType<typeof ResponsavelResumoDto>;
 }
 
 @MergeDto([EspecializadaDto, EspecializadaResponsavelDto], {
@@ -81,24 +75,20 @@ export const EspecializadaPagedResponseDto = createPagedResponseDtoClass({
   description: "Paged especializada list response."
 });
 
-export const EspecializadaErrors = Errors(SimpleErrorDto, [
-  { status: 400, description: "Invalid especializada id." },
-  { status: 404, description: "Especializada not found." }
-]);
+export const EspecializadaErrors = createCrudErrors("especializada");
 
 export const EspecializadaSiglasDto = t.array(t.string(), {
   description: "Lista de siglas de especializadas."
 });
 
-@Dto({ description: "Especializada com apenas id e nome." })
-export class EspecializadaOptionDto {
-  @Field(t.integer())
-  id!: number;
+const EspecializadaOptionDtoClass = createOptionDto(
+  "EspecializadaOptionDto",
+  "Especializada com apenas id e nome."
+);
+export { EspecializadaOptionDtoClass as EspecializadaOptionDto };
+export type EspecializadaOptionDto = InstanceType<typeof EspecializadaOptionDtoClass>;
 
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-export const EspecializadaOptionsDto = t.array(t.ref(EspecializadaOptionDto), {
-  description: "Lista de especializadas com id e nome."
-});
+export const EspecializadaOptionsDto = createOptionsArraySchema(
+  EspecializadaOptionDtoClass,
+  "Lista de especializadas com id e nome."
+);

@@ -1,16 +1,31 @@
 import {
   Dto,
-  Errors,
   Field,
   MergeDto,
-  SimpleErrorDto,
   createMetalCrudDtoClasses,
   createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Acervo } from "../../entities/Acervo";
+import {
+  createCrudErrors,
+  createOptionsArraySchema,
+  createOptionDto,
+  EspecializadaResumoDto,
+  TipoAcervoResumoDto,
+  TipoMigracaoAcervoResumoDto,
+  EquipeResponsavelResumoDto,
+  EquipeApoioResumoDto,
+  TipoDivisaoCargaTrabalhoResumoDto,
+  ProcuradorTitularResumoDto,
+  ClassificacaoResumoDto,
+  TemaResumoDto,
+  type CreateDto,
+  type UpdateDto
+} from "../common";
 
+// ============ CRUD DTOs ============
 const acervoCrud = createMetalCrudDtoClasses(Acervo, {
   response: { description: "Acervo retornado pela API." },
   mutationExclude: ["id"]
@@ -25,96 +40,13 @@ export const {
 } = acervoCrud;
 
 export type AcervoDto = Acervo;
-type AcervoMutationDto = Omit<AcervoDto, "id">;
+type AcervoMutationDto = CreateDto<AcervoDto>;
 export type CreateAcervoDto = AcervoMutationDto;
 export type ReplaceAcervoDto = AcervoMutationDto;
-export type UpdateAcervoDto = Partial<AcervoMutationDto>;
+export type UpdateAcervoDto = UpdateDto<AcervoDto>;
 export type AcervoParamsDto = InstanceType<typeof AcervoParamsDto>;
 
-@Dto({ description: "Resumo da especializada do acervo." })
-export class EspecializadaResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-@Dto({ description: "Resumo do tipo de acervo." })
-export class TipoAcervoResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-@Dto({ description: "Resumo do tipo de migração de acervo." })
-export class TipoMigracaoAcervoResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-@Dto({ description: "Resumo da equipe responsável." })
-export class EquipeResponsavelResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-@Dto({ description: "Resumo da equipe de apoio." })
-export class EquipeApoioResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-
-  @Field(t.optional(t.ref(EspecializadaResumoDto)))
-  especializada?: EspecializadaResumoDto;
-}
-
-@Dto({ description: "Resumo do tipo de divisão de carga de trabalho." })
-export class TipoDivisaoCargaTrabalhoResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-@Dto({ description: "Resumo do procurador titular." })
-export class ProcuradorTitularResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-@Dto({ description: "Resumo de classificação de processos." })
-export class ClassificacaoResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-@Dto({ description: "Resumo de tema relacionado." })
-export class TemaResumoDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
+// ============ Specialized Resumo DTOs (unique to acervo) ============
 @Dto({ description: "Resumo da matéria." })
 export class MateriaResumoDto {
   @Field(t.string({ minLength: 1 }))
@@ -148,7 +80,7 @@ export class DestinatarioResumoDto {
   cargo!: string;
 
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
-  especializada?: EspecializadaResumoDto;
+  especializada?: InstanceType<typeof EspecializadaResumoDto>;
 
   @Field(t.optional(t.boolean()))
   estado_inatividade?: boolean;
@@ -166,25 +98,26 @@ export class RaizCnpjResumoDto {
   nome!: string;
 }
 
+// ============ Relation DTOs ============
 @Dto({ description: "Relacionamentos resumidos do acervo." })
 export class AcervoRelationsDto {
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
-  especializada?: EspecializadaResumoDto;
+  especializada?: InstanceType<typeof EspecializadaResumoDto>;
 
   @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procuradorTitular?: ProcuradorTitularResumoDto;
+  procuradorTitular?: InstanceType<typeof ProcuradorTitularResumoDto>;
 
   @Field(t.optional(t.ref(TipoAcervoResumoDto)))
-  tipoAcervo?: TipoAcervoResumoDto;
+  tipoAcervo?: InstanceType<typeof TipoAcervoResumoDto>;
 
   @Field(t.optional(t.ref(TipoMigracaoAcervoResumoDto)))
-  tipoMigracaoAcervo?: TipoMigracaoAcervoResumoDto;
+  tipoMigracaoAcervo?: InstanceType<typeof TipoMigracaoAcervoResumoDto>;
 
   @Field(t.optional(t.ref(EquipeResponsavelResumoDto)))
-  equipeResponsavel?: EquipeResponsavelResumoDto;
+  equipeResponsavel?: InstanceType<typeof EquipeResponsavelResumoDto>;
 
   @Field(t.optional(t.ref(TipoDivisaoCargaTrabalhoResumoDto)))
-  tipoDivisaoCargaTrabalho?: TipoDivisaoCargaTrabalhoResumoDto;
+  tipoDivisaoCargaTrabalho?: InstanceType<typeof TipoDivisaoCargaTrabalhoResumoDto>;
 }
 
 @MergeDto([AcervoDto, AcervoRelationsDto], {
@@ -196,13 +129,13 @@ export class AcervoWithRelationsDto {}
 @Dto({ description: "Relacionamentos resumidos do acervo para listagem." })
 export class AcervoListRelationsDto {
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
-  especializada?: EspecializadaResumoDto;
+  especializada?: InstanceType<typeof EspecializadaResumoDto>;
 
   @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procuradorTitular?: ProcuradorTitularResumoDto;
+  procuradorTitular?: InstanceType<typeof ProcuradorTitularResumoDto>;
 
   @Field(t.optional(t.ref(TipoAcervoResumoDto)))
-  tipoAcervo?: TipoAcervoResumoDto;
+  tipoAcervo?: InstanceType<typeof TipoAcervoResumoDto>;
 }
 
 @MergeDto([AcervoDto, AcervoListRelationsDto], {
@@ -214,31 +147,31 @@ export class AcervoListItemDto {}
 @Dto({ description: "Detalhes completos do acervo." })
 export class AcervoDetailDto {
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
-  especializada?: EspecializadaResumoDto;
+  especializada?: InstanceType<typeof EspecializadaResumoDto>;
 
   @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procuradorTitular?: ProcuradorTitularResumoDto;
+  procuradorTitular?: InstanceType<typeof ProcuradorTitularResumoDto>;
 
   @Field(t.optional(t.ref(TipoAcervoResumoDto)))
-  tipoAcervo?: TipoAcervoResumoDto;
+  tipoAcervo?: InstanceType<typeof TipoAcervoResumoDto>;
 
   @Field(t.optional(t.ref(TipoMigracaoAcervoResumoDto)))
-  tipoMigracaoAcervo?: TipoMigracaoAcervoResumoDto;
+  tipoMigracaoAcervo?: InstanceType<typeof TipoMigracaoAcervoResumoDto>;
 
   @Field(t.optional(t.ref(EquipeResponsavelResumoDto)))
-  equipeResponsavel?: EquipeResponsavelResumoDto;
+  equipeResponsavel?: InstanceType<typeof EquipeResponsavelResumoDto>;
 
   @Field(t.optional(t.ref(TipoDivisaoCargaTrabalhoResumoDto)))
-  tipoDivisaoCargaTrabalho?: TipoDivisaoCargaTrabalhoResumoDto;
+  tipoDivisaoCargaTrabalho?: InstanceType<typeof TipoDivisaoCargaTrabalhoResumoDto>;
 
   @Field(t.optional(t.boolean()))
   rotina_sob_demanda?: boolean;
 
   @Field(t.optional(t.array(t.ref(EquipeApoioResumoDto))))
-  equipes?: EquipeApoioResumoDto[];
+  equipes?: Array<InstanceType<typeof EquipeApoioResumoDto>>;
 
   @Field(t.array(t.ref(ClassificacaoResumoDto)))
-  classificacoes!: ClassificacaoResumoDto[];
+  classificacoes!: Array<InstanceType<typeof ClassificacaoResumoDto>>;
 
   @Field(t.array(t.ref(TemaComMateriaDto)))
   temasRelacionados!: TemaComMateriaDto[];
@@ -250,6 +183,7 @@ export class AcervoDetailDto {
   raizesCNPJs!: RaizCnpjResumoDto[];
 }
 
+// ============ Query/Response DTOs ============
 export const AcervoQueryDtoClass = createPagedFilterQueryDtoClass({
   name: "AcervoQueryDto",
   filters: {
@@ -275,20 +209,17 @@ export const AcervoPagedResponseDto = createPagedResponseDtoClass({
   description: "Paged acervo list response."
 });
 
-export const AcervoErrors = Errors(SimpleErrorDto, [
-  { status: 400, description: "Invalid acervo id." },
-  { status: 404, description: "Acervo not found." }
-]);
+// ============ Errors & Options ============
+export const AcervoErrors = createCrudErrors("acervo");
 
-@Dto({ description: "Acervo com apenas id e nome." })
-export class AcervoOptionDto {
-  @Field(t.integer())
-  id!: number;
+const AcervoOptionDtoClass = createOptionDto(
+  "AcervoOptionDto",
+  "Acervo com apenas id e nome."
+);
+export { AcervoOptionDtoClass as AcervoOptionDto };
+export type AcervoOptionDto = InstanceType<typeof AcervoOptionDtoClass>;
 
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-}
-
-export const AcervoOptionsDto = t.array(t.ref(AcervoOptionDto), {
-  description: "Lista de acervos com id e nome."
-});
+export const AcervoOptionsDto = createOptionsArraySchema(
+  AcervoOptionDtoClass,
+  "Lista de acervos com id e nome."
+);

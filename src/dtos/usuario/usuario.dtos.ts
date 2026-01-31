@@ -1,15 +1,14 @@
 import {
   Dto,
-  Errors,
   Field,
   MergeDto,
-  SimpleErrorDto,
   createMetalCrudDtoClasses,
   createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Usuario } from "../../entities/Usuario";
+import { createCrudErrors } from "../common";
 
 const usuarioCrud = createMetalCrudDtoClasses(Usuario, {
   response: { description: "Usuário retornado pela API." },
@@ -66,7 +65,4 @@ export const UsuarioPagedResponseDto = createPagedResponseDtoClass({
   description: "Paged usuario list response."
 });
 
-export const UsuarioErrors = Errors(SimpleErrorDto, [
-  { status: 400, description: "Invalid usuario id." },
-  { status: 404, description: "Usuario not found." }
-]);
+export const UsuarioErrors = createCrudErrors("usuario");
