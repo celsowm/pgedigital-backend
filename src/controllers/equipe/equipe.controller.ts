@@ -39,10 +39,11 @@ import { BaseController } from "../../utils/base-controller";
 
 const E = entityRef(Equipe);
 
-type EquipeFilterFields = "nome";
+type EquipeFilterFields = "nome" | "especializada_id";
 
 const EQUIPE_FILTER_MAPPINGS = {
-  nomeContains: { field: "nome", operator: "contains" }
+  nomeContains: { field: "nome", operator: "contains" },
+  especializadaId: { field: "especializada_id", operator: "equals" }
 } satisfies Record<
   string,
   {
