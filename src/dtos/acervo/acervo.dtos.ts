@@ -160,7 +160,7 @@ export class AcervoRelationsDto {
   especializada?: EspecializadaResumoDto;
 
   @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procesadorTitular?: ProcuradorTitularResumoDto;
+  procuradorTitular?: ProcuradorTitularResumoDto;
 
   @Field(t.optional(t.ref(TipoAcervoResumoDto)))
   tipoAcervo?: TipoAcervoResumoDto;
@@ -187,7 +187,7 @@ export class AcervoListRelationsDto {
   especializada?: EspecializadaResumoDto;
 
   @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procesadorTitular?: ProcuradorTitularResumoDto;
+  procuradorTitular?: ProcuradorTitularResumoDto;
 
   @Field(t.optional(t.ref(TipoAcervoResumoDto)))
   tipoAcervo?: TipoAcervoResumoDto;
