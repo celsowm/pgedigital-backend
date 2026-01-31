@@ -15,10 +15,11 @@ import { TipoProcessoAdministrativoController } from "./controllers/tipo-process
 import { errorHandler, queryContextMiddleware } from "./middleware/error-handler";
 import { MateriaController } from "./controllers/materia/materia.controller";
 import { NaturezaIncidenteController } from "./controllers/natureza-incidente/natureza-incidente.controller";
+import { TipoSolicitacaoController } from "./controllers/tipo-solicitacao/tipo-solicitacao.controller";
 
 export async function createApp(): Promise<Express> {
   const app = await createExpressApp({
-    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController],
+    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoSolicitacaoController],
     cors: true,
     openApi: {
       info: {

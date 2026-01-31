@@ -65,9 +65,12 @@ export class NaturezaIncidenteController extends BaseController<NaturezaIncident
   }
 
   @Get("/options")
+  @Query(NaturezaIncidenteQueryDtoClass)
   @Returns(NaturezaIncidenteOptionsDto)
-  async listOptions(): Promise<NaturezaIncidenteOptionDto[]> {
-    return super.listOptions();
+  async listOptions(
+    ctx: RequestContext<unknown, NaturezaIncidenteQueryDto>
+  ): Promise<NaturezaIncidenteOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

@@ -65,9 +65,10 @@ export class TipoAcervoController extends BaseController<TipoAcervo, TipoAcervoF
   }
 
   @Get("/options")
+  @Query(TipoAcervoQueryDtoClass)
   @Returns(TipoAcervoOptionsDto)
-  async listOptions(): Promise<TipoAcervoOptionDto[]> {
-    return super.listOptions();
+  async listOptions(ctx: RequestContext<unknown, TipoAcervoQueryDto>): Promise<TipoAcervoOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

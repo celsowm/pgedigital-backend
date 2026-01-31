@@ -65,9 +65,12 @@ export class ClasseProcessualController extends BaseController<ClasseProcessual,
   }
 
   @Get("/options")
+  @Query(ClasseProcessualQueryDtoClass)
   @Returns(ClasseProcessualOptionsDto)
-  async listOptions(): Promise<ClasseProcessualOptionDto[]> {
-    return super.listOptions();
+  async listOptions(
+    ctx: RequestContext<unknown, ClasseProcessualQueryDto>
+  ): Promise<ClasseProcessualOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

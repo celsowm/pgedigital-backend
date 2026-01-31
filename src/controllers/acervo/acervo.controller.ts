@@ -114,9 +114,10 @@ export class AcervoController extends BaseController<Acervo, AcervoFilterFields>
   }
 
   @Get("/options")
+  @Query(AcervoQueryDtoClass)
   @Returns(AcervoOptionsDto)
-  async listOptions(): Promise<AcervoOptionDto[]> {
-    return super.listOptions();
+  async listOptions(ctx: RequestContext<unknown, AcervoQueryDto>): Promise<AcervoOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

@@ -93,9 +93,10 @@ export class EquipeController extends BaseController<Equipe, EquipeFilterFields>
   }
 
   @Get("/options")
+  @Query(EquipeQueryDtoClass)
   @Returns(EquipeOptionsDto)
-  async listOptions(): Promise<EquipeOptionDto[]> {
-    return super.listOptions();
+  async listOptions(ctx: RequestContext<unknown, EquipeQueryDto>): Promise<EquipeOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

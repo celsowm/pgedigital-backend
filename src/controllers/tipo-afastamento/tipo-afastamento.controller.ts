@@ -65,9 +65,12 @@ export class TipoAfastamentoController extends BaseController<TipoAfastamento, T
   }
 
   @Get("/options")
+  @Query(TipoAfastamentoQueryDtoClass)
   @Returns(TipoAfastamentoOptionsDto)
-  async listOptions(): Promise<TipoAfastamentoOptionDto[]> {
-    return super.listOptions();
+  async listOptions(
+    ctx: RequestContext<unknown, TipoAfastamentoQueryDto>
+  ): Promise<TipoAfastamentoOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

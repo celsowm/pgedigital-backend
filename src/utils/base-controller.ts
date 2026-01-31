@@ -85,14 +85,29 @@ export abstract class BaseController<TEntity, TFilterFields extends keyof TEntit
   /**
    * Generic options endpoint handler (returns id and name only)
    */
-  async listOptions(): Promise<Array<{ id: number; nome: string }>> {
+  async listOptions(
+    ctx?: RequestContext<unknown, any>,
+    queryBuilder?: (qb: any) => any
+  ): Promise<Array<{ id: number; nome: string }>> {
     const labelField = this.optionsLabelField;
     const labelRef = (this.entityRef as any)[labelField];
+    const paginationQuery = (ctx?.query ?? {}) as Record<string, unknown>;
+    const filters = parseFilter<TEntity, TFilterFields>(paginationQuery, this.filterMappings);
+
     return withSession((session) => {
-      return (selectFromEntity(this.entityClass) as any)
+      let query = (selectFromEntity(this.entityClass) as any)
         .select({ id: this.entityRef.id, nome: labelRef })
-        .orderBy(labelRef, "ASC")
-        .executePlain(session);
+        .orderBy(labelRef, "ASC");
+
+      if (queryBuilder) {
+        query = queryBuilder(query);
+      }
+
+      if (filters) {
+        query = applyFilter(query, this.entityClass, filters);
+      }
+
+      return query.executePlain(session);
     });
   }
 

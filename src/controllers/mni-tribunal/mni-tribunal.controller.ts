@@ -71,9 +71,12 @@ export class MniTribunalController extends BaseController<MniTribunal, MniTribun
   }
 
   @Get("/options")
+  @Query(MniTribunalQueryDtoClass)
   @Returns(MniTribunalOptionsDto)
-  async listOptions(): Promise<MniTribunalOptionDto[]> {
-    return super.listOptions();
+  async listOptions(
+    ctx: RequestContext<unknown, MniTribunalQueryDto>
+  ): Promise<MniTribunalOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

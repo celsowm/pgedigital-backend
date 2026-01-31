@@ -65,9 +65,10 @@ export class MateriaController extends BaseController<Materia, MateriaFilterFiel
   }
 
   @Get("/options")
+  @Query(MateriaQueryDtoClass)
   @Returns(MateriaOptionsDto)
-  async listOptions(): Promise<MateriaOptionDto[]> {
-    return super.listOptions();
+  async listOptions(ctx: RequestContext<unknown, MateriaQueryDto>): Promise<MateriaOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")

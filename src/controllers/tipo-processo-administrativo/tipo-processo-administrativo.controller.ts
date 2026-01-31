@@ -1,8 +1,10 @@
-import { Controller, Get, Returns } from "adorn-api";
+import { Controller, Get, Query, Returns, type RequestContext } from "adorn-api";
 import { entityRef } from "metal-orm";
 import { TipoProcessoAdministrativo } from "../../entities/TipoProcessoAdministrativo";
 import {
   TipoProcessoAdministrativoOptionDto,
+  TipoProcessoAdministrativoQueryDto,
+  TipoProcessoAdministrativoQueryDtoClass,
   TipoProcessoAdministrativoOptionsDto
 } from "../../dtos/tipo-processo-administrativo/tipo-processo-administrativo.dtos";
 import { BaseController } from "../../utils/base-controller";
@@ -34,8 +36,11 @@ export class TipoProcessoAdministrativoController extends BaseController<TipoPro
   }
 
   @Get("/options")
+  @Query(TipoProcessoAdministrativoQueryDtoClass)
   @Returns(TipoProcessoAdministrativoOptionsDto)
-  async listOptions(): Promise<TipoProcessoAdministrativoOptionDto[]> {
-    return super.listOptions();
+  async listOptions(
+    ctx: RequestContext<unknown, TipoProcessoAdministrativoQueryDto>
+  ): Promise<TipoProcessoAdministrativoOptionDto[]> {
+    return super.listOptions(ctx);
   }
 }

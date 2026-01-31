@@ -62,6 +62,7 @@ describe("BaseController", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.mockParseFilter.mockReturnValue(undefined);
   });
 
   it("list applies pagination, filters, and returns paged response", async () => {
@@ -78,16 +79,14 @@ describe("BaseController", () => {
     mocks.mockSelectFromEntity.mockReturnValue(query);
     mocks.mockApplyFilter.mockImplementation((input) => input);
     mocks.mockParsePagination.mockReturnValue({ page: 2, pageSize: 10 });
-    mocks.mockParseFilter.mockReturnValue([{ field: "nome", operator: "contains", value: "abc" }]);
+    mocks.mockParseFilter.mockReturnValue({ nome: { contains: "abc" } });
     mocks.mockToPagedResponse.mockReturnValue({ items: [{ id: 1 }], page: 2, pageSize: 10 });
 
     const result = await controller.list({ query: { page: 2, pageSize: 10 } } as any);
 
     expect(mocks.mockSelectFromEntity).toHaveBeenCalledWith(ExampleEntity);
     expect(query.orderBy).toHaveBeenCalledWith(ExampleRef.id, "ASC");
-    expect(mocks.mockApplyFilter).toHaveBeenCalledWith(query, ExampleEntity, [
-      { field: "nome", operator: "contains", value: "abc" }
-    ]);
+    expect(mocks.mockApplyFilter).toHaveBeenCalledWith(query, ExampleEntity, { nome: { contains: "abc" } });
     expect(executePaged).toHaveBeenCalledWith(session, { page: 2, pageSize: 10 });
     expect(result).toEqual({ items: [{ id: 1 }], page: 2, pageSize: 10 });
   });
@@ -108,6 +107,26 @@ describe("BaseController", () => {
     expect(orderBy).toHaveBeenCalledWith(ExampleRef.nome, "ASC");
     expect(executePlain).toHaveBeenCalledWith(session);
     expect(result).toEqual([{ id: 1, nome: "A" }]);
+  });
+
+  it("listOptions applies filters when provided", async () => {
+    const session = { sessionId: "mock" };
+    mocks.mockWithSession.mockImplementation(async (handler: any) => handler(session));
+
+    const executePlain = vi.fn().mockResolvedValue([{ id: 2, nome: "B" }]);
+    const orderBy = vi.fn().mockReturnThis();
+    const select = vi.fn().mockReturnThis();
+    const query = { select, orderBy, executePlain };
+
+    mocks.mockSelectFromEntity.mockReturnValue(query);
+    mocks.mockParseFilter.mockReturnValue({ nome: { contains: "B" } });
+    mocks.mockApplyFilter.mockImplementation((input) => input);
+
+    const result = await controller.listOptions({ query: { nomeContains: "B" } } as any);
+
+    expect(mocks.mockApplyFilter).toHaveBeenCalledWith(query, ExampleEntity, { nome: { contains: "B" } });
+    expect(executePlain).toHaveBeenCalledWith(session);
+    expect(result).toEqual([{ id: 2, nome: "B" }]);
   });
 
   it("delete removes entity and commits", async () => {

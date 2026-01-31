@@ -151,9 +151,10 @@ export class EspecializadaController extends BaseController<Especializada, Espec
   }
 
   @Get("/options")
+  @Query(EspecializadaQueryDtoClass)
   @Returns(EspecializadaOptionsDto)
-  async listOptions(): Promise<EspecializadaOptionDto[]> {
-    return super.listOptions();
+  async listOptions(ctx: RequestContext<unknown, EspecializadaQueryDto>): Promise<EspecializadaOptionDto[]> {
+    return super.listOptions(ctx);
   }
 
   @Get("/:id")
