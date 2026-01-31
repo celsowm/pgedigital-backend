@@ -13,7 +13,7 @@ import {
 import type { CreateDto, UpdateDto } from "../common";
 
 const naturezaIncidenteCrud = createMetalCrudDtoClasses(NaturezaIncidente, {
-  response: { description: "Natureza de incidente retornada pela API." },
+  response: { description: "Natureza do incidente retornada pela API." },
   mutationExclude: ["id"]
 });
 
@@ -49,19 +49,19 @@ export interface NaturezaIncidenteQueryDto {
 export const NaturezaIncidentePagedResponseDto = createPagedResponseDtoClass({
   name: "NaturezaIncidentePagedResponseDto",
   itemDto: NaturezaIncidenteDto,
-  description: "Paged natureza incidente list response."
+  description: "Paged natureza do incidente list response."
 });
 
 export const NaturezaIncidenteErrors = createCrudErrors("natureza incidente");
 
 const NaturezaIncidenteOptionDtoClass = createOptionDto(
   "NaturezaIncidenteOptionDto",
-  "Natureza de incidente com id e nome."
+  "Natureza do incidente com id e nome."
 );
 export { NaturezaIncidenteOptionDtoClass as NaturezaIncidenteOptionDto };
 export type NaturezaIncidenteOptionDto = InstanceType<typeof NaturezaIncidenteOptionDtoClass>;
 
 export const NaturezaIncidenteOptionsDto = createOptionsArraySchema(
   NaturezaIncidenteOptionDtoClass,
-  "Lista de naturezas de incidente com id e nome."
+  "Lista de naturezas do incidente com id e nome."
 );
