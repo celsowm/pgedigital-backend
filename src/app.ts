@@ -16,10 +16,12 @@ import { errorHandler, queryContextMiddleware } from "./middleware/error-handler
 import { MateriaController } from "./controllers/materia.controller";
 import { NaturezaIncidenteController } from "./controllers/natureza-incidente.controller";
 import { TipoDivisaoCargaTrabalhoController } from "./controllers/tipo-divisao-carga-trabalho.controller";
+import { TipoProvidenciaJuridicaController } from "./controllers/tipo-providencia-juridica.controller";
+import { TipoAudienciaController } from "./controllers/tipo-audiencia.controller";
 
 export async function createApp(): Promise<Express> {
   const app = await createExpressApp({
-    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController],
+    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController],
     cors: true,
     openApi: {
       info: {
