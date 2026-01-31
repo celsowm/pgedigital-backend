@@ -67,6 +67,18 @@ export class EquipeResponsavelResumoDto {
   nome!: string;
 }
 
+@Dto({ description: "Resumo da equipe de apoio." })
+export class EquipeApoioResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.string({ minLength: 1 }))
+  nome!: string;
+
+  @Field(t.optional(t.ref(EspecializadaResumoDto)))
+  especializada?: EspecializadaResumoDto;
+}
+
 @Dto({ description: "Resumo do tipo de divisão de carga de trabalho." })
 export class TipoDivisaoCargaTrabalhoResumoDto {
   @Field(t.integer())
@@ -201,6 +213,30 @@ export class AcervoListItemDto {}
 
 @Dto({ description: "Detalhes completos do acervo." })
 export class AcervoDetailDto {
+  @Field(t.optional(t.ref(EspecializadaResumoDto)))
+  especializada?: EspecializadaResumoDto;
+
+  @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
+  procuradorTitular?: ProcuradorTitularResumoDto;
+
+  @Field(t.optional(t.ref(TipoAcervoResumoDto)))
+  tipoAcervo?: TipoAcervoResumoDto;
+
+  @Field(t.optional(t.ref(TipoMigracaoAcervoResumoDto)))
+  tipoMigracaoAcervo?: TipoMigracaoAcervoResumoDto;
+
+  @Field(t.optional(t.ref(EquipeResponsavelResumoDto)))
+  equipeResponsavel?: EquipeResponsavelResumoDto;
+
+  @Field(t.optional(t.ref(TipoDivisaoCargaTrabalhoResumoDto)))
+  tipoDivisaoCargaTrabalho?: TipoDivisaoCargaTrabalhoResumoDto;
+
+  @Field(t.optional(t.boolean()))
+  rotina_sob_demanda?: boolean;
+
+  @Field(t.optional(t.array(t.ref(EquipeApoioResumoDto))))
+  equipes?: EquipeApoioResumoDto[];
+
   @Field(t.array(t.ref(ClassificacaoResumoDto)))
   classificacoes!: ClassificacaoResumoDto[];
 

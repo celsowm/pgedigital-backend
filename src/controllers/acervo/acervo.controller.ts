@@ -68,6 +68,7 @@ async function getAcervoWithRelationsOrThrow(session: OrmSession, id: number): P
 
 async function getAcervoDetailOrThrow(session: OrmSession, id: number): Promise<AcervoDetailDto> {
   const [acervo] = await baseAcervoQuery()
+    .include("equipes", { columns: ["id", "nome"], include: { especializada: { columns: ["id", "nome"] } } })
     .include("classificacoes", { columns: ["id", "nome"] })
     .include("temasRelacionados", { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } })
     .include("destinatarios", {
