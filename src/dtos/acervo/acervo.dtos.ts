@@ -154,25 +154,16 @@ export class RaizCnpjResumoDto {
   nome!: string;
 }
 
-@Dto({ description: "Acervo com dados relacionados resumidos." })
-export class AcervoWithRelationsDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-
+@Dto({ description: "Relacionamentos resumidos do acervo." })
+export class AcervoRelationsDto {
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
   especializada?: EspecializadaResumoDto;
 
   @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procuradorTitular?: ProcuradorTitularResumoDto;
+  procurarTitular?: ProcuradorTitularResumoDto;
 
   @Field(t.optional(t.ref(TipoAcervoResumoDto)))
   tipoAcervo?: TipoAcervoResumoDto;
-
-  @Field(t.boolean())
-  rotina_sob_demanda!: boolean;
 
   @Field(t.optional(t.ref(TipoMigracaoAcervoResumoDto)))
   tipoMigracaoAcervo?: TipoMigracaoAcervoResumoDto;
@@ -182,34 +173,34 @@ export class AcervoWithRelationsDto {
 
   @Field(t.optional(t.ref(TipoDivisaoCargaTrabalhoResumoDto)))
   tipoDivisaoCargaTrabalho?: TipoDivisaoCargaTrabalhoResumoDto;
-
-  @Field(t.integer())
-  ativo!: number;
 }
 
-@Dto({ description: "Acervo com dados relacionados para listagem." })
-export class AcervoListItemDto {
-  @Field(t.integer())
-  id!: number;
+@MergeDto([AcervoDto, AcervoRelationsDto], {
+  name: "AcervoWithRelationsDto",
+  description: "Acervo com dados relacionados resumidos."
+})
+export class AcervoWithRelationsDto {}
 
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-
+@Dto({ description: "Relacionamentos resumidos do acervo para listagem." })
+export class AcervoListRelationsDto {
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
   especializada?: EspecializadaResumoDto;
 
   @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procuradorTitular?: ProcuradorTitularResumoDto;
+  procurarTitular?: ProcuradorTitularResumoDto;
 
   @Field(t.optional(t.ref(TipoAcervoResumoDto)))
   tipoAcervo?: TipoAcervoResumoDto;
-
-  @Field(t.integer())
-  ativo!: number;
 }
 
+@MergeDto([AcervoDto, AcervoListRelationsDto], {
+  name: "AcervoListItemDto",
+  description: "Acervo com dados relacionados para listagem."
+})
+export class AcervoListItemDto {}
+
 @Dto({ description: "Detalhes completos do acervo." })
-export class AcervoDetailDto extends AcervoWithRelationsDto {
+export class AcervoDetailDto {
   @Field(t.array(t.ref(ClassificacaoResumoDto)))
   classificacoes!: ClassificacaoResumoDto[];
 

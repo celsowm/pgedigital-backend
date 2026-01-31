@@ -2,6 +2,7 @@ import {
   Dto,
   Errors,
   Field,
+  MergeDto,
   SimpleErrorDto,
   createMetalCrudDtoClasses,
   createPagedFilterQueryDtoClass,
@@ -40,59 +41,19 @@ export class ResponsavelResumoDto {
 }
 
 /**
- * DTO explícito para Especializada com responsavel.
- * Usado como alternativa ao MergeDto que não estava funcionando corretamente.
+ * DTO para relacionamento com o responsavel da especializada.
  */
-@Dto({ description: "Especializada com responsavel resumido." })
-export class EspecializadaWithResponsavelDto {
-  @Field(t.integer())
-  id!: number;
-
-  @Field(t.optional(t.integer()))
-  equipe_triagem_id?: number;
-
-  @Field(t.integer())
-  responsavel_id!: number;
-
-  @Field(t.string({ minLength: 1 }))
-  nome!: string;
-
-  @Field(t.boolean())
-  usa_pge_digital!: boolean;
-
-  @Field(t.integer())
-  codigo_ad!: number;
-
-  @Field(t.boolean())
-  usa_plantao_audiencia!: boolean;
-
-  @Field(t.optional(t.integer()))
-  tipo_divisao_carga_trabalho_id?: number;
-
-  @Field(t.optional(t.integer()))
-  tipo_localidade_especializada_id?: number;
-
-  @Field(t.optional(t.string()))
-  email?: string;
-
-  @Field(t.boolean())
-  restricao_ponto_focal!: boolean;
-
-  @Field(t.optional(t.string({ maxLength: 10 })))
-  sigla?: string;
-
-  @Field(t.optional(t.integer()))
-  tipo_especializada_id?: number;
-
-  @Field(t.boolean())
-  especializada_triagem!: boolean;
-
-  @Field(t.optional(t.integer()))
-  caixa_entrada_max?: number;
-
+@Dto({ description: "Relacionamento com o responsavel da especializada." })
+export class EspecializadaResponsavelDto {
   @Field(t.optional(t.ref(ResponsavelResumoDto)))
   responsavel?: ResponsavelResumoDto;
 }
+
+@MergeDto([EspecializadaDto, EspecializadaResponsavelDto], {
+  name: "EspecializadaWithResponsavelDto",
+  description: "Especializada com responsavel resumido."
+})
+export class EspecializadaWithResponsavelDto {}
 
 export const EspecializadaQueryDtoClass = createPagedFilterQueryDtoClass({
   name: "EspecializadaQueryDto",
