@@ -1,13 +1,13 @@
 import { Controller, Get, Query, Returns, type RequestContext } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { TipoProcessoAdministrativo } from "../../entities/TipoProcessoAdministrativo";
+import { TipoProcessoAdministrativo } from "../entities/TipoProcessoAdministrativo";
 import {
   TipoProcessoAdministrativoOptionDto,
   TipoProcessoAdministrativoQueryDto,
   TipoProcessoAdministrativoQueryDtoClass,
   TipoProcessoAdministrativoOptionsDto
-} from "../../dtos/tipo-processo-administrativo/tipo-processo-administrativo.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/tipo-processo-administrativo/tipo-processo-administrativo.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const TipoProcessoAdministrativoRef = entityRef(TipoProcessoAdministrativo);
 

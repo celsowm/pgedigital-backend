@@ -24,9 +24,9 @@ import {
   type OrmSession,
   eq
 } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { Especializada } from "../../entities/Especializada";
-import { Usuario } from "../../entities/Usuario";
+import { withSession } from "../db/mssql";
+import { Especializada } from "../entities/Especializada";
+import { Usuario } from "../entities/Usuario";
 import {
   CreateEspecializadaDto,
   EspecializadaErrors,
@@ -40,8 +40,8 @@ import {
   EspecializadaOptionDto,
   ReplaceEspecializadaDto,
   UpdateEspecializadaDto
-} from "../../dtos/especializada/especializada.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/especializada/especializada.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const E = entityRef(Especializada);
 

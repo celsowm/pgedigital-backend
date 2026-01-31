@@ -20,8 +20,8 @@ import {
   type OrmSession,
   eq
 } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { Equipe } from "../../entities/Equipe";
+import { withSession } from "../db/mssql";
+import { Equipe } from "../entities/Equipe";
 import {
   CreateEquipeDto,
   EquipeErrors,
@@ -34,8 +34,8 @@ import {
   EquipeOptionDto,
   ReplaceEquipeDto,
   UpdateEquipeDto
-} from "../../dtos/equipe/equipe.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/equipe/equipe.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const E = entityRef(Equipe);
 

@@ -14,8 +14,8 @@ import {
   type RequestContext
 } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { NaturezaIncidente } from "../../entities/NaturezaIncidente";
+import { withSession } from "../db/mssql";
+import { NaturezaIncidente } from "../entities/NaturezaIncidente";
 import {
   NaturezaIncidenteDto,
   CreateNaturezaIncidenteDto,
@@ -28,8 +28,8 @@ import {
   NaturezaIncidenteErrors,
   NaturezaIncidenteOptionsDto,
   NaturezaIncidenteOptionDto
-} from "../../dtos/natureza-incidente/natureza-incidente.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/natureza-incidente/natureza-incidente.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const NaturezaIncidenteRef = entityRef(NaturezaIncidente);
 

@@ -20,8 +20,8 @@ import {
   type OrmSession,
   eq
 } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { Acervo } from "../../entities/Acervo";
+import { withSession } from "../db/mssql";
+import { Acervo } from "../entities/Acervo";
 import {
   AcervoDetailDto,
   AcervoErrors,
@@ -35,8 +35,8 @@ import {
   CreateAcervoDto,
   ReplaceAcervoDto,
   UpdateAcervoDto
-} from "../../dtos/acervo/acervo.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/acervo/acervo.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const A = entityRef(Acervo);
 

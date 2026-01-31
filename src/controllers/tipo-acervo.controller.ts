@@ -14,8 +14,8 @@ import {
   type RequestContext
 } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { TipoAcervo } from "../../entities/TipoAcervo";
+import { withSession } from "../db/mssql";
+import { TipoAcervo } from "../entities/TipoAcervo";
 import {
   TipoAcervoDto,
   CreateTipoAcervoDto,
@@ -28,8 +28,8 @@ import {
   TipoAcervoErrors,
   TipoAcervoOptionsDto,
   TipoAcervoOptionDto
-} from "../../dtos/tipo-acervo/tipo-acervo.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/tipo-acervo/tipo-acervo.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const TipoAcervoRef = entityRef(TipoAcervo);
 

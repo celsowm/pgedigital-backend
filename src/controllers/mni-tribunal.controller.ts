@@ -14,8 +14,8 @@ import {
   type RequestContext
 } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { MniTribunal } from "../../entities/MniTribunal";
+import { withSession } from "../db/mssql";
+import { MniTribunal } from "../entities/MniTribunal";
 import {
   MniTribunalDto,
   CreateMniTribunalDto,
@@ -28,8 +28,8 @@ import {
   MniTribunalErrors,
   MniTribunalOptionsDto,
   MniTribunalOptionDto
-} from "../../dtos/mni-tribunal/mni-tribunal.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/mni-tribunal/mni-tribunal.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const MniTribunalRef = entityRef(MniTribunal);
 

@@ -1,14 +1,14 @@
 import { Controller, Get, Query, Returns, type RequestContext } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { TipoSolicitacao } from "../../entities/TipoSolicitacao";
+import { TipoSolicitacao } from "../entities/TipoSolicitacao";
 import {
   TipoSolicitacaoOptionDto,
   TipoSolicitacaoOptionsDto,
   TipoSolicitacaoPagedResponseDto,
   TipoSolicitacaoQueryDto,
   TipoSolicitacaoQueryDtoClass
-} from "../../dtos/tipo-solicitacao/tipo-solicitacao.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/tipo-solicitacao/tipo-solicitacao.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const TipoSolicitacaoRef = entityRef(TipoSolicitacao);
 

@@ -19,8 +19,8 @@ import {
   selectFromEntity,
   type OrmSession
 } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { NotaVersao } from "../../entities/NotaVersao";
+import { withSession } from "../db/mssql";
+import { NotaVersao } from "../entities/NotaVersao";
 import {
   CreateNotaVersaoDto,
   NotaVersaoDto,
@@ -31,8 +31,8 @@ import {
   NotaVersaoQueryDtoClass,
   ReplaceNotaVersaoDto,
   UpdateNotaVersaoDto
-} from "../../dtos/nota-versao/nota-versao.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/nota-versao/nota-versao.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const notaVersaoRef = entityRef(NotaVersao);
 

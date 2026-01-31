@@ -13,13 +13,13 @@ import {
   selectFromEntity,
   toPagedResponse
 } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { Usuario } from "../../entities/Usuario";
+import { withSession } from "../db/mssql";
+import { Usuario } from "../entities/Usuario";
 import {
   UsuarioPagedResponseDto,
   UsuarioQueryDto,
   UsuarioQueryDtoClass
-} from "../../dtos/usuario/usuario.dtos";
+} from "../dtos/usuario/usuario.dtos";
 
 const U = entityRef(Usuario);
 

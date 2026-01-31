@@ -14,8 +14,8 @@ import {
   type RequestContext
 } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { TipoAfastamento } from "../../entities/TipoAfastamento";
+import { withSession } from "../db/mssql";
+import { TipoAfastamento } from "../entities/TipoAfastamento";
 import {
   TipoAfastamentoDto,
   CreateTipoAfastamentoDto,
@@ -28,8 +28,8 @@ import {
   TipoAfastamentoErrors,
   TipoAfastamentoOptionsDto,
   TipoAfastamentoOptionDto
-} from "../../dtos/tipo-afastamento/tipo-afastamento.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/tipo-afastamento/tipo-afastamento.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const TipoAfastamentoRef = entityRef(TipoAfastamento);
 

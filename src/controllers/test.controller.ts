@@ -7,8 +7,8 @@ import {
   Returns,
   type RequestContext
 } from "adorn-api";
-import { testMssqlConnection } from "../../db/mssql";
-import { TestDto, CreateTestDto, TestsListDto, TestParamsDto, DbConnectionTestDto } from "../../dtos/test/test.dtos";
+import { testMssqlConnection } from "../db/mssql";
+import { TestDto, CreateTestDto, TestsListDto, TestParamsDto, DbConnectionTestDto } from "../dtos/test/test.dtos";
 
 @Controller("/tests")
 export class TestController {

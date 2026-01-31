@@ -14,8 +14,8 @@ import {
   type RequestContext
 } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { ClasseProcessual } from "../../entities/ClasseProcessual";
+import { withSession } from "../db/mssql";
+import { ClasseProcessual } from "../entities/ClasseProcessual";
 import {
   ClasseProcessualDto,
   CreateClasseProcessualDto,
@@ -28,8 +28,8 @@ import {
   ClasseProcessualErrors,
   ClasseProcessualOptionsDto,
   ClasseProcessualOptionDto
-} from "../../dtos/classe-processual/classe-processual.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/classe-processual/classe-processual.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const ClasseProcessualRef = entityRef(ClasseProcessual);
 

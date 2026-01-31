@@ -14,8 +14,8 @@ import {
   type RequestContext
 } from "adorn-api";
 import { entityRef } from "metal-orm";
-import { withSession } from "../../db/mssql";
-import { Materia } from "../../entities/Materia";
+import { withSession } from "../db/mssql";
+import { Materia } from "../entities/Materia";
 import {
   MateriaDto,
   CreateMateriaDto,
@@ -28,8 +28,8 @@ import {
   MateriaErrors,
   MateriaOptionsDto,
   MateriaOptionDto
-} from "../../dtos/materia/materia.dtos";
-import { BaseController } from "../../utils/base-controller";
+} from "../dtos/materia/materia.dtos";
+import { BaseController } from "../utils/base-controller";
 
 const MateriaRef = entityRef(Materia);
 
