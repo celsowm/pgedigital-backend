@@ -59,6 +59,10 @@ export class MniTribunalController extends BaseController<MniTribunal, MniTribun
     return "MNI Tribunal";
   }
 
+  protected get optionsLabelField(): string {
+    return "descricao";
+  }
+
   @Get("/")
   @Query(MniTribunalQueryDtoClass)
   @Returns(MniTribunalPagedResponseDto)

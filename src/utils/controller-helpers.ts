@@ -64,11 +64,13 @@ export async function deleteEntity(
 export async function listOptions(
   session: OrmSession,
   entityClass: any,
-  entityRef: any
+  entityRef: any,
+  optionsLabelField = "nome"
 ): Promise<Array<{ id: number; nome: string }>> {
+  const labelRef = (entityRef as any)[optionsLabelField];
   const result = await (selectFromEntity(entityClass) as any)
-    .select("id", "nome")
-    .orderBy(entityRef.nome, "ASC")
+    .select({ id: entityRef.id, nome: labelRef })
+    .orderBy(labelRef, "ASC")
     .executePlain(session);
   return result as unknown as Array<{ id: number; nome: string }>;
 }

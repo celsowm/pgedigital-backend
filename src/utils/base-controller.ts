@@ -37,6 +37,13 @@ export abstract class BaseController<TEntity, TFilterFields extends keyof TEntit
   abstract get entityName(): string;
 
   /**
+   * Field used as label for options list
+   */
+  protected get optionsLabelField(): string {
+    return "nome";
+  }
+
+  /**
    * Build the base query with optional customization
    */
   protected buildQuery(queryBuilder?: (qb: any) => any) {
@@ -79,10 +86,12 @@ export abstract class BaseController<TEntity, TFilterFields extends keyof TEntit
    * Generic options endpoint handler (returns id and name only)
    */
   async listOptions(): Promise<Array<{ id: number; nome: string }>> {
+    const labelField = this.optionsLabelField;
+    const labelRef = (this.entityRef as any)[labelField];
     return withSession((session) => {
       return (selectFromEntity(this.entityClass) as any)
-        .select("id", "nome")
-        .orderBy(this.entityRef.nome, "ASC")
+        .select({ id: this.entityRef.id, nome: labelRef })
+        .orderBy(labelRef, "ASC")
         .executePlain(session);
     });
   }
