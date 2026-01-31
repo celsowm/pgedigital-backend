@@ -1,3 +1,4 @@
+import "./polyfills";
 import { createExpressApp } from "adorn-api";
 import type { Express } from "express";
 import { AcervoController } from "./controllers/acervo/acervo.controller";
