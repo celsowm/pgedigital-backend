@@ -7,11 +7,12 @@ import { TestController } from "./controllers/test/test.controller";
 import { UsuarioController } from "./controllers/usuario/usuario.controller";
 import { EquipeController } from "./controllers/equipe/equipe.controller";
 import { TipoAcervoController } from "./controllers/tipo-acervo/tipo-acervo.controller";
+import { TipoAfastamentoController } from "./controllers/tipo-afastamento/tipo-afastamento.controller";
 import { errorHandler, queryContextMiddleware } from "./middleware/error-handler";
 
 export async function createApp(): Promise<Express> {
   const app = await createExpressApp({
-    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController],
+    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController],
     cors: true,
     openApi: {
       info: {
