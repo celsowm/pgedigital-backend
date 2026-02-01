@@ -1,36 +1,28 @@
-import { entityRef, eq, isNotNull, selectFromEntity, type OrmSession } from "metal-orm";
+import { eq, isNotNull, selectFromEntity, type OrmSession } from "metal-orm";
 import { Especializada } from "../entities/Especializada";
-
-const E = entityRef(Especializada);
+import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type EspecializadaFilterFields = "nome" | "sigla";
 
-export const ESPECIALIZADA_FILTER_MAPPINGS = {
+export const ESPECIALIZADA_FILTER_MAPPINGS = createFilterMappings<EspecializadaFilterFields>({
   nomeContains: { field: "nome", operator: "contains" },
   siglaContains: { field: "sigla", operator: "contains" }
-} satisfies Record<string, { field: EspecializadaFilterFields; operator: "equals" | "contains" }>;
+});
 
 export type ResponsavelFilterFields = "nome";
 
-export const RESPONSAVEL_FILTER_MAPPINGS = {
+export const RESPONSAVEL_FILTER_MAPPINGS = createFilterMappings<ResponsavelFilterFields>({
   responsavelNomeContains: { field: "nome", operator: "contains" }
-} satisfies Record<string, { field: ResponsavelFilterFields; operator: "equals" | "contains" }>;
+});
 
-export class EspecializadaRepository {
+export class EspecializadaRepository extends BaseRepository<Especializada> {
   readonly entityClass = Especializada;
-  readonly entityRef: any = E;
 
-  buildListQuery(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  override buildListQuery(): any {
     return selectFromEntity(Especializada)
       .includePick("responsavel", ["id", "nome"])
       .orderBy(this.entityRef.id, "ASC");
-  }
-
-  buildOptionsQuery(labelField = "nome"): any {
-    const labelRef = (this.entityRef as any)[labelField];
-    return (selectFromEntity(this.entityClass) as any)
-      .select({ id: this.entityRef.id, nome: labelRef })
-      .orderBy(labelRef, "ASC");
   }
 
   async getWithResponsavel(session: OrmSession, id: number): Promise<Especializada | null> {
@@ -48,9 +40,4 @@ export class EspecializadaRepository {
       .orderBy(this.entityRef.sigla, "ASC")
       .pluck("sigla", session);
   }
-
-  async findById(session: OrmSession, id: number): Promise<Especializada | null> {
-    return session.find(this.entityClass, id);
-  }
 }
-

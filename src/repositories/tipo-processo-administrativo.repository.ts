@@ -1,23 +1,12 @@
-import { entityRef, selectFromEntity } from "metal-orm";
 import { TipoProcessoAdministrativo } from "../entities/TipoProcessoAdministrativo";
-
-const T = entityRef(TipoProcessoAdministrativo);
+import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type TipoProcessoAdministrativoFilterFields = "nome";
 
-export const TIPO_PROCESSO_ADMINISTRATIVO_FILTER_MAPPINGS = {
+export const TIPO_PROCESSO_ADMINISTRATIVO_FILTER_MAPPINGS = createFilterMappings<TipoProcessoAdministrativoFilterFields>({
   nomeContains: { field: "nome", operator: "contains" }
-} satisfies Record<string, { field: TipoProcessoAdministrativoFilterFields; operator: "equals" | "contains" }>;
+});
 
-export class TipoProcessoAdministrativoRepository {
+export class TipoProcessoAdministrativoRepository extends BaseRepository<TipoProcessoAdministrativo> {
   readonly entityClass = TipoProcessoAdministrativo;
-  readonly entityRef: any = T;
-
-  buildOptionsQuery(labelField = "nome"): any {
-    const labelRef = (this.entityRef as any)[labelField];
-    return (selectFromEntity(this.entityClass) as any)
-      .select({ id: this.entityRef.id, nome: labelRef })
-      .orderBy(labelRef, "ASC");
-  }
 }
-

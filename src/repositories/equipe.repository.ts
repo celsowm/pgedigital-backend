@@ -1,30 +1,22 @@
-import { entityRef, eq, selectFromEntity, type OrmSession } from "metal-orm";
+import { eq, selectFromEntity, type OrmSession } from "metal-orm";
 import { Equipe } from "../entities/Equipe";
-
-const E = entityRef(Equipe);
+import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type EquipeFilterFields = "nome" | "especializada_id";
 
-export const EQUIPE_FILTER_MAPPINGS = {
+export const EQUIPE_FILTER_MAPPINGS = createFilterMappings<EquipeFilterFields>({
   nomeContains: { field: "nome", operator: "contains" },
   especializadaId: { field: "especializada_id", operator: "equals" }
-} satisfies Record<string, { field: EquipeFilterFields; operator: "equals" | "contains" }>;
+});
 
-export class EquipeRepository {
+export class EquipeRepository extends BaseRepository<Equipe> {
   readonly entityClass = Equipe;
-  readonly entityRef: any = E;
 
-  buildListQuery(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  override buildListQuery(): any {
     return selectFromEntity(Equipe)
       .includePick("especializada", ["id", "nome"])
       .orderBy(this.entityRef.id, "ASC");
-  }
-
-  buildOptionsQuery(labelField = "nome"): any {
-    const labelRef = (this.entityRef as any)[labelField];
-    return (selectFromEntity(this.entityClass) as any)
-      .select({ id: this.entityRef.id, nome: labelRef })
-      .orderBy(labelRef, "ASC");
   }
 
   async getWithEspecializada(session: OrmSession, id: number): Promise<Equipe | null> {
@@ -34,9 +26,4 @@ export class EquipeRepository {
       .execute(session);
     return equipe ?? null;
   }
-
-  async findById(session: OrmSession, id: number): Promise<Equipe | null> {
-    return session.find(this.entityClass, id);
-  }
 }
-

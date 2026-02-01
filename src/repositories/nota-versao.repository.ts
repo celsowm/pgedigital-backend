@@ -1,26 +1,14 @@
-import { entityRef, selectFromEntity, type OrmSession } from "metal-orm";
 import { NotaVersao } from "../entities/NotaVersao";
-
-const N = entityRef(NotaVersao);
+import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type NotaVersaoFilterFields = "sprint" | "ativo" | "mensagem";
 
-export const NOTA_VERSAO_FILTER_MAPPINGS = {
+export const NOTA_VERSAO_FILTER_MAPPINGS = createFilterMappings<NotaVersaoFilterFields>({
   sprint: { field: "sprint", operator: "equals" },
   ativo: { field: "ativo", operator: "equals" },
   mensagemContains: { field: "mensagem", operator: "contains" }
-} satisfies Record<string, { field: NotaVersaoFilterFields; operator: "equals" | "contains" }>;
+});
 
-export class NotaVersaoRepository {
+export class NotaVersaoRepository extends BaseRepository<NotaVersao> {
   readonly entityClass = NotaVersao;
-  readonly entityRef: any = N;
-
-  buildListQuery(): any {
-    return selectFromEntity(NotaVersao).orderBy(this.entityRef.id, "ASC");
-  }
-
-  async findById(session: OrmSession, id: number): Promise<NotaVersao | null> {
-    return session.find(this.entityClass, id);
-  }
 }
-

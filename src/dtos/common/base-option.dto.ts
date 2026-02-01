@@ -16,8 +16,8 @@ export class IdNomeOptionDto {
 /**
  * Creates a typed array schema for options list
  */
-export function createOptionsArraySchema(
-  optionDto: any,
+export function createOptionsArraySchema<T extends new () => object>(
+  optionDto: T,
   description: string
 ) {
   return t.array(t.ref(optionDto), { description });

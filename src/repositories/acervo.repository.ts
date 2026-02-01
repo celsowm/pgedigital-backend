@@ -1,37 +1,30 @@
-import { entityRef, eq, selectFromEntity, type OrmSession } from "metal-orm";
+import { eq, selectFromEntity, type OrmSession } from "metal-orm";
 import { Acervo } from "../entities/Acervo";
 import type { AcervoDetailDto, AcervoWithRelationsDto } from "../dtos/acervo/acervo.dtos";
-
-const A = entityRef(Acervo);
+import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type AcervoFilterFields = "nome" | "especializada_id" | "tipo_acervo_id" | "ativo";
 
-export const ACERVO_FILTER_MAPPINGS = {
+export const ACERVO_FILTER_MAPPINGS = createFilterMappings<AcervoFilterFields>({
   nomeContains: { field: "nome", operator: "contains" },
   especializadaId: { field: "especializada_id", operator: "equals" },
   tipoAcervoId: { field: "tipo_acervo_id", operator: "equals" },
   ativo: { field: "ativo", operator: "equals" }
-} satisfies Record<string, { field: AcervoFilterFields; operator: "equals" | "contains" }>;
+});
 
-export class AcervoRepository {
+export class AcervoRepository extends BaseRepository<Acervo> {
   readonly entityClass = Acervo;
-  readonly entityRef: any = A;
 
-  buildListQuery(): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  override buildListQuery(): any {
     return selectFromEntity(Acervo)
       .includePick("especializada", ["id", "nome"])
       .includePick("procuradorTitular", ["id", "nome"])
       .includePick("tipoAcervo", ["id", "nome"])
-      .orderBy(A.id, "ASC");
+      .orderBy(this.entityRef.id, "ASC");
   }
 
-  buildOptionsQuery(labelField = "nome"): any {
-    const labelRef = (this.entityRef as any)[labelField];
-    return (selectFromEntity(this.entityClass) as any)
-      .select({ id: this.entityRef.id, nome: labelRef })
-      .orderBy(labelRef, "ASC");
-  }
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildBaseRelationsQuery(): any {
     return selectFromEntity(Acervo)
       .includePick("especializada", ["id", "nome"])
@@ -42,6 +35,7 @@ export class AcervoRepository {
       .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"]);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildDetailQuery(): any {
     return this.buildBaseRelationsQuery()
       .include("equipes", { columns: ["id", "nome"], include: { especializada: { columns: ["id", "nome"] } } })
@@ -67,9 +61,4 @@ export class AcervoRepository {
       .execute(session);
     return (acervo ?? null) as AcervoDetailDto | null;
   }
-
-  async findById(session: OrmSession, id: number): Promise<Acervo | null> {
-    return session.find(this.entityClass, id);
-  }
 }
-

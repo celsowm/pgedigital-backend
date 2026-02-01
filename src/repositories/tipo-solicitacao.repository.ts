@@ -1,28 +1,13 @@
-import { entityRef, selectFromEntity } from "metal-orm";
 import { TipoSolicitacao } from "../entities/TipoSolicitacao";
-
-const T = entityRef(TipoSolicitacao);
+import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type TipoSolicitacaoFilterFields = "nome" | "solicitacao_externa";
 
-export const TIPO_SOLICITACAO_FILTER_MAPPINGS = {
+export const TIPO_SOLICITACAO_FILTER_MAPPINGS = createFilterMappings<TipoSolicitacaoFilterFields>({
   nomeContains: { field: "nome", operator: "contains" },
   solicitacaoExterna: { field: "solicitacao_externa", operator: "equals" }
-} satisfies Record<string, { field: TipoSolicitacaoFilterFields; operator: "equals" | "contains" }>;
+});
 
-export class TipoSolicitacaoRepository {
+export class TipoSolicitacaoRepository extends BaseRepository<TipoSolicitacao> {
   readonly entityClass = TipoSolicitacao;
-  readonly entityRef: any = T;
-
-  buildListQuery(): any {
-    return selectFromEntity(TipoSolicitacao).orderBy(this.entityRef.id, "ASC");
-  }
-
-  buildOptionsQuery(labelField = "nome"): any {
-    const labelRef = (this.entityRef as any)[labelField];
-    return (selectFromEntity(this.entityClass) as any)
-      .select({ id: this.entityRef.id, nome: labelRef })
-      .orderBy(labelRef, "ASC");
-  }
 }
-

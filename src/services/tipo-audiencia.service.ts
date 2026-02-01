@@ -47,7 +47,7 @@ export class TipoAudienciaService {
       if (filters) {
         optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
       }
-      return optionsQuery.executePlain(session);
+      return optionsQuery.executePlain(session) as Promise<TipoAudienciaOptionDto[]>;
     });
   }
 }
