@@ -9,13 +9,9 @@ import {
   Put,
   Query,
   Returns,
-  applyInput,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
-import { entityRef } from "metal-orm";
-import { withSession } from "../db/mssql";
-import { TipoAcervo } from "../entities/TipoAcervo";
 import {
   TipoAcervoDto,
   CreateTipoAcervoDto,
@@ -29,46 +25,24 @@ import {
   TipoAcervoOptionsDto,
   TipoAcervoOptionDto
 } from "../dtos/tipo-acervo/tipo-acervo.dtos";
-import { BaseController } from "../utils/base-controller";
-
-const TipoAcervoRef = entityRef(TipoAcervo);
-
-type TipoAcervoFilterFields = "nome";
-
-const TIPO_ACERVO_FILTER_MAPPINGS = {
-  nomeContains: { field: "nome", operator: "contains" }
-} satisfies Record<string, { field: TipoAcervoFilterFields; operator: "equals" | "contains" }>;
+import { TipoAcervoService } from "../services/tipo-acervo.service";
 
 @Controller("/tipo-acervo")
-export class TipoAcervoController extends BaseController<TipoAcervo, TipoAcervoFilterFields> {
-  get entityClass() {
-    return TipoAcervo;
-  }
-
-  get entityRef(): any {
-    return TipoAcervoRef;
-  }
-
-  get filterMappings(): Record<string, { field: TipoAcervoFilterFields; operator: "equals" | "contains" }> {
-    return TIPO_ACERVO_FILTER_MAPPINGS;
-  }
-
-  get entityName() {
-    return "tipo acervo";
-  }
+export class TipoAcervoController {
+  private readonly service = new TipoAcervoService();
 
   @Get("/")
   @Query(TipoAcervoQueryDtoClass)
   @Returns(TipoAcervoPagedResponseDto)
   async list(ctx: RequestContext<unknown, TipoAcervoQueryDto>): Promise<unknown> {
-    return super.list(ctx);
+    return this.service.list(ctx.query ?? {});
   }
 
   @Get("/options")
   @Query(TipoAcervoQueryDtoClass)
   @Returns(TipoAcervoOptionsDto)
   async listOptions(ctx: RequestContext<unknown, TipoAcervoQueryDto>): Promise<TipoAcervoOptionDto[]> {
-    return super.listOptions(ctx);
+    return this.service.listOptions(ctx.query ?? {});
   }
 
   @Get("/:id")
@@ -76,24 +50,15 @@ export class TipoAcervoController extends BaseController<TipoAcervo, TipoAcervoF
   @Returns(TipoAcervoDto)
   @TipoAcervoErrors
   async getOne(ctx: RequestContext<unknown, undefined, TipoAcervoParamsDto>): Promise<TipoAcervoDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
-      const tipoAcervo = await super.getEntityOrThrow(session, id);
-      return tipoAcervo as TipoAcervoDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateTipoAcervoDto)
   @Returns({ status: 201, schema: TipoAcervoDto })
   async create(ctx: RequestContext<CreateTipoAcervoDto>): Promise<TipoAcervoDto> {
-    return withSession(async (session) => {
-      const tipoAcervo = new TipoAcervo();
-      applyInput(tipoAcervo, ctx.body as Partial<TipoAcervo>, { partial: false });
-      await session.persist(tipoAcervo);
-      await session.commit();
-      return tipoAcervo as TipoAcervoDto;
-    });
+    return this.service.create(ctx.body as CreateTipoAcervoDto);
   }
 
   @Put("/:id")
@@ -104,13 +69,8 @@ export class TipoAcervoController extends BaseController<TipoAcervo, TipoAcervoF
   async replace(
     ctx: RequestContext<ReplaceTipoAcervoDto, undefined, TipoAcervoParamsDto>
   ): Promise<TipoAcervoDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
-      const tipoAcervo = await super.getEntityOrThrow(session, id);
-      applyInput(tipoAcervo, ctx.body as Partial<TipoAcervo>, { partial: false });
-      await session.commit();
-      return tipoAcervo as TipoAcervoDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
+    return this.service.replace(id, ctx.body as ReplaceTipoAcervoDto);
   }
 
   @Patch("/:id")
@@ -121,13 +81,8 @@ export class TipoAcervoController extends BaseController<TipoAcervo, TipoAcervoF
   async update(
     ctx: RequestContext<UpdateTipoAcervoDto, undefined, TipoAcervoParamsDto>
   ): Promise<TipoAcervoDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
-      const tipoAcervo = await super.getEntityOrThrow(session, id);
-      applyInput(tipoAcervo, ctx.body as Partial<TipoAcervo>, { partial: true });
-      await session.commit();
-      return tipoAcervo as TipoAcervoDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
+    return this.service.update(id, ctx.body as UpdateTipoAcervoDto);
   }
 
   @Delete("/:id")
@@ -135,9 +90,7 @@ export class TipoAcervoController extends BaseController<TipoAcervo, TipoAcervoF
   @Returns({ status: 204 })
   @TipoAcervoErrors
   async remove(ctx: RequestContext<unknown, undefined, TipoAcervoParamsDto>): Promise<void> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
-      await super.delete(session, id);
-    });
+    const id = parseIdOrThrow(ctx.params.id, "tipo acervo");
+    await this.service.remove(id);
   }
 }

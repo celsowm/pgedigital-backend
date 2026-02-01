@@ -3,24 +3,15 @@ import {
   Controller,
   Delete,
   Get,
-  HttpError,
   Params,
   Patch,
   Post,
   Put,
   Query,
   Returns,
-  applyInput,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
-import {
-  entityRef,
-  selectFromEntity,
-  type OrmSession
-} from "metal-orm";
-import { withSession } from "../db/mssql";
-import { NotaVersao } from "../entities/NotaVersao";
 import {
   CreateNotaVersaoDto,
   NotaVersaoDto,
@@ -32,46 +23,17 @@ import {
   ReplaceNotaVersaoDto,
   UpdateNotaVersaoDto
 } from "../dtos/nota-versao/nota-versao.dtos";
-import { BaseController } from "../utils/base-controller";
-
-const notaVersaoRef = entityRef(NotaVersao);
-
-type NotaVersaoFilterFields = "sprint" | "ativo" | "mensagem";
-
-const NOTA_VERSAO_FILTER_MAPPINGS = {
-  sprint: { field: "sprint", operator: "equals" },
-  ativo: { field: "ativo", operator: "equals" },
-  mensagemContains: { field: "mensagem", operator: "contains" }
-} satisfies Record<
-  string,
-  {
-    field: NotaVersaoFilterFields;
-    operator: "equals" | "contains";
-  }
->;
+import { NotaVersaoService } from "../services/nota-versao.service";
 
 @Controller("/nota-versao")
-export class NotaVersaoController extends BaseController<NotaVersao, NotaVersaoFilterFields> {
-  get entityClass() {
-    return NotaVersao;
-  }
+export class NotaVersaoController {
+  private readonly service = new NotaVersaoService();
 
-  get entityRef(): any {
-    return notaVersaoRef;
-  }
-
-  get filterMappings(): Record<string, { field: NotaVersaoFilterFields; operator: "equals" | "contains" }> {
-    return NOTA_VERSAO_FILTER_MAPPINGS;
-  }
-
-  get entityName() {
-    return "nota versao";
-  }
   @Get("/")
   @Query(NotaVersaoQueryDtoClass)
   @Returns(NotaVersaoPagedResponseDto)
   async list(ctx: RequestContext<unknown, NotaVersaoQueryDto>): Promise<unknown> {
-    return super.list(ctx);
+    return this.service.list(ctx.query ?? {});
   }
 
   @Get("/:id")
@@ -79,24 +41,15 @@ export class NotaVersaoController extends BaseController<NotaVersao, NotaVersaoF
   @Returns(NotaVersaoDto)
   @NotaVersaoErrors
   async getOne(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>): Promise<NotaVersaoDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      const notaVersao = await super.getEntityOrThrow(session, id);
-      return notaVersao as NotaVersaoDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "nota versao");
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateNotaVersaoDto)
   @Returns({ status: 201, schema: NotaVersaoDto })
   async create(ctx: RequestContext<CreateNotaVersaoDto>): Promise<NotaVersaoDto> {
-    return withSession(async (session) => {
-      const notaVersao = new NotaVersao();
-      applyInput(notaVersao, ctx.body as Partial<NotaVersao>, { partial: false });
-      await session.persist(notaVersao);
-      await session.commit();
-      return notaVersao as NotaVersaoDto;
-    });
+    return this.service.create(ctx.body as CreateNotaVersaoDto);
   }
 
   @Put("/:id")
@@ -107,13 +60,8 @@ export class NotaVersaoController extends BaseController<NotaVersao, NotaVersaoF
   async replace(
     ctx: RequestContext<ReplaceNotaVersaoDto, undefined, NotaVersaoParamsDto>
   ): Promise<NotaVersaoDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      const notaVersao = await super.getEntityOrThrow(session, id);
-      applyInput(notaVersao, ctx.body as Partial<NotaVersao>, { partial: false });
-      await session.commit();
-      return notaVersao as NotaVersaoDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "nota versao");
+    return this.service.replace(id, ctx.body as ReplaceNotaVersaoDto);
   }
 
   @Patch("/:id")
@@ -124,13 +72,8 @@ export class NotaVersaoController extends BaseController<NotaVersao, NotaVersaoF
   async update(
     ctx: RequestContext<UpdateNotaVersaoDto, undefined, NotaVersaoParamsDto>
   ): Promise<NotaVersaoDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      const notaVersao = await super.getEntityOrThrow(session, id);
-      applyInput(notaVersao, ctx.body as Partial<NotaVersao>, { partial: true });
-      await session.commit();
-      return notaVersao as NotaVersaoDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "nota versao");
+    return this.service.update(id, ctx.body as UpdateNotaVersaoDto);
   }
 
   @Delete("/:id")
@@ -138,9 +81,7 @@ export class NotaVersaoController extends BaseController<NotaVersao, NotaVersaoF
   @Returns({ status: 204 })
   @NotaVersaoErrors
   async remove(ctx: RequestContext<unknown, undefined, NotaVersaoParamsDto>): Promise<void> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "nota versao");
-      await super.delete(session, id);
-    });
+    const id = parseIdOrThrow(ctx.params.id, "nota versao");
+    await this.service.remove(id);
   }
 }

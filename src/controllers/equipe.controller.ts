@@ -3,25 +3,15 @@ import {
   Controller,
   Delete,
   Get,
-  HttpError,
   Params,
   Patch,
   Post,
   Put,
   Query,
   Returns,
-  applyInput,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
-import {
-  entityRef,
-  selectFromEntity,
-  type OrmSession,
-  eq
-} from "metal-orm";
-import { withSession } from "../db/mssql";
-import { Equipe } from "../entities/Equipe";
 import {
   CreateEquipeDto,
   EquipeErrors,
@@ -35,68 +25,24 @@ import {
   ReplaceEquipeDto,
   UpdateEquipeDto
 } from "../dtos/equipe/equipe.dtos";
-import { BaseController } from "../utils/base-controller";
-
-const E = entityRef(Equipe);
-
-type EquipeFilterFields = "nome" | "especializada_id";
-
-const EQUIPE_FILTER_MAPPINGS = {
-  nomeContains: { field: "nome", operator: "contains" },
-  especializadaId: { field: "especializada_id", operator: "equals" }
-} satisfies Record<
-  string,
-  {
-    field: EquipeFilterFields;
-    operator: "equals" | "contains";
-  }
->;
-
-async function getEquipeWithEspecializadaOrThrow(
-  session: OrmSession,
-  id: number
-): Promise<Equipe> {
-  const query = selectFromEntity(Equipe)
-    .includePick("especializada", ["id", "nome"])
-    .where(eq(E.id, id));
-  const [equipe] = await query.execute(session);
-  if (!equipe) {
-    throw new HttpError(404, "Equipe not found.");
-  }
-  return equipe;
-}
+import { EquipeService } from "../services/equipe.service";
 
 @Controller("/equipe")
-export class EquipeController extends BaseController<Equipe, EquipeFilterFields> {
-  get entityClass() {
-    return Equipe;
-  }
+export class EquipeController {
+  private readonly service = new EquipeService();
 
-  get entityRef(): any {
-    return E;
-  }
-
-  get filterMappings(): Record<string, { field: EquipeFilterFields; operator: "equals" | "contains" }> {
-    return EQUIPE_FILTER_MAPPINGS;
-  }
-
-  get entityName() {
-    return "equipe";
-  }
   @Get("/")
   @Query(EquipeQueryDtoClass)
   @Returns(EquipePagedResponseDto)
   async list(ctx: RequestContext<unknown, EquipeQueryDto>): Promise<unknown> {
-    return super.list(ctx, (query) =>
-      query.includePick("especializada", ["id", "nome"])
-    );
+    return this.service.list(ctx.query ?? {});
   }
 
   @Get("/options")
   @Query(EquipeQueryDtoClass)
   @Returns(EquipeOptionsDto)
   async listOptions(ctx: RequestContext<unknown, EquipeQueryDto>): Promise<EquipeOptionDto[]> {
-    return super.listOptions(ctx);
+    return this.service.listOptions(ctx.query ?? {});
   }
 
   @Get("/:id")
@@ -106,30 +52,15 @@ export class EquipeController extends BaseController<Equipe, EquipeFilterFields>
   async getOne(
     ctx: RequestContext<unknown, undefined, EquipeParamsDto>
   ): Promise<EquipeWithEspecializadaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await getEquipeWithEspecializadaOrThrow(
-        session,
-        id
-      );
-      return equipe as EquipeWithEspecializadaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "equipe");
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateEquipeDto)
   @Returns({ status: 201, schema: EquipeWithEspecializadaDto })
   async create(ctx: RequestContext<CreateEquipeDto>): Promise<EquipeWithEspecializadaDto> {
-    return withSession(async (session) => {
-      const equipe = new Equipe();
-      applyInput(equipe, ctx.body as Partial<Equipe>, { partial: false });
-      await session.persist(equipe);
-      await session.commit();
-      return (await getEquipeWithEspecializadaOrThrow(
-        session,
-        equipe.id
-      )) as EquipeWithEspecializadaDto;
-    });
+    return this.service.create(ctx.body as CreateEquipeDto);
   }
 
   @Put("/:id")
@@ -144,16 +75,8 @@ export class EquipeController extends BaseController<Equipe, EquipeFilterFields>
       EquipeParamsDto
     >
   ): Promise<EquipeWithEspecializadaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await super.getEntityOrThrow(session, id);
-      applyInput(equipe, ctx.body as Partial<Equipe>, { partial: false });
-      await session.commit();
-      return (await getEquipeWithEspecializadaOrThrow(
-        session,
-        id
-      )) as EquipeWithEspecializadaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "equipe");
+    return this.service.replace(id, ctx.body as ReplaceEquipeDto);
   }
 
   @Patch("/:id")
@@ -164,16 +87,8 @@ export class EquipeController extends BaseController<Equipe, EquipeFilterFields>
   async update(
     ctx: RequestContext<UpdateEquipeDto, undefined, EquipeParamsDto>
   ): Promise<EquipeWithEspecializadaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "equipe");
-      const equipe = await super.getEntityOrThrow(session, id);
-      applyInput(equipe, ctx.body as Partial<Equipe>, { partial: true });
-      await session.commit();
-      return (await getEquipeWithEspecializadaOrThrow(
-        session,
-        id
-      )) as EquipeWithEspecializadaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "equipe");
+    return this.service.update(id, ctx.body as UpdateEquipeDto);
   }
 
   @Delete("/:id")
@@ -181,9 +96,7 @@ export class EquipeController extends BaseController<Equipe, EquipeFilterFields>
   @Returns({ status: 204 })
   @EquipeErrors
   async remove(ctx: RequestContext<unknown, undefined, EquipeParamsDto>): Promise<void> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "equipe");
-      await super.delete(session, id);
-    });
+    const id = parseIdOrThrow(ctx.params.id, "equipe");
+    await this.service.remove(id);
   }
 }

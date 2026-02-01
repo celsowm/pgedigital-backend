@@ -9,13 +9,9 @@ import {
   Put,
   Query,
   Returns,
-  applyInput,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
-import { entityRef } from "metal-orm";
-import { withSession } from "../db/mssql";
-import { FilaCircular } from "../entities/FilaCircular";
 import {
   FilaCircularDto,
   CreateFilaCircularDto,
@@ -29,48 +25,24 @@ import {
   FilaCircularOptionsDto,
   FilaCircularOptionDto
 } from "../dtos/fila-circular/fila-circular.dtos";
-import { BaseController } from "../utils/base-controller";
-
-const FilaCircularRef = entityRef(FilaCircular);
-
-type FilaCircularFilterFields = never;
-
-const FILA_CIRCULAR_FILTER_MAPPINGS = {} satisfies Record<string, { field: FilaCircularFilterFields; operator: "equals" | "contains" }>;
+import { FilaCircularService } from "../services/fila-circular.service";
 
 @Controller("/fila-circular")
-export class FilaCircularController extends BaseController<FilaCircular, FilaCircularFilterFields> {
-  get entityClass() {
-    return FilaCircular;
-  }
-
-  get entityRef(): any {
-    return FilaCircularRef;
-  }
-
-  get filterMappings(): Record<string, { field: FilaCircularFilterFields; operator: "equals" | "contains" }> {
-    return FILA_CIRCULAR_FILTER_MAPPINGS;
-  }
-
-  get entityName() {
-    return "fila circular";
-  }
-
-  protected get optionsLabelField(): string {
-    return "ultimo_elemento";
-  }
+export class FilaCircularController {
+  private readonly service = new FilaCircularService();
 
   @Get("/")
   @Query(FilaCircularQueryDtoClass)
   @Returns(FilaCircularPagedResponseDto)
   async list(ctx: RequestContext<unknown, FilaCircularQueryDto>): Promise<unknown> {
-    return super.list(ctx);
+    return this.service.list(ctx.query ?? {});
   }
 
   @Get("/options")
   @Query(FilaCircularQueryDtoClass)
   @Returns(FilaCircularOptionsDto)
   async listOptions(ctx: RequestContext<unknown, FilaCircularQueryDto>): Promise<FilaCircularOptionDto[]> {
-    return super.listOptions(ctx);
+    return this.service.listOptions(ctx.query ?? {});
   }
 
   @Get("/:id")
@@ -78,24 +50,15 @@ export class FilaCircularController extends BaseController<FilaCircular, FilaCir
   @Returns(FilaCircularDto)
   @FilaCircularErrors
   async getOne(ctx: RequestContext<unknown, undefined, FilaCircularParamsDto>): Promise<FilaCircularDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "fila circular");
-      const filaCircular = await super.getEntityOrThrow(session, id);
-      return filaCircular as FilaCircularDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "fila circular");
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateFilaCircularDto)
   @Returns({ status: 201, schema: FilaCircularDto })
   async create(ctx: RequestContext<CreateFilaCircularDto>): Promise<FilaCircularDto> {
-    return withSession(async (session) => {
-      const filaCircular = new FilaCircular();
-      applyInput(filaCircular, ctx.body as Partial<FilaCircular>, { partial: false });
-      await session.persist(filaCircular);
-      await session.commit();
-      return filaCircular as FilaCircularDto;
-    });
+    return this.service.create(ctx.body as CreateFilaCircularDto);
   }
 
   @Put("/:id")
@@ -106,13 +69,8 @@ export class FilaCircularController extends BaseController<FilaCircular, FilaCir
   async replace(
     ctx: RequestContext<ReplaceFilaCircularDto, undefined, FilaCircularParamsDto>
   ): Promise<FilaCircularDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "fila circular");
-      const filaCircular = await super.getEntityOrThrow(session, id);
-      applyInput(filaCircular, ctx.body as Partial<FilaCircular>, { partial: false });
-      await session.commit();
-      return filaCircular as FilaCircularDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "fila circular");
+    return this.service.replace(id, ctx.body as ReplaceFilaCircularDto);
   }
 
   @Patch("/:id")
@@ -123,13 +81,8 @@ export class FilaCircularController extends BaseController<FilaCircular, FilaCir
   async update(
     ctx: RequestContext<UpdateFilaCircularDto, undefined, FilaCircularParamsDto>
   ): Promise<FilaCircularDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "fila circular");
-      const filaCircular = await super.getEntityOrThrow(session, id);
-      applyInput(filaCircular, ctx.body as Partial<FilaCircular>, { partial: true });
-      await session.commit();
-      return filaCircular as FilaCircularDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "fila circular");
+    return this.service.update(id, ctx.body as UpdateFilaCircularDto);
   }
 
   @Delete("/:id")
@@ -137,9 +90,7 @@ export class FilaCircularController extends BaseController<FilaCircular, FilaCir
   @Returns({ status: 204 })
   @FilaCircularErrors
   async remove(ctx: RequestContext<unknown, undefined, FilaCircularParamsDto>): Promise<void> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "fila circular");
-      await super.delete(session, id);
-    });
+    const id = parseIdOrThrow(ctx.params.id, "fila circular");
+    await this.service.remove(id);
   }
 }

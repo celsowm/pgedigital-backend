@@ -9,13 +9,9 @@ import {
   Put,
   Query,
   Returns,
-  applyInput,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
-import { entityRef } from "metal-orm";
-import { withSession } from "../db/mssql";
-import { Materia } from "../entities/Materia";
 import {
   MateriaDto,
   CreateMateriaDto,
@@ -29,46 +25,24 @@ import {
   MateriaOptionsDto,
   MateriaOptionDto
 } from "../dtos/materia/materia.dtos";
-import { BaseController } from "../utils/base-controller";
-
-const MateriaRef = entityRef(Materia);
-
-type MateriaFilterFields = "nome";
-
-const MATERIA_FILTER_MAPPINGS = {
-  nomeContains: { field: "nome", operator: "contains" }
-} satisfies Record<string, { field: MateriaFilterFields; operator: "equals" | "contains" }>;
+import { MateriaService } from "../services/materia.service";
 
 @Controller("/materia")
-export class MateriaController extends BaseController<Materia, MateriaFilterFields> {
-  get entityClass() {
-    return Materia;
-  }
-
-  get entityRef(): any {
-    return MateriaRef;
-  }
-
-  get filterMappings(): Record<string, { field: MateriaFilterFields; operator: "equals" | "contains" }> {
-    return MATERIA_FILTER_MAPPINGS;
-  }
-
-  get entityName() {
-    return "matéria";
-  }
+export class MateriaController {
+  private readonly service = new MateriaService();
 
   @Get("/")
   @Query(MateriaQueryDtoClass)
   @Returns(MateriaPagedResponseDto)
   async list(ctx: RequestContext<unknown, MateriaQueryDto>): Promise<unknown> {
-    return super.list(ctx);
+    return this.service.list(ctx.query ?? {});
   }
 
   @Get("/options")
   @Query(MateriaQueryDtoClass)
   @Returns(MateriaOptionsDto)
   async listOptions(ctx: RequestContext<unknown, MateriaQueryDto>): Promise<MateriaOptionDto[]> {
-    return super.listOptions(ctx);
+    return this.service.listOptions(ctx.query ?? {});
   }
 
   @Get("/:id")
@@ -76,24 +50,15 @@ export class MateriaController extends BaseController<Materia, MateriaFilterFiel
   @Returns(MateriaDto)
   @MateriaErrors
   async getOne(ctx: RequestContext<unknown, undefined, MateriaParamsDto>): Promise<MateriaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "matéria");
-      const materia = await super.getEntityOrThrow(session, id);
-      return materia as MateriaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "matéria");
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateMateriaDto)
   @Returns({ status: 201, schema: MateriaDto })
   async create(ctx: RequestContext<CreateMateriaDto>): Promise<MateriaDto> {
-    return withSession(async (session) => {
-      const materia = new Materia();
-      applyInput(materia, ctx.body as Partial<Materia>, { partial: false });
-      await session.persist(materia);
-      await session.commit();
-      return materia as MateriaDto;
-    });
+    return this.service.create(ctx.body as CreateMateriaDto);
   }
 
   @Put("/:id")
@@ -104,13 +69,8 @@ export class MateriaController extends BaseController<Materia, MateriaFilterFiel
   async replace(
     ctx: RequestContext<ReplaceMateriaDto, undefined, MateriaParamsDto>
   ): Promise<MateriaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "matéria");
-      const materia = await super.getEntityOrThrow(session, id);
-      applyInput(materia, ctx.body as Partial<Materia>, { partial: false });
-      await session.commit();
-      return materia as MateriaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "matéria");
+    return this.service.replace(id, ctx.body as ReplaceMateriaDto);
   }
 
   @Patch("/:id")
@@ -121,13 +81,8 @@ export class MateriaController extends BaseController<Materia, MateriaFilterFiel
   async update(
     ctx: RequestContext<UpdateMateriaDto, undefined, MateriaParamsDto>
   ): Promise<MateriaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "matéria");
-      const materia = await super.getEntityOrThrow(session, id);
-      applyInput(materia, ctx.body as Partial<Materia>, { partial: true });
-      await session.commit();
-      return materia as MateriaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "matéria");
+    return this.service.update(id, ctx.body as UpdateMateriaDto);
   }
 
   @Delete("/:id")
@@ -135,9 +90,7 @@ export class MateriaController extends BaseController<Materia, MateriaFilterFiel
   @Returns({ status: 204 })
   @MateriaErrors
   async remove(ctx: RequestContext<unknown, undefined, MateriaParamsDto>): Promise<void> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "matéria");
-      await super.delete(session, id);
-    });
+    const id = parseIdOrThrow(ctx.params.id, "matéria");
+    await this.service.remove(id);
   }
 }

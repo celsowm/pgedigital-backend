@@ -9,13 +9,9 @@ import {
   Put,
   Query,
   Returns,
-  applyInput,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
-import { entityRef } from "metal-orm";
-import { withSession } from "../db/mssql";
-import { ExitoSucumbencia } from "../entities/ExitoSucumbencia";
 import {
   ExitoSucumbenciaDto,
   CreateExitoSucumbenciaDto,
@@ -29,46 +25,24 @@ import {
   ExitoSucumbenciaOptionsDto,
   ExitoSucumbenciaOptionDto
 } from "../dtos/exito-sucumbencia/exito-sucumbencia.dtos";
-import { BaseController } from "../utils/base-controller";
-
-const ExitoSucumbenciaRef = entityRef(ExitoSucumbencia);
-
-type ExitoSucumbenciaFilterFields = "nome";
-
-const EXITO_SUCUMBENCIA_FILTER_MAPPINGS = {
-  nomeContains: { field: "nome", operator: "contains" }
-} satisfies Record<string, { field: ExitoSucumbenciaFilterFields; operator: "equals" | "contains" }>;
+import { ExitoSucumbenciaService } from "../services/exito-sucumbencia.service";
 
 @Controller("/exito-sucumbencia")
-export class ExitoSucumbenciaController extends BaseController<ExitoSucumbencia, ExitoSucumbenciaFilterFields> {
-  get entityClass() {
-    return ExitoSucumbencia;
-  }
-
-  get entityRef(): any {
-    return ExitoSucumbenciaRef;
-  }
-
-  get filterMappings(): Record<string, { field: ExitoSucumbenciaFilterFields; operator: "equals" | "contains" }> {
-    return EXITO_SUCUMBENCIA_FILTER_MAPPINGS;
-  }
-
-  get entityName() {
-    return "êxito de sucumbência";
-  }
+export class ExitoSucumbenciaController {
+  private readonly service = new ExitoSucumbenciaService();
 
   @Get("/")
   @Query(ExitoSucumbenciaQueryDtoClass)
   @Returns(ExitoSucumbenciaPagedResponseDto)
   async list(ctx: RequestContext<unknown, ExitoSucumbenciaQueryDto>): Promise<unknown> {
-    return super.list(ctx);
+    return this.service.list(ctx.query ?? {});
   }
 
   @Get("/options")
   @Query(ExitoSucumbenciaQueryDtoClass)
   @Returns(ExitoSucumbenciaOptionsDto)
   async listOptions(ctx: RequestContext<unknown, ExitoSucumbenciaQueryDto>): Promise<ExitoSucumbenciaOptionDto[]> {
-    return super.listOptions(ctx);
+    return this.service.listOptions(ctx.query ?? {});
   }
 
   @Get("/:id")
@@ -76,24 +50,15 @@ export class ExitoSucumbenciaController extends BaseController<ExitoSucumbencia,
   @Returns(ExitoSucumbenciaDto)
   @ExitoSucumbenciaErrors
   async getOne(ctx: RequestContext<unknown, undefined, ExitoSucumbenciaParamsDto>): Promise<ExitoSucumbenciaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
-      const exitoSucumbencia = await super.getEntityOrThrow(session, id);
-      return exitoSucumbencia as ExitoSucumbenciaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateExitoSucumbenciaDto)
   @Returns({ status: 201, schema: ExitoSucumbenciaDto })
   async create(ctx: RequestContext<CreateExitoSucumbenciaDto>): Promise<ExitoSucumbenciaDto> {
-    return withSession(async (session) => {
-      const exitoSucumbencia = new ExitoSucumbencia();
-      applyInput(exitoSucumbencia, ctx.body as Partial<ExitoSucumbencia>, { partial: false });
-      await session.persist(exitoSucumbencia);
-      await session.commit();
-      return exitoSucumbencia as ExitoSucumbenciaDto;
-    });
+    return this.service.create(ctx.body as CreateExitoSucumbenciaDto);
   }
 
   @Put("/:id")
@@ -104,13 +69,8 @@ export class ExitoSucumbenciaController extends BaseController<ExitoSucumbencia,
   async replace(
     ctx: RequestContext<ReplaceExitoSucumbenciaDto, undefined, ExitoSucumbenciaParamsDto>
   ): Promise<ExitoSucumbenciaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
-      const exitoSucumbencia = await super.getEntityOrThrow(session, id);
-      applyInput(exitoSucumbencia, ctx.body as Partial<ExitoSucumbencia>, { partial: false });
-      await session.commit();
-      return exitoSucumbencia as ExitoSucumbenciaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
+    return this.service.replace(id, ctx.body as ReplaceExitoSucumbenciaDto);
   }
 
   @Patch("/:id")
@@ -121,13 +81,8 @@ export class ExitoSucumbenciaController extends BaseController<ExitoSucumbencia,
   async update(
     ctx: RequestContext<UpdateExitoSucumbenciaDto, undefined, ExitoSucumbenciaParamsDto>
   ): Promise<ExitoSucumbenciaDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
-      const exitoSucumbencia = await super.getEntityOrThrow(session, id);
-      applyInput(exitoSucumbencia, ctx.body as Partial<ExitoSucumbencia>, { partial: true });
-      await session.commit();
-      return exitoSucumbencia as ExitoSucumbenciaDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
+    return this.service.update(id, ctx.body as UpdateExitoSucumbenciaDto);
   }
 
   @Delete("/:id")
@@ -135,9 +90,7 @@ export class ExitoSucumbenciaController extends BaseController<ExitoSucumbencia,
   @Returns({ status: 204 })
   @ExitoSucumbenciaErrors
   async remove(ctx: RequestContext<unknown, undefined, ExitoSucumbenciaParamsDto>): Promise<void> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
-      await super.delete(session, id);
-    });
+    const id = parseIdOrThrow(ctx.params.id, "êxito de sucumbência");
+    await this.service.remove(id);
   }
 }

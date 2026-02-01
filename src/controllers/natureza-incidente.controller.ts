@@ -9,13 +9,9 @@ import {
   Put,
   Query,
   Returns,
-  applyInput,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
-import { entityRef } from "metal-orm";
-import { withSession } from "../db/mssql";
-import { NaturezaIncidente } from "../entities/NaturezaIncidente";
 import {
   NaturezaIncidenteDto,
   CreateNaturezaIncidenteDto,
@@ -29,39 +25,17 @@ import {
   NaturezaIncidenteOptionsDto,
   NaturezaIncidenteOptionDto
 } from "../dtos/natureza-incidente/natureza-incidente.dtos";
-import { BaseController } from "../utils/base-controller";
-
-const NaturezaIncidenteRef = entityRef(NaturezaIncidente);
-
-type NaturezaIncidenteFilterFields = "nome";
-
-const NATUREZA_INCIDENTE_FILTER_MAPPINGS = {
-  nomeContains: { field: "nome", operator: "contains" }
-} satisfies Record<string, { field: NaturezaIncidenteFilterFields; operator: "equals" | "contains" }>;
+import { NaturezaIncidenteService } from "../services/natureza-incidente.service";
 
 @Controller("/natureza-incidente")
-export class NaturezaIncidenteController extends BaseController<NaturezaIncidente, NaturezaIncidenteFilterFields> {
-  get entityClass() {
-    return NaturezaIncidente;
-  }
-
-  get entityRef(): any {
-    return NaturezaIncidenteRef;
-  }
-
-  get filterMappings(): Record<string, { field: NaturezaIncidenteFilterFields; operator: "equals" | "contains" }> {
-    return NATUREZA_INCIDENTE_FILTER_MAPPINGS;
-  }
-
-  get entityName() {
-    return "natureza incidente";
-  }
+export class NaturezaIncidenteController {
+  private readonly service = new NaturezaIncidenteService();
 
   @Get("/")
   @Query(NaturezaIncidenteQueryDtoClass)
   @Returns(NaturezaIncidentePagedResponseDto)
   async list(ctx: RequestContext<unknown, NaturezaIncidenteQueryDto>): Promise<unknown> {
-    return super.list(ctx);
+    return this.service.list(ctx.query ?? {});
   }
 
   @Get("/options")
@@ -70,7 +44,7 @@ export class NaturezaIncidenteController extends BaseController<NaturezaIncident
   async listOptions(
     ctx: RequestContext<unknown, NaturezaIncidenteQueryDto>
   ): Promise<NaturezaIncidenteOptionDto[]> {
-    return super.listOptions(ctx);
+    return this.service.listOptions(ctx.query ?? {});
   }
 
   @Get("/:id")
@@ -78,24 +52,15 @@ export class NaturezaIncidenteController extends BaseController<NaturezaIncident
   @Returns(NaturezaIncidenteDto)
   @NaturezaIncidenteErrors
   async getOne(ctx: RequestContext<unknown, undefined, NaturezaIncidenteParamsDto>): Promise<NaturezaIncidenteDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
-      const naturezaIncidente = await super.getEntityOrThrow(session, id);
-      return naturezaIncidente as NaturezaIncidenteDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateNaturezaIncidenteDto)
   @Returns({ status: 201, schema: NaturezaIncidenteDto })
   async create(ctx: RequestContext<CreateNaturezaIncidenteDto>): Promise<NaturezaIncidenteDto> {
-    return withSession(async (session) => {
-      const naturezaIncidente = new NaturezaIncidente();
-      applyInput(naturezaIncidente, ctx.body as Partial<NaturezaIncidente>, { partial: false });
-      await session.persist(naturezaIncidente);
-      await session.commit();
-      return naturezaIncidente as NaturezaIncidenteDto;
-    });
+    return this.service.create(ctx.body as CreateNaturezaIncidenteDto);
   }
 
   @Put("/:id")
@@ -106,13 +71,8 @@ export class NaturezaIncidenteController extends BaseController<NaturezaIncident
   async replace(
     ctx: RequestContext<ReplaceNaturezaIncidenteDto, undefined, NaturezaIncidenteParamsDto>
   ): Promise<NaturezaIncidenteDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
-      const naturezaIncidente = await super.getEntityOrThrow(session, id);
-      applyInput(naturezaIncidente, ctx.body as Partial<NaturezaIncidente>, { partial: false });
-      await session.commit();
-      return naturezaIncidente as NaturezaIncidenteDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
+    return this.service.replace(id, ctx.body as ReplaceNaturezaIncidenteDto);
   }
 
   @Patch("/:id")
@@ -123,13 +83,8 @@ export class NaturezaIncidenteController extends BaseController<NaturezaIncident
   async update(
     ctx: RequestContext<UpdateNaturezaIncidenteDto, undefined, NaturezaIncidenteParamsDto>
   ): Promise<NaturezaIncidenteDto> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
-      const naturezaIncidente = await super.getEntityOrThrow(session, id);
-      applyInput(naturezaIncidente, ctx.body as Partial<NaturezaIncidente>, { partial: true });
-      await session.commit();
-      return naturezaIncidente as NaturezaIncidenteDto;
-    });
+    const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
+    return this.service.update(id, ctx.body as UpdateNaturezaIncidenteDto);
   }
 
   @Delete("/:id")
@@ -137,9 +92,7 @@ export class NaturezaIncidenteController extends BaseController<NaturezaIncident
   @Returns({ status: 204 })
   @NaturezaIncidenteErrors
   async remove(ctx: RequestContext<unknown, undefined, NaturezaIncidenteParamsDto>): Promise<void> {
-    return withSession(async (session) => {
-      const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
-      await super.delete(session, id);
-    });
+    const id = parseIdOrThrow(ctx.params.id, "natureza incidente");
+    await this.service.remove(id);
   }
 }
