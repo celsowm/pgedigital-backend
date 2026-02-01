@@ -31,7 +31,8 @@ export async function createApp(): Promise<Express> {
         title: "PGE Digital API",
         version: "1.0.0"
       },
-      docs: true
+      docs: true,
+      prettyPrint: true
     }
   });
 
