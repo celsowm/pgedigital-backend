@@ -18,10 +18,13 @@ import { NaturezaIncidenteController } from "./controllers/natureza-incidente.co
 import { TipoDivisaoCargaTrabalhoController } from "./controllers/tipo-divisao-carga-trabalho.controller";
 import { TipoProvidenciaJuridicaController } from "./controllers/tipo-providencia-juridica.controller";
 import { TipoAudienciaController } from "./controllers/tipo-audiencia.controller";
+import { ExitoSucumbenciaController } from "./controllers/exito-sucumbencia.controller";
+import { ClassificacaoController } from "./controllers/classificacao.controller";
+import { FilaCircularController } from "./controllers/fila-circular.controller";
 
 export async function createApp(): Promise<Express> {
   const app = await createExpressApp({
-    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController],
+    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController, ExitoSucumbenciaController, ClassificacaoController, FilaCircularController],
     cors: true,
     openApi: {
       info: {
