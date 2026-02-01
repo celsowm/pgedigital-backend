@@ -86,7 +86,7 @@ export class EspecializadaService {
     return withSession(async (session) => {
       const especializada = await this.repository.getWithResponsavel(session, id);
       if (!especializada) {
-        throw new HttpError(404, "Especializada not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return especializada as EspecializadaWithResponsavelDto;
     });
@@ -101,7 +101,7 @@ export class EspecializadaService {
 
       const reloaded = await this.repository.getWithResponsavel(session, especializada.id);
       if (!reloaded) {
-        throw new HttpError(404, "Especializada not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return reloaded as EspecializadaWithResponsavelDto;
     });
@@ -118,7 +118,7 @@ export class EspecializadaService {
 
       const reloaded = await this.repository.getWithResponsavel(session, id);
       if (!reloaded) {
-        throw new HttpError(404, "Especializada not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return reloaded as EspecializadaWithResponsavelDto;
     });
@@ -135,7 +135,7 @@ export class EspecializadaService {
 
       const reloaded = await this.repository.getWithResponsavel(session, id);
       if (!reloaded) {
-        throw new HttpError(404, "Especializada not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return reloaded as EspecializadaWithResponsavelDto;
     });

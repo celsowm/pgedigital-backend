@@ -66,7 +66,7 @@ export class AcervoService {
     return withSession(async (session) => {
       const acervo = await this.repository.getDetail(session, id);
       if (!acervo) {
-        throw new HttpError(404, "Acervo not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return acervo;
     });
@@ -81,7 +81,7 @@ export class AcervoService {
 
       const withRelations = await this.repository.getWithRelations(session, acervo.id);
       if (!withRelations) {
-        throw new HttpError(404, "Acervo not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return withRelations;
     });
@@ -98,7 +98,7 @@ export class AcervoService {
 
       const withRelations = await this.repository.getWithRelations(session, id);
       if (!withRelations) {
-        throw new HttpError(404, "Acervo not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return withRelations;
     });
@@ -115,7 +115,7 @@ export class AcervoService {
 
       const withRelations = await this.repository.getWithRelations(session, id);
       if (!withRelations) {
-        throw new HttpError(404, "Acervo not found.");
+        throw new HttpError(404, `${this.entityName} not found.`);
       }
       return withRelations;
     });
