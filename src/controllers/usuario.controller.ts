@@ -18,16 +18,18 @@ import { Usuario } from "../entities/Usuario";
 import {
   UsuarioPagedResponseDto,
   UsuarioQueryDto,
-  UsuarioQueryDtoClass
+  UsuarioQueryDtoClass,
+  UsuarioOptionsDto
 } from "../dtos/usuario/usuario.dtos";
 
 const U = entityRef(Usuario);
 
-type UsuarioFilterFields = "nome" | "cargo";
+type UsuarioFilterFields = "nome" | "cargo" | "especializada_id";
 
 const USUARIO_FILTER_MAPPINGS = {
   nomeContains: { field: "nome", operator: "contains" },
-  cargoContains: { field: "cargo", operator: "contains" }
+  cargoContains: { field: "cargo", operator: "contains" },
+  especializadaId: { field: "especializada_id", operator: "equals" }
 } satisfies Record<
   string,
   {
@@ -60,6 +62,29 @@ export class UsuarioController {
 
       const paged = await query.executePaged(session, { page, pageSize });
       return toPagedResponse(paged);
+    });
+  }
+
+  @Get("/options")
+  @Query(UsuarioQueryDtoClass)
+  @Returns(UsuarioOptionsDto)
+  async listOptions(ctx: RequestContext<unknown, UsuarioQueryDto>): Promise<Array<{ id: number; nome: string }>> {
+    const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
+    const filters = parseFilter<Usuario, UsuarioFilterFields>(
+      paginationQuery,
+      USUARIO_FILTER_MAPPINGS
+    );
+
+    return withSession(async (session) => {
+      const query = applyFilter(
+        selectFromEntity(Usuario)
+          .select({ id: U.id, nome: U.nome })
+          .orderBy(U.nome, "ASC"),
+        Usuario,
+        filters
+      );
+
+      return query.executePlain(session);
     });
   }
 }

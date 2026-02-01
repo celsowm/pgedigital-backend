@@ -8,7 +8,7 @@ import {
   t
 } from "adorn-api";
 import { Usuario } from "../../entities/Usuario";
-import { createCrudErrors } from "../common";
+import { createCrudErrors, createOptionDto, createOptionsArraySchema } from "../common";
 
 const usuarioCrud = createMetalCrudDtoClasses(Usuario, {
   response: { description: "Usuário retornado pela API." },
@@ -48,7 +48,8 @@ export const UsuarioQueryDtoClass = createPagedFilterQueryDtoClass({
   name: "UsuarioQueryDto",
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    cargoContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
+    cargoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    especializadaId: { schema: t.integer(), operator: "equals" }
   }
 });
 
@@ -57,6 +58,7 @@ export interface UsuarioQueryDto {
   pageSize?: number;
   nomeContains?: string;
   cargoContains?: string;
+  especializadaId?: number;
 }
 
 export const UsuarioPagedResponseDto = createPagedResponseDtoClass({
@@ -66,3 +68,15 @@ export const UsuarioPagedResponseDto = createPagedResponseDtoClass({
 });
 
 export const UsuarioErrors = createCrudErrors("usuario");
+
+const UsuarioOptionDtoClass = createOptionDto(
+  "UsuarioOptionDto",
+  "Usuário com apenas id e nome."
+);
+export { UsuarioOptionDtoClass as UsuarioOptionDto };
+export type UsuarioOptionDto = InstanceType<typeof UsuarioOptionDtoClass>;
+
+export const UsuarioOptionsDto = createOptionsArraySchema(
+  UsuarioOptionDtoClass,
+  "Lista de usuários com id e nome."
+);
