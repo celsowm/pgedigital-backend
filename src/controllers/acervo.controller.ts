@@ -21,7 +21,6 @@ import {
   AcervoParamsDto,
   AcervoQueryDto,
   AcervoQueryDtoClass,
-  AcervoWithRelationsDto,
   CreateAcervoDto,
   ReplaceAcervoDto,
   UpdateAcervoDto
@@ -54,22 +53,22 @@ export class AcervoController {
     ctx: RequestContext<unknown, undefined, AcervoParamsDto>
   ): Promise<AcervoDetailDto> {
     const id = parseIdOrThrow(ctx.params.id, "acervo");
-    return this.service.getDetail(id);
+    return this.service.getOne(id);
   }
 
   @Post("/")
   @Body(CreateAcervoDto)
-  @Returns({ status: 201, schema: AcervoWithRelationsDto })
-  async create(ctx: RequestContext<CreateAcervoDto>): Promise<AcervoWithRelationsDto> {
+  @Returns({ status: 201, schema: AcervoDetailDto })
+  async create(ctx: RequestContext<CreateAcervoDto>): Promise<AcervoDetailDto> {
     return this.service.create(ctx.body as CreateAcervoDto);
   }
 
   @Put("/:id")
   @Params(AcervoParamsDto)
   @Body(ReplaceAcervoDto)
-  @Returns(AcervoWithRelationsDto)
+  @Returns(AcervoDetailDto)
   @AcervoErrors
-  async replace(ctx: RequestContext<ReplaceAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoWithRelationsDto> {
+  async replace(ctx: RequestContext<ReplaceAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoDetailDto> {
     const id = parseIdOrThrow(ctx.params.id, "acervo");
     return this.service.replace(id, ctx.body as ReplaceAcervoDto);
   }
@@ -77,9 +76,9 @@ export class AcervoController {
   @Patch("/:id")
   @Params(AcervoParamsDto)
   @Body(UpdateAcervoDto)
-  @Returns(AcervoWithRelationsDto)
+  @Returns(AcervoDetailDto)
   @AcervoErrors
-  async update(ctx: RequestContext<UpdateAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoWithRelationsDto> {
+  async update(ctx: RequestContext<UpdateAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoDetailDto> {
     const id = parseIdOrThrow(ctx.params.id, "acervo");
     return this.service.update(id, ctx.body as UpdateAcervoDto);
   }

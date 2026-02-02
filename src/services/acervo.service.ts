@@ -9,9 +9,8 @@ import { withSession } from "../db/mssql";
 import { Acervo } from "../entities/Acervo";
 import type {
   AcervoDetailDto,
-  AcervoOptionDto,
   AcervoQueryDto,
-  AcervoWithRelationsDto,
+  AcervoOptionDto,
   CreateAcervoDto,
   ReplaceAcervoDto,
   UpdateAcervoDto
@@ -62,7 +61,7 @@ export class AcervoService {
     });
   }
 
-  async getDetail(id: number): Promise<AcervoDetailDto> {
+  async getOne(id: number): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
       const acervo = await this.repository.getDetail(session, id);
       if (!acervo) {
@@ -72,22 +71,22 @@ export class AcervoService {
     });
   }
 
-  async create(input: CreateAcervoDto): Promise<AcervoWithRelationsDto> {
+  async create(input: CreateAcervoDto): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
       const acervo = new Acervo();
       applyInput(acervo, input as Partial<Acervo>, { partial: false });
       await session.persist(acervo);
       await session.commit();
 
-      const withRelations = await this.repository.getWithRelations(session, acervo.id);
-      if (!withRelations) {
+      const detail = await this.repository.getDetail(session, acervo.id);
+      if (!detail) {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
-      return withRelations;
+      return detail;
     });
   }
 
-  async replace(id: number, input: ReplaceAcervoDto): Promise<AcervoWithRelationsDto> {
+  async replace(id: number, input: ReplaceAcervoDto): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
       const acervo = await this.repository.findById(session, id);
       if (!acervo) {
@@ -96,15 +95,15 @@ export class AcervoService {
       applyInput(acervo, input as Partial<Acervo>, { partial: false });
       await session.commit();
 
-      const withRelations = await this.repository.getWithRelations(session, id);
-      if (!withRelations) {
+      const detail = await this.repository.getDetail(session, id);
+      if (!detail) {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
-      return withRelations;
+      return detail;
     });
   }
 
-  async update(id: number, input: UpdateAcervoDto): Promise<AcervoWithRelationsDto> {
+  async update(id: number, input: UpdateAcervoDto): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
       const acervo = await this.repository.findById(session, id);
       if (!acervo) {
@@ -113,11 +112,11 @@ export class AcervoService {
       applyInput(acervo, input as Partial<Acervo>, { partial: true });
       await session.commit();
 
-      const withRelations = await this.repository.getWithRelations(session, id);
-      if (!withRelations) {
+      const detail = await this.repository.getDetail(session, id);
+      if (!detail) {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
-      return withRelations;
+      return detail;
     });
   }
 
