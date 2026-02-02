@@ -21,10 +21,11 @@ import { TipoAudienciaController } from "./controllers/tipo-audiencia.controller
 import { ExitoSucumbenciaController } from "./controllers/exito-sucumbencia.controller";
 import { ClassificacaoController } from "./controllers/classificacao.controller";
 import { FilaCircularController } from "./controllers/fila-circular.controller";
+import { AfastamentoPessoaController } from "./controllers/afastamento-pessoa.controller";
 
 export async function createApp(): Promise<Express> {
   const app = await createExpressApp({
-    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController, ExitoSucumbenciaController, ClassificacaoController, FilaCircularController],
+    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, AfastamentoPessoaController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController, ExitoSucumbenciaController, ClassificacaoController, FilaCircularController],
     cors: true,
     openApi: {
       info: {
