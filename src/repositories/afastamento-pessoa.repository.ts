@@ -29,6 +29,11 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
       })
       .includePick("tipoAfastamento", ["id", "nome"])
       .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
+      .include("usuarios", {
+        columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
+        include: { especializada: { columns: ["id", "nome"] } },
+        pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"] }
+      })
       .orderBy(this.entityRef.data_inicio, "DESC")
       .orderBy(this.entityRef.id, "ASC");
   }

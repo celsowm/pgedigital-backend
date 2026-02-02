@@ -73,7 +73,11 @@ export class AfastamentoPessoaService {
       baseQuery = this.applyCustomFilters(baseQuery, query ?? {});
 
       const paged = await baseQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
+      const response = toPagedResponse(paged);
+      response.items = response.items.map((item) =>
+        this.mapListItem(item as Record<string, unknown>)
+      );
+      return response;
     });
   }
 
@@ -676,13 +680,19 @@ export class AfastamentoPessoaService {
   }
 
   private mapDetail(detail: Record<string, unknown>): AfastamentoPessoaDetailDto {
-    const usuariosRaw = Array.isArray(detail.usuarios) ? detail.usuarios : [];
-    const usuarios = usuariosRaw.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
+    return this.mapListItem(detail) as AfastamentoPessoaDetailDto;
+  }
 
+  private mapListItem(detail: Record<string, unknown>): Record<string, unknown> {
     return {
       ...detail,
-      usuarios
-    } as AfastamentoPessoaDetailDto;
+      usuarios: this.mapSubstitutos(detail.usuarios)
+    };
+  }
+
+  private mapSubstitutos(raw: unknown): AfastamentoPessoaSubstitutoDto[] {
+    const usuariosRaw = Array.isArray(raw) ? raw : [];
+    return usuariosRaw.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
   }
 
   private mapSubstituto(usuario: Record<string, unknown>): AfastamentoPessoaSubstitutoDto {
