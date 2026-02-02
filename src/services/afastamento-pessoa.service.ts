@@ -686,7 +686,7 @@ export class AfastamentoPessoaService {
   private mapListItem(detail: Record<string, unknown>): Record<string, unknown> {
     return {
       ...detail,
-      usuarios: this.mapSubstitutos(detail.usuarios)
+      substitutos: this.mapSubstitutos(detail.substitutos)
     };
   }
 

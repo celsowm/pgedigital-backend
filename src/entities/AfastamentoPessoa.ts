@@ -96,7 +96,7 @@ export class AfastamentoPessoa {
   modified?: Date;
 
   @BelongsToMany({ target: () => Usuario, pivotTable: () => AfastamentoPessoaUsuario, pivotForeignKeyToRoot: 'afastamento_pessoa_id', pivotForeignKeyToTarget: 'usuario_id' })
-  usuarios!: ManyToManyCollection<Usuario>;
+  substitutos!: ManyToManyCollection<Usuario>;
 
   @BelongsTo({ target: () => Usuario, foreignKey: 'usuario_id' })
   usuario!: BelongsToReference<Usuario>;

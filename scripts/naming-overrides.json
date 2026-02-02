@@ -4,6 +4,9 @@
       "pessoas": "raizesCNPJs",
       "usuarios": "destinatarios",
       "temas": "temasRelacionados"
+    },
+    "AfastamentoPessoa": {
+      "usuarios": "substitutos"
     }
   }
 }

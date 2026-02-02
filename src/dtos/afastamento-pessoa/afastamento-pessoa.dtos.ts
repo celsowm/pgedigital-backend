@@ -140,7 +140,7 @@ export class AfastamentoPessoaListRelationsDto {
   tipoDivisaoCargaTrabalho?: InstanceType<typeof TipoDivisaoCargaTrabalhoResumoDto>;
 
   @Field(t.optional(t.array(t.ref(AfastamentoPessoaSubstitutoDto))))
-  usuarios?: Array<InstanceType<typeof AfastamentoPessoaSubstitutoDto>>;
+  substitutos?: Array<InstanceType<typeof AfastamentoPessoaSubstitutoDto>>;
 }
 
 @MergeDto([AfastamentoPessoaDto, AfastamentoPessoaListRelationsDto], {
@@ -164,7 +164,7 @@ export class AfastamentoPessoaDetailRelationsDto {
   filaCircular?: InstanceType<typeof FilaCircularResumoDto>;
 
   @Field(t.optional(t.array(t.ref(AfastamentoPessoaSubstitutoDto))))
-  usuarios?: Array<InstanceType<typeof AfastamentoPessoaSubstitutoDto>>;
+  substitutos?: Array<InstanceType<typeof AfastamentoPessoaSubstitutoDto>>;
 }
 
 @MergeDto([AfastamentoPessoaDto, AfastamentoPessoaDetailRelationsDto], {

@@ -29,7 +29,7 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
       })
       .includePick("tipoAfastamento", ["id", "nome"])
       .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
-      .include("usuarios", {
+      .include("substitutos", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
         include: { especializada: { columns: ["id", "nome"] } },
         pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"] }
@@ -48,7 +48,7 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
       .includePick("tipoAfastamento", ["id", "nome"])
       .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
       .includePick("filaCircular", ["id", "ultimo_elemento"])
-      .include("usuarios", {
+      .include("substitutos", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
         include: { especializada: { columns: ["id", "nome"] } },
         pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"] }
