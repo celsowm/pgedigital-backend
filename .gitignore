@@ -1,5 +1,6 @@
 # Dependências de projeto
 node_modules/
+pgedigital_legacy_code_cakephp/
 .adorn/
 dist/
 .env
