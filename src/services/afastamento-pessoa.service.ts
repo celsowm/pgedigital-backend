@@ -71,15 +71,10 @@ export class AfastamentoPessoaService {
 
       baseQuery = this.applyCustomFilters(baseQuery, query ?? {});
 
-      const totalItems = await baseQuery.count(session);
-      const items = await baseQuery
-        .limit(pageSize)
-        .offset((page - 1) * pageSize)
-        .executePlain(session);
-
-      const response = toPagedResponse({ items, totalItems, page, pageSize });
-      response.items = response.items.map((item) =>
-        this.mapListItem(item as Record<string, unknown>)
+      const paged = await baseQuery.executePaged(session, { page, pageSize });
+      const response = toPagedResponse(paged);
+      response.items = await Promise.all(
+        response.items.map((item: Record<string, unknown>) => this.mapListItem(item))
       );
       return response;
     });
@@ -183,7 +178,7 @@ export class AfastamentoPessoaService {
   private async loadDetail(session: any, id: number): Promise<AfastamentoPessoaDetailDto> {
     const [detail] = await this.repository.buildDetailQuery()
       .where(eq(this.repository.entityRef.id, id))
-      .executePlain(session);
+      .execute(session);
 
     if (!detail) {
       throw new HttpError(404, `${this.entityName} not found.`);
@@ -653,22 +648,27 @@ export class AfastamentoPessoaService {
     };
   }
 
-  private mapDetail(detail: Record<string, unknown>): AfastamentoPessoaDetailDto {
-    return this.mapListItem(detail) as AfastamentoPessoaDetailDto;
+  private async mapDetail(detail: Record<string, unknown>): Promise<AfastamentoPessoaDetailDto> {
+    return (await this.mapListItem(detail)) as AfastamentoPessoaDetailDto;
   }
 
-  private mapListItem(detail: Record<string, unknown>): Record<string, unknown> {
+  private async mapListItem(detail: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const substitutos = await this.mapSubstitutos(detail.substitutos);
+    const base = this.toPlainEntity(detail) as Record<string, unknown>;
     return {
-      ...detail,
-      substitutos: this.mapSubstitutos(detail.substitutos)
+      ...base,
+      usuario: await this.resolveSingleRelation(detail.usuario),
+      tipoAfastamento: await this.resolveSingleRelation(detail.tipoAfastamento),
+      tipoDivisaoCargaTrabalho: await this.resolveSingleRelation(detail.tipoDivisaoCargaTrabalho),
+      filaCircular: await this.resolveSingleRelation(detail.filaCircular),
+      substitutos
     };
   }
 
-  private mapSubstitutos(raw: unknown): AfastamentoPessoaSubstitutoDto[] {
-    if (!Array.isArray(raw)) {
-      return [];
-    }
-    return raw.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
+  private async mapSubstitutos(raw: unknown): Promise<AfastamentoPessoaSubstitutoDto[]> {
+    const items = await this.coerceToArray(raw);
+    if (!items.length) return [];
+    return items.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
   }
 
   private mapSubstituto(usuario: Record<string, unknown>): AfastamentoPessoaSubstitutoDto {
@@ -683,6 +683,52 @@ export class AfastamentoPessoaService {
       usa_equipe_acervo_substituto: pivot.usa_equipe_acervo_substituto as boolean | undefined,
       final_codigo_pa: (pivot.final_codigo_pa as string | null | undefined) ?? null
     } as AfastamentoPessoaSubstitutoDto;
+  }
+
+  private async coerceToArray(value: unknown): Promise<unknown[]> {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    if (typeof value === "object") {
+      const wrapper = value as { load?: () => Promise<unknown[]>; getItems?: () => unknown[] };
+      if (typeof wrapper.load === "function") {
+        return await wrapper.load();
+      }
+      if (typeof wrapper.getItems === "function") {
+        return wrapper.getItems();
+      }
+      if (Symbol.iterator in wrapper) {
+        return Array.from(wrapper as Iterable<unknown>);
+      }
+    }
+    return [];
+  }
+
+  private async resolveSingleRelation(value: unknown): Promise<unknown> {
+    if (!value || typeof value !== "object") return value;
+    const wrapper = value as { load?: () => Promise<unknown>; get?: () => unknown };
+    if (typeof wrapper.get === "function") {
+      const existing = wrapper.get();
+      if (existing) {
+        return this.toPlainEntity(existing);
+      }
+    }
+    if (typeof wrapper.load === "function") {
+      const loaded = await wrapper.load();
+      return this.toPlainEntity(loaded);
+    }
+    return this.toPlainEntity(value);
+  }
+
+  private toPlainEntity(
+    value: unknown,
+    options: { includeAllRelations?: boolean } = { includeAllRelations: false }
+  ): unknown {
+    if (!value || typeof value !== "object") return value;
+    const entity = value as { toJSON?: (options?: { includeAllRelations?: boolean }) => unknown };
+    if (typeof entity.toJSON === "function") {
+      return entity.toJSON(options);
+    }
+    return value;
   }
 
 }

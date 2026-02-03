@@ -193,18 +193,36 @@ type AfastamentoPessoaFilterDef = typeof AFASTAMENTO_PESSOA_FILTER_DEFS;
 type AfastamentoPessoaFilterKey = keyof AfastamentoPessoaFilterDef;
 type EntityFieldFromDef<T> = T extends { entityField: infer F } ? F : never;
 export type AfastamentoPessoaFilterFields = EntityFieldFromDef<AfastamentoPessoaFilterDef[AfastamentoPessoaFilterKey]>;
+type FilterOperator = "equals" | "contains";
+
+const buildQueryFilters = <T extends Record<string, { schema: unknown; operator: FilterOperator }>>(
+  defs: T
+): Record<string, { schema: unknown; operator: FilterOperator }> =>
+  Object.fromEntries(
+    Object.entries(defs).map(([key, def]) => [key, { schema: def.schema, operator: def.operator }])
+  );
+
+type FilterMappingDef = { entityField: AfastamentoPessoaFilterFields; operator: FilterOperator };
+const hasEntityField = (def: unknown): def is FilterMappingDef =>
+  typeof def === "object" && def !== null && "entityField" in def;
+
+export const AFASTAMENTO_PESSOA_FILTER_MAPPINGS_SOURCE = Object.entries(AFASTAMENTO_PESSOA_FILTER_DEFS)
+  .reduce<Record<string, { field: AfastamentoPessoaFilterFields; operator: FilterOperator }>>(
+    (acc, [key, def]) => {
+      if (hasEntityField(def)) {
+        acc[key] = { field: def.entityField, operator: def.operator };
+      }
+      return acc;
+    },
+    {}
+  );
 
 const AFASTAMENTO_PESSOA_QUERY_FILTERS: Record<
   AfastamentoPessoaFilterKey,
-  { schema: (typeof AFASTAMENTO_PESSOA_FILTER_DEFS)[AfastamentoPessoaFilterKey]["schema"]; operator: "equals" | "contains" }
-> = Object.fromEntries(
-  Object.entries(AFASTAMENTO_PESSOA_FILTER_DEFS).map(([key, def]) => [
-    key,
-    { schema: def.schema, operator: def.operator }
-  ])
-) as Record<
+  { schema: (typeof AFASTAMENTO_PESSOA_FILTER_DEFS)[AfastamentoPessoaFilterKey]["schema"]; operator: FilterOperator }
+> = buildQueryFilters(AFASTAMENTO_PESSOA_FILTER_DEFS) as Record<
   AfastamentoPessoaFilterKey,
-  { schema: (typeof AFASTAMENTO_PESSOA_FILTER_DEFS)[AfastamentoPessoaFilterKey]["schema"]; operator: "equals" | "contains" }
+  { schema: (typeof AFASTAMENTO_PESSOA_FILTER_DEFS)[AfastamentoPessoaFilterKey]["schema"]; operator: FilterOperator }
 >;
 
 export const AfastamentoPessoaQueryDtoClass = createPagedFilterQueryDtoClass({
