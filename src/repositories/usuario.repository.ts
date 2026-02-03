@@ -1,4 +1,4 @@
-import { selectFromEntity } from "metal-orm";
+import { eq, selectFromEntity, type OrmSession } from "metal-orm";
 import { Usuario } from "../entities/Usuario";
 import { BaseRepository, createFilterMappings } from "./base.repository";
 
@@ -17,5 +17,13 @@ export class UsuarioRepository extends BaseRepository<Usuario> {
     return selectFromEntity(Usuario)
       .includePick("especializada", ["nome", "sigla"])
       .orderBy(this.entityRef.id, "ASC");
+  }
+
+  async findByLogin(session: OrmSession, login: string): Promise<Usuario | null> {
+    const [usuario] = await selectFromEntity(Usuario)
+      .includePick("especializada", ["nome", "sigla"])
+      .where(eq(this.entityRef.login, login))
+      .execute(session);
+    return usuario ?? null;
   }
 }
