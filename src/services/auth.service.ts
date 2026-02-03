@@ -44,11 +44,7 @@ export class AuthService {
     }
 
     const usuario = await withSession(async (session) => {
-      const existing = await this.usuarioRepository.findByLogin(session, login);
-      if (existing && existing.estado_inatividade) {
-        throw new HttpError(403, "Usuário inativado no sistema.");
-      }
-      return existing;
+      return this.usuarioRepository.findByLogin(session, login);
     });
 
     const authConfig = getAuthConfigFromEnv();
