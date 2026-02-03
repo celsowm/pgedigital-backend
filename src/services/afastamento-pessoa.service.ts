@@ -74,7 +74,7 @@ export class AfastamentoPessoaService {
       const paged = await baseQuery.executePaged(session, { page, pageSize });
       const response = toPagedResponse(paged);
       response.items = await Promise.all(
-        response.items.map((item: Record<string, unknown>) => this.mapListItem(item))
+        response.items.map((item: unknown) => this.mapListItem(item as Record<string, unknown>))
       );
       return response;
     });
@@ -142,7 +142,13 @@ export class AfastamentoPessoaService {
       await session.commit();
 
       if (substitutos.length > 0) {
-        await this.persistSubstitutos(session, afastamentoPessoa.id, substitutos, afastamentoPessoa.tipo_divisao_carga_trabalho_id);
+        await this.syncSubstitutos(
+          session,
+          afastamentoPessoa,
+          substitutos,
+          afastamentoPessoa.tipo_divisao_carga_trabalho_id,
+          { replace: false }
+        );
         await session.commit();
       }
 
@@ -216,7 +222,7 @@ export class AfastamentoPessoaService {
 
       let substitutos = this.normalizeSubstitutosInput(usuarios);
       if (!hasUsuarios || (emVigencia && substitutos.length === 0)) {
-        substitutos = await this.getSubstitutosExistentes(session, id);
+        substitutos = await this.getSubstitutosExistentes(afastamentoPessoa);
       }
 
       const substitutoIds = substitutos.map(item => item.id);
@@ -239,9 +245,14 @@ export class AfastamentoPessoaService {
 
       await session.commit();
 
-      if (!emVigencia && hasUsuarios && substitutos.length > 0) {
-        await this.removeSubstitutos(session, id);
-        await this.persistSubstitutos(session, id, substitutos, afastamentoPessoa.tipo_divisao_carga_trabalho_id);
+      if (!emVigencia && hasUsuarios) {
+        await this.syncSubstitutos(
+          session,
+          afastamentoPessoa,
+          substitutos,
+          afastamentoPessoa.tipo_divisao_carga_trabalho_id,
+          { replace: true }
+        );
         await session.commit();
       }
 
@@ -520,23 +531,53 @@ export class AfastamentoPessoaService {
       .map((item) => item as AfastamentoPessoaSubstitutoInputDto);
   }
 
-  private async persistSubstitutos(
+  private async syncSubstitutos(
     session: any,
-    afastamentoId: number,
+    afastamentoPessoa: AfastamentoPessoa,
     substitutos: AfastamentoPessoaSubstitutoInputDto[],
-    tipoDivisaoCargaTrabalhoId: number
+    tipoDivisaoCargaTrabalhoId: number,
+    options: { replace?: boolean } = {}
   ): Promise<void> {
+    await afastamentoPessoa.substitutos.load();
+
+    if (!substitutos.length) {
+      if (options.replace) {
+        for (const existing of [...afastamentoPessoa.substitutos.getItems()]) {
+          afastamentoPessoa.substitutos.detach(existing);
+        }
+      }
+      return;
+    }
+
     const finalProcessoId = await this.getTipoDivisaoFinalProcessoId(session);
     const usaFinal = finalProcessoId != null && tipoDivisaoCargaTrabalhoId === finalProcessoId;
 
+    const incomingIds = new Set(substitutos.map(item => String(item.id)));
     for (const substituto of substitutos) {
-      const pivot = new AfastamentoPessoaUsuario();
-      pivot.afastamento_pessoa_id = afastamentoId;
-      pivot.usuario_id = substituto.id;
-      pivot.usa_equipe_acervo_substituto = Boolean(substituto.usa_equipe_acervo_substituto);
-      pivot.final_codigo_pa = usaFinal ? this.normalizeFinalCodigoPa(substituto.final_codigo_pa) : undefined;
-      await session.persist(pivot);
+      const pivotPayload = this.buildSubstitutoPivotPayload(substituto, usaFinal);
+      afastamentoPessoa.substitutos.attach(substituto.id, pivotPayload);
     }
+
+    if (options.replace) {
+      for (const existing of [...afastamentoPessoa.substitutos.getItems()]) {
+        const existingId = (existing as unknown as Record<string, unknown>).id as number | string | undefined;
+        if (existingId === undefined) continue;
+        if (!incomingIds.has(String(existingId))) {
+          afastamentoPessoa.substitutos.detach(existing);
+        }
+      }
+    }
+  }
+
+  private buildSubstitutoPivotPayload(
+    substituto: AfastamentoPessoaSubstitutoInputDto,
+    usaFinal: boolean
+  ): Record<string, unknown> {
+    const normalizedFinal = usaFinal ? this.normalizeFinalCodigoPa(substituto.final_codigo_pa) : undefined;
+    return {
+      usa_equipe_acervo_substituto: Boolean(substituto.usa_equipe_acervo_substituto),
+      final_codigo_pa: usaFinal ? (normalizedFinal ?? null) : null
+    };
   }
 
   private normalizeFinalCodigoPa(value: unknown): string | undefined {
@@ -557,28 +598,18 @@ export class AfastamentoPessoaService {
   }
 
   private async getSubstitutosExistentes(
-    session: any,
-    afastamentoId: number
+    afastamentoPessoa: AfastamentoPessoa
   ): Promise<AfastamentoPessoaSubstitutoInputDto[]> {
-    const pivotRef = entityRef(AfastamentoPessoaUsuario);
-    const rows = (await selectFromEntity(AfastamentoPessoaUsuario)
-      .select({
-        usuario_id: pivotRef.usuario_id,
-        usa_equipe_acervo_substituto: pivotRef.usa_equipe_acervo_substituto,
-        final_codigo_pa: pivotRef.final_codigo_pa
-      })
-      .where(eq(pivotRef.afastamento_pessoa_id, afastamentoId))
-      .executePlain(session)) as Array<{
-      usuario_id: number;
-      usa_equipe_acervo_substituto?: boolean | null;
-      final_codigo_pa?: string | null;
-    }>;
-
-    return rows.map((row) => ({
-      id: row.usuario_id as number,
-      usa_equipe_acervo_substituto: row.usa_equipe_acervo_substituto as boolean | undefined,
-      final_codigo_pa: row.final_codigo_pa as string | undefined
-    }));
+    const items = await afastamentoPessoa.substitutos.load();
+    return items.map((item) => {
+      const usuario = item as unknown as Record<string, unknown>;
+      const { usaEquipe, finalCodigoPa } = this.getSubstitutoPivotValues(usuario);
+      return {
+        id: usuario.id as number,
+        usa_equipe_acervo_substituto: usaEquipe,
+        final_codigo_pa: finalCodigoPa
+      };
+    });
   }
 
   private async criaFila(session: any, substitutoIds: number[]): Promise<FilaCircular | null> {
@@ -672,7 +703,7 @@ export class AfastamentoPessoaService {
   }
 
   private mapSubstituto(usuario: Record<string, unknown>): AfastamentoPessoaSubstitutoDto {
-    const pivot = (usuario._pivot as Record<string, unknown> | undefined) ?? {};
+    const { usaEquipe, finalCodigoPa } = this.getSubstitutoPivotValues(usuario);
 
     return {
       id: usuario.id as number,
@@ -680,9 +711,28 @@ export class AfastamentoPessoaService {
       cargo: usuario.cargo as string | undefined,
       vinculo: usuario.vinculo as string | undefined,
       especializada: usuario.especializada as Record<string, unknown> | undefined,
-      usa_equipe_acervo_substituto: pivot.usa_equipe_acervo_substituto as boolean | undefined,
-      final_codigo_pa: (pivot.final_codigo_pa as string | null | undefined) ?? null
+      usa_equipe_acervo_substituto: usaEquipe,
+      final_codigo_pa: finalCodigoPa
     } as AfastamentoPessoaSubstitutoDto;
+  }
+
+  private getSubstitutoPivotValues(
+    usuario: Record<string, unknown>
+  ): { usaEquipe?: boolean; finalCodigoPa?: string | null } {
+    const pivot = (usuario._pivot as Record<string, unknown> | undefined) ?? {};
+    const usaEquipe =
+      usuario.usa_equipe_acervo_substituto !== undefined
+        ? usuario.usa_equipe_acervo_substituto
+        : pivot.usa_equipe_acervo_substituto;
+    const finalCodigoPa =
+      usuario.final_codigo_pa !== undefined
+        ? usuario.final_codigo_pa
+        : pivot.final_codigo_pa;
+
+    return {
+      usaEquipe: usaEquipe as boolean | undefined,
+      finalCodigoPa: (finalCodigoPa as string | null | undefined) ?? null
+    };
   }
 
   private async coerceToArray(value: unknown): Promise<unknown[]> {

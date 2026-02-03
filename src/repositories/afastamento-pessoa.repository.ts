@@ -24,7 +24,7 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
       .include("substitutos", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
         include: { especializada: { columns: ["id", "nome"] } },
-        pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"] }
+        pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"], merge: true }
       })
       .orderBy(this.entityRef.data_inicio, "DESC")
       .orderBy(this.entityRef.id, "ASC");
@@ -43,7 +43,7 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
       .include("substitutos", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
         include: { especializada: { columns: ["id", "nome"] } },
-        pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"] }
+        pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"], merge: true }
       });
   }
 }
