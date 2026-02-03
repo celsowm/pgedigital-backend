@@ -1,21 +1,29 @@
 import { selectFromEntity } from "metal-orm";
 import { AfastamentoPessoa } from "../entities/AfastamentoPessoa";
+import {
+  AFASTAMENTO_PESSOA_FILTER_DEFS,
+  type AfastamentoPessoaFilterFields
+} from "../dtos/afastamento-pessoa/afastamento-pessoa.dtos";
 import { BaseRepository, createFilterMappings } from "./base.repository";
 
-export type AfastamentoPessoaFilterFields =
-  | "usuario_id"
-  | "tipo_afastamento_id"
-  | "tipo_divisao_carga_trabalho_id";
+type FilterMappingDef = { entityField: AfastamentoPessoaFilterFields; operator: "equals" | "contains" };
+
+const hasEntityField = (def: unknown): def is FilterMappingDef =>
+  typeof def === "object" && def !== null && "entityField" in def;
+
+const AFASTAMENTO_PESSOA_FILTER_MAPPINGS_SOURCE = Object.entries(AFASTAMENTO_PESSOA_FILTER_DEFS)
+  .reduce<Record<string, { field: AfastamentoPessoaFilterFields; operator: "equals" | "contains" }>>(
+    (acc, [key, def]) => {
+      if (hasEntityField(def)) {
+        acc[key] = { field: def.entityField, operator: def.operator };
+      }
+      return acc;
+    },
+    {}
+  );
 
 export const AFASTAMENTO_PESSOA_FILTER_MAPPINGS =
-  createFilterMappings<AfastamentoPessoaFilterFields>({
-    usuarioAfastadoId: { field: "usuario_id", operator: "equals" },
-    tipoAfastamentoId: { field: "tipo_afastamento_id", operator: "equals" },
-    tipoDivisaoCargaTrabalhoId: {
-      field: "tipo_divisao_carga_trabalho_id",
-      operator: "equals"
-    }
-  });
+  createFilterMappings<AfastamentoPessoaFilterFields>(AFASTAMENTO_PESSOA_FILTER_MAPPINGS_SOURCE);
 
 export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPessoa> {
   readonly entityClass = AfastamentoPessoa;

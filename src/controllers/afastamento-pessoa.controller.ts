@@ -21,9 +21,7 @@ import {
   AfastamentoPessoaPagedResponseDto,
   AfastamentoPessoaQueryDto,
   AfastamentoPessoaQueryDtoClass,
-  AfastamentoPessoaErrors,
-  AfastamentoPessoaOptionsDto,
-  AfastamentoPessoaOptionDto
+  AfastamentoPessoaErrors
 } from "../dtos/afastamento-pessoa/afastamento-pessoa.dtos";
 import { AfastamentoPessoaService } from "../services/afastamento-pessoa.service";
 
@@ -36,15 +34,6 @@ export class AfastamentoPessoaController {
   @Returns(AfastamentoPessoaPagedResponseDto)
   async list(ctx: RequestContext<unknown, AfastamentoPessoaQueryDto>): Promise<unknown> {
     return this.service.list(ctx.query ?? {});
-  }
-
-  @Get("/options")
-  @Query(AfastamentoPessoaQueryDtoClass)
-  @Returns(AfastamentoPessoaOptionsDto)
-  async listOptions(
-    ctx: RequestContext<unknown, AfastamentoPessoaQueryDto>
-  ): Promise<AfastamentoPessoaOptionDto[]> {
-    return this.service.listOptions(ctx.query ?? {});
   }
 
   @Get("/:id")

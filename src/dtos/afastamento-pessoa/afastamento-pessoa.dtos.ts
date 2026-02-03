@@ -12,8 +12,6 @@ import {
   TipoDivisaoCargaTrabalhoResumoDto,
   EspecializadaResumoDto,
   createCrudErrors,
-  createOptionsArraySchema,
-  createOptionDto,
   createIdNomeResumoDto
 } from "../common";
 
@@ -30,7 +28,8 @@ export const {
   params: AfastamentoPessoaParamsDto
 } = afastamentoPessoaCrud;
 
-export type AfastamentoPessoaDto = AfastamentoPessoa;
+export type AfastamentoPessoaDto = InstanceType<typeof AfastamentoPessoaDto>;
+export type AfastamentoPessoaEntity = AfastamentoPessoa;
 export type AfastamentoPessoaParamsDto = InstanceType<typeof AfastamentoPessoaParamsDto>;
 
 // ============ Substitutos ============
@@ -174,34 +173,46 @@ export class AfastamentoPessoaDetailRelationsDto {
 export class AfastamentoPessoaDetailDto {}
 
 // ============ Query/Response DTOs ============
+export const AFASTAMENTO_PESSOA_FILTER_DEFS = {
+  usuarioAfastadoId: { entityField: "usuario_id", schema: t.integer(), operator: "equals" },
+  tipoAfastamentoId: { entityField: "tipo_afastamento_id", schema: t.integer(), operator: "equals" },
+  tipoDivisaoCargaTrabalhoId: {
+    entityField: "tipo_divisao_carga_trabalho_id",
+    schema: t.integer(),
+    operator: "equals"
+  },
+  especializadaId: { schema: t.integer(), operator: "equals" },
+  cargoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  substitutoId: { schema: t.integer(), operator: "equals" },
+  statusAfastamento: { schema: t.string({ minLength: 1 }), operator: "equals" },
+  dataInicio: { schema: t.string({ format: "date" }), operator: "equals" },
+  dataFim: { schema: t.string({ format: "date" }), operator: "equals" }
+} as const;
+
+type AfastamentoPessoaFilterDef = typeof AFASTAMENTO_PESSOA_FILTER_DEFS;
+type AfastamentoPessoaFilterKey = keyof AfastamentoPessoaFilterDef;
+type EntityFieldFromDef<T> = T extends { entityField: infer F } ? F : never;
+export type AfastamentoPessoaFilterFields = EntityFieldFromDef<AfastamentoPessoaFilterDef[AfastamentoPessoaFilterKey]>;
+
+const AFASTAMENTO_PESSOA_QUERY_FILTERS: Record<
+  AfastamentoPessoaFilterKey,
+  { schema: (typeof AFASTAMENTO_PESSOA_FILTER_DEFS)[AfastamentoPessoaFilterKey]["schema"]; operator: "equals" | "contains" }
+> = Object.fromEntries(
+  Object.entries(AFASTAMENTO_PESSOA_FILTER_DEFS).map(([key, def]) => [
+    key,
+    { schema: def.schema, operator: def.operator }
+  ])
+) as Record<
+  AfastamentoPessoaFilterKey,
+  { schema: (typeof AFASTAMENTO_PESSOA_FILTER_DEFS)[AfastamentoPessoaFilterKey]["schema"]; operator: "equals" | "contains" }
+>;
+
 export const AfastamentoPessoaQueryDtoClass = createPagedFilterQueryDtoClass({
   name: "AfastamentoPessoaQueryDto",
-  filters: {
-    usuarioAfastadoId: { schema: t.integer(), operator: "equals" },
-    tipoAfastamentoId: { schema: t.integer(), operator: "equals" },
-    tipoDivisaoCargaTrabalhoId: { schema: t.integer(), operator: "equals" },
-    especializadaId: { schema: t.integer(), operator: "equals" },
-    cargoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    substitutoId: { schema: t.integer(), operator: "equals" },
-    statusAfastamento: { schema: t.string({ minLength: 1 }), operator: "equals" },
-    dataInicio: { schema: t.string({ format: "date" }), operator: "equals" },
-    dataFim: { schema: t.string({ format: "date" }), operator: "equals" }
-  }
+  filters: AFASTAMENTO_PESSOA_QUERY_FILTERS
 });
 
-export interface AfastamentoPessoaQueryDto {
-  page?: number;
-  pageSize?: number;
-  usuarioAfastadoId?: number;
-  tipoAfastamentoId?: number;
-  tipoDivisaoCargaTrabalhoId?: number;
-  especializadaId?: number;
-  cargoContains?: string;
-  substitutoId?: number;
-  statusAfastamento?: string;
-  dataInicio?: string;
-  dataFim?: string;
-}
+export type AfastamentoPessoaQueryDto = InstanceType<typeof AfastamentoPessoaQueryDtoClass>;
 
 export const AfastamentoPessoaPagedResponseDto = createPagedResponseDtoClass({
   name: "AfastamentoPessoaPagedResponseDto",
@@ -211,15 +222,3 @@ export const AfastamentoPessoaPagedResponseDto = createPagedResponseDtoClass({
 
 // ============ Errors & Options ============
 export const AfastamentoPessoaErrors = createCrudErrors("afastamento pessoa");
-
-const AfastamentoPessoaOptionDtoClass = createOptionDto(
-  "AfastamentoPessoaOptionDto",
-  "Afastamento pessoa com apenas id e nome."
-);
-export { AfastamentoPessoaOptionDtoClass as AfastamentoPessoaOptionDto };
-export type AfastamentoPessoaOptionDto = InstanceType<typeof AfastamentoPessoaOptionDtoClass>;
-
-export const AfastamentoPessoaOptionsDto = createOptionsArraySchema(
-  AfastamentoPessoaOptionDtoClass,
-  "Lista de afastamentos pessoa com id e nome."
-);

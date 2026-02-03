@@ -32,17 +32,16 @@ import { VwAfastamentoPessoa } from "../entities/VwAfastamentoPessoa";
 import type {
   AfastamentoPessoaDetailDto,
   AfastamentoPessoaQueryDto,
-  AfastamentoPessoaOptionDto,
   CreateAfastamentoPessoaDto,
   ReplaceAfastamentoPessoaDto,
   UpdateAfastamentoPessoaDto,
   AfastamentoPessoaSubstitutoDto,
-  AfastamentoPessoaSubstitutoInputDto
+  AfastamentoPessoaSubstitutoInputDto,
+  AfastamentoPessoaFilterFields
 } from "../dtos/afastamento-pessoa/afastamento-pessoa.dtos";
 import {
   AfastamentoPessoaRepository,
-  AFASTAMENTO_PESSOA_FILTER_MAPPINGS,
-  type AfastamentoPessoaFilterFields
+  AFASTAMENTO_PESSOA_FILTER_MAPPINGS
 } from "../repositories/afastamento-pessoa.repository";
 
 const FINAL_DE_PROCESSO_NOME = "Final de Processo";
@@ -72,37 +71,17 @@ export class AfastamentoPessoaService {
 
       baseQuery = this.applyCustomFilters(baseQuery, query ?? {});
 
-      const paged = await baseQuery.executePaged(session, { page, pageSize });
-      const response = toPagedResponse(paged);
+      const totalItems = await baseQuery.count(session);
+      const items = await baseQuery
+        .limit(pageSize)
+        .offset((page - 1) * pageSize)
+        .executePlain(session);
+
+      const response = toPagedResponse({ items, totalItems, page, pageSize });
       response.items = response.items.map((item) =>
         this.mapListItem(item as Record<string, unknown>)
       );
       return response;
-    });
-  }
-
-  async listOptions(query: AfastamentoPessoaQueryDto): Promise<AfastamentoPessoaOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<AfastamentoPessoa, AfastamentoPessoaFilterFields>(
-      paginationQuery,
-      AFASTAMENTO_PESSOA_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildListQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      optionsQuery = this.applyCustomFilters(optionsQuery, query ?? {});
-
-      const rows = await optionsQuery.executePlain(session);
-      return rows.map((row: Record<string, unknown>) => {
-        const usuario = row.usuario as Record<string, unknown> | undefined;
-        return {
-          id: row.id as number,
-          nome: (usuario?.nome as string) ?? String(row.id)
-        };
-      });
     });
   }
 
@@ -204,7 +183,7 @@ export class AfastamentoPessoaService {
   private async loadDetail(session: any, id: number): Promise<AfastamentoPessoaDetailDto> {
     const [detail] = await this.repository.buildDetailQuery()
       .where(eq(this.repository.entityRef.id, id))
-      .execute(session);
+      .executePlain(session);
 
     if (!detail) {
       throw new HttpError(404, `${this.entityName} not found.`);
@@ -278,6 +257,7 @@ export class AfastamentoPessoaService {
   private applyCustomFilters(query: any, params: AfastamentoPessoaQueryDto): any {
     const ref = this.repository.entityRef;
     const queryParams = params ?? {};
+    const usuarioRef = entityRef(Usuario);
 
     if (queryParams.dataInicio || queryParams.dataFim) {
       const dataInicio = this.toDateString(queryParams.dataInicio) ?? undefined;
@@ -314,27 +294,21 @@ export class AfastamentoPessoaService {
     }
 
     if (queryParams.substitutoId) {
-      const pivotRef = entityRef(AfastamentoPessoaUsuario);
-      const subQuery = selectFromEntity(AfastamentoPessoaUsuario)
-        .select({ id: pivotRef.afastamento_pessoa_id })
-        .where(eq(pivotRef.usuario_id, queryParams.substitutoId));
-      query = query.where(inSubquery(ref.id, subQuery));
+      query = query.whereHas("substitutos", (qb: any) =>
+        qb.where(eq(usuarioRef.id, queryParams.substitutoId))
+      );
     }
 
     if (queryParams.especializadaId) {
-      const usuarioRef = entityRef(Usuario);
-      const subQuery = selectFromEntity(Usuario)
-        .select({ id: usuarioRef.id })
-        .where(eq(usuarioRef.especializada_id, queryParams.especializadaId));
-      query = query.where(inSubquery(ref.usuario_id, subQuery));
+      query = query.whereHas("usuario", (qb: any) =>
+        qb.where(eq(usuarioRef.especializada_id, queryParams.especializadaId))
+      );
     }
 
     if (queryParams.cargoContains) {
-      const usuarioRef = entityRef(Usuario);
-      const subQuery = selectFromEntity(Usuario)
-        .select({ id: usuarioRef.id })
-        .where(like(usuarioRef.cargo, `%${queryParams.cargoContains}%`));
-      query = query.where(inSubquery(ref.usuario_id, subQuery));
+      query = query.whereHas("usuario", (qb: any) =>
+        qb.where(like(usuarioRef.cargo, `%${queryParams.cargoContains}%`))
+      );
     }
 
     return query;
@@ -691,8 +665,10 @@ export class AfastamentoPessoaService {
   }
 
   private mapSubstitutos(raw: unknown): AfastamentoPessoaSubstitutoDto[] {
-    const usuariosRaw = this.coerceArray(raw);
-    return usuariosRaw.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
+    if (!Array.isArray(raw)) {
+      return [];
+    }
+    return raw.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
   }
 
   private mapSubstituto(usuario: Record<string, unknown>): AfastamentoPessoaSubstitutoDto {
@@ -709,33 +685,4 @@ export class AfastamentoPessoaService {
     } as AfastamentoPessoaSubstitutoDto;
   }
 
-  private coerceArray(raw: unknown): unknown[] {
-    if (Array.isArray(raw)) {
-      return raw;
-    }
-
-    if (!raw || typeof raw !== "object") {
-      return [];
-    }
-
-    const collection = raw as {
-      getItems?: () => unknown[];
-      toJSON?: () => unknown[];
-      [Symbol.iterator]?: () => Iterator<unknown>;
-    };
-
-    if (typeof collection.getItems === "function") {
-      return collection.getItems();
-    }
-
-    if (typeof collection.toJSON === "function") {
-      return collection.toJSON();
-    }
-
-    if (typeof collection[Symbol.iterator] === "function") {
-      return Array.from(collection as Iterable<unknown>);
-    }
-
-    return [];
-  }
 }
