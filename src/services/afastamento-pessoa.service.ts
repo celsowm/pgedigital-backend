@@ -691,7 +691,7 @@ export class AfastamentoPessoaService {
   }
 
   private mapSubstitutos(raw: unknown): AfastamentoPessoaSubstitutoDto[] {
-    const usuariosRaw = Array.isArray(raw) ? raw : [];
+    const usuariosRaw = this.coerceArray(raw);
     return usuariosRaw.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
   }
 
@@ -707,5 +707,35 @@ export class AfastamentoPessoaService {
       usa_equipe_acervo_substituto: pivot.usa_equipe_acervo_substituto as boolean | undefined,
       final_codigo_pa: (pivot.final_codigo_pa as string | null | undefined) ?? null
     } as AfastamentoPessoaSubstitutoDto;
+  }
+
+  private coerceArray(raw: unknown): unknown[] {
+    if (Array.isArray(raw)) {
+      return raw;
+    }
+
+    if (!raw || typeof raw !== "object") {
+      return [];
+    }
+
+    const collection = raw as {
+      getItems?: () => unknown[];
+      toJSON?: () => unknown[];
+      [Symbol.iterator]?: () => Iterator<unknown>;
+    };
+
+    if (typeof collection.getItems === "function") {
+      return collection.getItems();
+    }
+
+    if (typeof collection.toJSON === "function") {
+      return collection.toJSON();
+    }
+
+    if (typeof collection[Symbol.iterator] === "function") {
+      return Array.from(collection as Iterable<unknown>);
+    }
+
+    return [];
   }
 }
