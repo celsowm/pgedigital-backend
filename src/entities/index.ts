@@ -218,6 +218,7 @@ import { UnidadeSeiUsuarioSei } from './UnidadeSeiUsuarioSei';
 import { ComunicacaoEstado } from './ComunicacaoEstado';
 import { InterpretacaoSentenca } from './InterpretacaoSentenca';
 import { Cda } from './Cda';
+import { UsuarioThumbnail } from './UsuarioThumbnail';
 import { TipoIncidente } from './TipoIncidente';
 import { ModeloTema } from './ModeloTema';
 import { UsuarioPermitidoAcessarProcessoAdministrativoSigiloso } from './UsuarioPermitidoAcessarProcessoAdministrativoSigiloso';
@@ -231,6 +232,11 @@ import { MagistradoProcesso } from './MagistradoProcesso';
 import { Acervo } from './Acervo';
 import { ManifestacaoEstado } from './ManifestacaoEstado';
 import { ManifestacaoProcessual } from './ManifestacaoProcessual';
+import { VwUltimaTramitacao } from './VwUltimaTramitacao';
+import { VwUltimoEstadoComunicacao } from './VwUltimoEstadoComunicacao';
+import { VwComunicacaoJuntar } from './VwComunicacaoJuntar';
+import { VwAfastamentoPessoa } from './VwAfastamentoPessoa';
+import { VwListaDocumento } from './VwListaDocumento';
 
 export {
   PredicaoOrgaoJulgadorEspecializada,
@@ -450,6 +456,7 @@ export {
   ComunicacaoEstado,
   InterpretacaoSentenca,
   Cda,
+  UsuarioThumbnail,
   TipoIncidente,
   ModeloTema,
   UsuarioPermitidoAcessarProcessoAdministrativoSigiloso,
@@ -463,6 +470,11 @@ export {
   Acervo,
   ManifestacaoEstado,
   ManifestacaoProcessual,
+  VwUltimaTramitacao,
+  VwUltimoEstadoComunicacao,
+  VwComunicacaoJuntar,
+  VwAfastamentoPessoa,
+  VwListaDocumento,
 };
 
 export const bootstrapEntityTables = () => {
@@ -685,6 +697,7 @@ export const bootstrapEntityTables = () => {
     ComunicacaoEstado: getTableDefFromEntity(ComunicacaoEstado)!,
     InterpretacaoSentenca: getTableDefFromEntity(InterpretacaoSentenca)!,
     Cda: getTableDefFromEntity(Cda)!,
+    UsuarioThumbnail: getTableDefFromEntity(UsuarioThumbnail)!,
     TipoIncidente: getTableDefFromEntity(TipoIncidente)!,
     ModeloTema: getTableDefFromEntity(ModeloTema)!,
     UsuarioPermitidoAcessarProcessoAdministrativoSigiloso: getTableDefFromEntity(UsuarioPermitidoAcessarProcessoAdministrativoSigiloso)!,
@@ -698,6 +711,11 @@ export const bootstrapEntityTables = () => {
     Acervo: getTableDefFromEntity(Acervo)!,
     ManifestacaoEstado: getTableDefFromEntity(ManifestacaoEstado)!,
     ManifestacaoProcessual: getTableDefFromEntity(ManifestacaoProcessual)!,
+    VwUltimaTramitacao: getTableDefFromEntity(VwUltimaTramitacao)!,
+    VwUltimoEstadoComunicacao: getTableDefFromEntity(VwUltimoEstadoComunicacao)!,
+    VwComunicacaoJuntar: getTableDefFromEntity(VwComunicacaoJuntar)!,
+    VwAfastamentoPessoa: getTableDefFromEntity(VwAfastamentoPessoa)!,
+    VwListaDocumento: getTableDefFromEntity(VwListaDocumento)!,
   };
 };
 

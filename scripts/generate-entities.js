@@ -58,7 +58,8 @@ function buildGeneratorArgs() {
     `--url=${url}`,
     "--out-dir=src/entities",
     "--locale=pt-BR",
-    "--naming-overrides=./scripts/naming-overrides.json"
+    "--naming-overrides=./scripts/naming-overrides.json",
+    "--include-views"
   ];
 
   const schema = process.env.PGE_DIGITAL_SCHEMA;
