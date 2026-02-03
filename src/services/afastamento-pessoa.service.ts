@@ -24,7 +24,6 @@ import {
 import { withSession } from "../db/mssql";
 import { AfastamentoPessoa } from "../entities/AfastamentoPessoa";
 import { AfastamentoPessoaUsuario } from "../entities/AfastamentoPessoaUsuario";
-import { Especializada } from "../entities/Especializada";
 import { FilaCircular } from "../entities/FilaCircular";
 import { TipoDivisaoCargaTrabalho } from "../entities/TipoDivisaoCargaTrabalho";
 import { Usuario } from "../entities/Usuario";
@@ -35,7 +34,6 @@ import type {
   CreateAfastamentoPessoaDto,
   ReplaceAfastamentoPessoaDto,
   UpdateAfastamentoPessoaDto,
-  AfastamentoPessoaSubstitutoDto,
   AfastamentoPessoaSubstitutoInputDto,
   AfastamentoPessoaFilterFields
 } from "../dtos/afastamento-pessoa/afastamento-pessoa.dtos";
@@ -72,11 +70,7 @@ export class AfastamentoPessoaService {
       baseQuery = this.applyCustomFilters(baseQuery, query ?? {});
 
       const paged = await baseQuery.executePaged(session, { page, pageSize });
-      const response = toPagedResponse(paged);
-      response.items = await Promise.all(
-        response.items.map((item: unknown) => this.mapListItem(item as Record<string, unknown>))
-      );
-      return response;
+      return toPagedResponse(paged);
     });
   }
 
@@ -190,7 +184,7 @@ export class AfastamentoPessoaService {
       throw new HttpError(404, `${this.entityName} not found.`);
     }
 
-    return this.mapDetail(detail as Record<string, unknown>);
+    return detail as AfastamentoPessoaDetailDto;
   }
 
   private async updateInternal(
@@ -440,13 +434,13 @@ export class AfastamentoPessoaService {
     const predicate = this.buildOverlapPredicate(viewRef, datas);
     if (!predicate) return false;
 
-    const rows = await selectFromEntity(VwAfastamentoPessoa)
-      .select({ usuario_id: viewRef.usuario_id })
+    const count = await selectFromEntity(VwAfastamentoPessoa)
+      .select("id")
       .where(predicate)
       .where(inList(viewRef.usuario_id, substitutoIds))
-      .executePlain(session);
+      .count(session);
 
-    return rows.length > 0;
+    return count > 0;
   }
 
   private async estaSubstituindoAfastamento(
@@ -463,12 +457,12 @@ export class AfastamentoPessoaService {
       .where(predicate);
 
     const pivotRef = entityRef(AfastamentoPessoaUsuario);
-    const rows = await selectFromEntity(AfastamentoPessoaUsuario)
-      .select({ id: pivotRef.id })
+    const count = await selectFromEntity(AfastamentoPessoaUsuario)
+      .select("id")
       .where(and(eq(pivotRef.usuario_id, usuarioId), inSubquery(pivotRef.afastamento_pessoa_id, overlapQuery)))
-      .executePlain(session);
+      .count(session);
 
-    return rows.length > 0;
+    return count > 0;
   }
 
   private async afastamentoVigenteParaUsuario(
@@ -489,8 +483,8 @@ export class AfastamentoPessoaService {
       query = query.where(neq(viewRef.id, excludeId));
     }
 
-    const rows = await query.executePlain(session);
-    return rows.length > 0;
+    const count = await query.count(session);
+    return count > 0;
   }
 
   private async todosProcuradores(
@@ -501,22 +495,22 @@ export class AfastamentoPessoaService {
     if (!substitutoIds.length) return true;
 
     const usuarioRef = entityRef(Usuario);
-    const [afastado] = (await selectFromEntity(Usuario)
-      .select({ id: usuarioRef.id, vinculo: usuarioRef.vinculo })
+    const [vinculoAfastado] = await selectFromEntity(Usuario)
+      .select("vinculo")
       .where(eq(usuarioRef.id, usuarioAfastadoId))
-      .executePlain(session)) as Array<{ id: number; vinculo?: string | null }>;
+      .pluck("vinculo", session);
 
-    const vinculoAfastado = (afastado?.vinculo as string | undefined) ?? "";
-    if (!vinculoAfastado.includes("Procurador")) {
+    const vinculoAfastadoValue = (vinculoAfastado as string | undefined) ?? "";
+    if (!vinculoAfastadoValue.includes("Procurador")) {
       return true;
     }
 
-    const substitutos = (await selectFromEntity(Usuario)
-      .select({ id: usuarioRef.id, vinculo: usuarioRef.vinculo })
+    const substitutoVinculos = await selectFromEntity(Usuario)
+      .select("vinculo")
       .where(inList(usuarioRef.id, substitutoIds))
-      .executePlain(session)) as Array<{ id: number; vinculo?: string | null }>;
+      .pluck("vinculo", session);
 
-    return substitutos.every((sub) => String(sub.vinculo ?? "").includes("Procurador"));
+    return substitutoVinculos.every((vinculo) => String(vinculo ?? "").includes("Procurador"));
   }
 
   private necessitaSubstitutos(vinculo?: string | null): boolean {
@@ -612,110 +606,6 @@ export class AfastamentoPessoaService {
     });
   }
 
-  private async criaFila(session: any, substitutoIds: number[]): Promise<FilaCircular | null> {
-    if (!substitutoIds.length) return null;
-
-    const fila = new FilaCircular();
-    fila.ultimo_elemento = Math.min(...substitutoIds);
-
-    await session.persist(fila);
-    await session.commit();
-
-    return fila;
-  }
-
-  private async getTipoDivisaoFinalProcessoId(session: any): Promise<number | null> {
-    if (this.tipoDivisaoFinalProcessoId !== undefined) {
-      return this.tipoDivisaoFinalProcessoId;
-    }
-
-    const ref = entityRef(TipoDivisaoCargaTrabalho);
-    const [row] = await selectFromEntity(TipoDivisaoCargaTrabalho)
-      .select({ id: ref.id })
-      .where(eq(ref.nome, FINAL_DE_PROCESSO_NOME))
-      .executePlain(session);
-
-    this.tipoDivisaoFinalProcessoId = (row?.id as number | undefined) ?? null;
-    return this.tipoDivisaoFinalProcessoId;
-  }
-
-  private async getUsuarioAfastadoInfo(
-    session: any,
-    usuarioId: number
-  ): Promise<{ cargo?: string; vinculo?: string | null; lotacao?: string | null } | null> {
-    const usuarioRef = entityRef(Usuario);
-    const rows = (await selectFromEntity(Usuario)
-      .select({
-        id: usuarioRef.id,
-        cargo: usuarioRef.cargo,
-        vinculo: usuarioRef.vinculo,
-        especializada_id: usuarioRef.especializada_id
-      })
-      .where(eq(usuarioRef.id, usuarioId))
-      .executePlain(session)) as Array<{
-      id: number;
-      cargo?: string;
-      vinculo?: string | null;
-      especializada_id?: number | null;
-    }>;
-
-    const usuario = rows[0];
-    if (!usuario) return null;
-
-    let lotacao: string | null = null;
-    if (usuario.especializada_id) {
-      const espRef = entityRef(Especializada);
-      const [especializada] = (await selectFromEntity(Especializada)
-        .select({ nome: espRef.nome })
-        .where(eq(espRef.id, usuario.especializada_id as number))
-        .executePlain(session)) as Array<{ nome?: string }>;
-      lotacao = (especializada?.nome as string | undefined) ?? null;
-    }
-
-    return {
-      cargo: usuario.cargo as string | undefined,
-      vinculo: (usuario.vinculo as string | undefined) ?? null,
-      lotacao
-    };
-  }
-
-  private async mapDetail(detail: Record<string, unknown>): Promise<AfastamentoPessoaDetailDto> {
-    return (await this.mapListItem(detail)) as AfastamentoPessoaDetailDto;
-  }
-
-  private async mapListItem(detail: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const substitutos = await this.mapSubstitutos(detail.substitutos);
-    const base = this.toPlainEntity(detail) as Record<string, unknown>;
-    return {
-      ...base,
-      usuario: await this.resolveSingleRelation(detail.usuario),
-      tipoAfastamento: await this.resolveSingleRelation(detail.tipoAfastamento),
-      tipoDivisaoCargaTrabalho: await this.resolveSingleRelation(detail.tipoDivisaoCargaTrabalho),
-      filaCircular: await this.resolveSingleRelation(detail.filaCircular),
-      substitutos
-    };
-  }
-
-  private async mapSubstitutos(raw: unknown): Promise<AfastamentoPessoaSubstitutoDto[]> {
-    const items = await this.coerceToArray(raw);
-    if (!items.length) return [];
-    return items.map((usuario) => this.mapSubstituto(usuario as Record<string, unknown>));
-  }
-
-  private mapSubstituto(usuario: Record<string, unknown>): AfastamentoPessoaSubstitutoDto {
-    const { usaEquipe, finalCodigoPa } = this.getSubstitutoPivotValues(usuario);
-
-    return {
-      id: usuario.id as number,
-      nome: usuario.nome as string,
-      cargo: usuario.cargo as string | undefined,
-      vinculo: usuario.vinculo as string | undefined,
-      especializada: usuario.especializada as Record<string, unknown> | undefined,
-      usa_equipe_acervo_substituto: usaEquipe,
-      final_codigo_pa: finalCodigoPa
-    } as AfastamentoPessoaSubstitutoDto;
-  }
-
   private getSubstitutoPivotValues(
     usuario: Record<string, unknown>
   ): { usaEquipe?: boolean; finalCodigoPa?: string | null } {
@@ -735,50 +625,60 @@ export class AfastamentoPessoaService {
     };
   }
 
-  private async coerceToArray(value: unknown): Promise<unknown[]> {
-    if (!value) return [];
-    if (Array.isArray(value)) return value;
-    if (typeof value === "object") {
-      const wrapper = value as { load?: () => Promise<unknown[]>; getItems?: () => unknown[] };
-      if (typeof wrapper.load === "function") {
-        return await wrapper.load();
-      }
-      if (typeof wrapper.getItems === "function") {
-        return wrapper.getItems();
-      }
-      if (Symbol.iterator in wrapper) {
-        return Array.from(wrapper as Iterable<unknown>);
-      }
-    }
-    return [];
+  private async criaFila(session: any, substitutoIds: number[]): Promise<FilaCircular | null> {
+    if (!substitutoIds.length) return null;
+
+    const fila = new FilaCircular();
+    fila.ultimo_elemento = Math.min(...substitutoIds);
+
+    await session.persist(fila);
+    await session.commit();
+
+    return fila;
   }
 
-  private async resolveSingleRelation(value: unknown): Promise<unknown> {
-    if (!value || typeof value !== "object") return value;
-    const wrapper = value as { load?: () => Promise<unknown>; get?: () => unknown };
-    if (typeof wrapper.get === "function") {
-      const existing = wrapper.get();
-      if (existing) {
-        return this.toPlainEntity(existing);
-      }
+  private async getTipoDivisaoFinalProcessoId(session: any): Promise<number | null> {
+    if (this.tipoDivisaoFinalProcessoId !== undefined) {
+      return this.tipoDivisaoFinalProcessoId;
     }
-    if (typeof wrapper.load === "function") {
-      const loaded = await wrapper.load();
-      return this.toPlainEntity(loaded);
-    }
-    return this.toPlainEntity(value);
+
+    const ref = entityRef(TipoDivisaoCargaTrabalho);
+    const [id] = await selectFromEntity(TipoDivisaoCargaTrabalho)
+      .select("id")
+      .where(eq(ref.nome, FINAL_DE_PROCESSO_NOME))
+      .pluck("id", session);
+
+    this.tipoDivisaoFinalProcessoId = (id as number | undefined) ?? null;
+    return this.tipoDivisaoFinalProcessoId;
   }
 
-  private toPlainEntity(
-    value: unknown,
-    options: { includeAllRelations?: boolean } = { includeAllRelations: false }
-  ): unknown {
-    if (!value || typeof value !== "object") return value;
-    const entity = value as { toJSON?: (options?: { includeAllRelations?: boolean }) => unknown };
-    if (typeof entity.toJSON === "function") {
-      return entity.toJSON(options);
-    }
-    return value;
+  private async getUsuarioAfastadoInfo(
+    session: any,
+    usuarioId: number
+  ): Promise<{ cargo?: string; vinculo?: string | null; lotacao?: string | null } | null> {
+    const usuarioRef = entityRef(Usuario);
+    const rows = (await selectFromEntity(Usuario)
+      .select("id", "cargo", "vinculo", "especializada_id")
+      .includePick("especializada", ["nome"])
+      .where(eq(usuarioRef.id, usuarioId))
+      .executePlain(session)) as Array<{
+      id: number;
+      cargo?: string;
+      vinculo?: string | null;
+      especializada_id?: number | null;
+      especializada?: { nome?: string };
+    }>;
+
+    const usuario = rows[0];
+    if (!usuario) return null;
+
+    const lotacao = (usuario.especializada?.nome as string | undefined) ?? null;
+
+    return {
+      cargo: usuario.cargo as string | undefined,
+      vinculo: (usuario.vinculo as string | undefined) ?? null,
+      lotacao
+    };
   }
 
 }
