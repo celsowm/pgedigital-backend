@@ -25,9 +25,17 @@ import { AfastamentoPessoaController } from "./controllers/afastamento-pessoa.co
 import { AuthController } from "./controllers/auth.controller";
 
 export async function createApp(): Promise<Express> {
+  const corsOrigins = (process.env.PGE_DIGITAL_CORS_ORIGINS ?? "")
+    .split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
   const app = await createExpressApp({
     controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, AfastamentoPessoaController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController, ExitoSucumbenciaController, ClassificacaoController, FilaCircularController, AuthController],
-    cors: true,
+    cors: {
+      origin: corsOrigins.length ? corsOrigins : "*",
+      credentials: true
+    },
     openApi: {
       info: {
         title: "PGE Digital API",

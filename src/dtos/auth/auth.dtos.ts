@@ -54,3 +54,15 @@ export class AuthLoginResponseDto {
   @Field(t.optional(t.ref(UsuarioWithEspecializadaDto)))
   usuario?: InstanceType<typeof UsuarioWithEspecializadaDto> | null;
 }
+
+@Dto({ description: "Resposta de refresh do token de acesso." })
+export class AuthRefreshResponseDto {
+  @Field(t.string({ minLength: 1 }))
+  access_token!: string;
+
+  @Field(t.string({ minLength: 1 }))
+  token_type!: string;
+
+  @Field(t.integer({ minimum: 1 }))
+  expires_in!: number;
+}
