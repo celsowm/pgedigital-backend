@@ -18,8 +18,7 @@ export const RESPONSAVEL_FILTER_MAPPINGS = createFilterMappings<ResponsavelFilte
 export class EspecializadaRepository extends BaseRepository<Especializada> {
   readonly entityClass = Especializada;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override buildListQuery(): any {
+  override buildListQuery(): ReturnType<typeof selectFromEntity<Especializada>> {
     return selectFromEntity(Especializada)
       .includePick("responsavel", ["id", "nome"])
       .orderBy(this.entityRef.id, "ASC");

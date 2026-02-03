@@ -6,12 +6,15 @@ import {
 import {
   applyFilter,
   entityRef,
+  getColumn,
   selectFromEntity,
   toPagedResponse,
   type OrmSession
 } from "metal-orm";
 
 type EntityClass<T> = new (...args: unknown[]) => T;
+type EntityRef<TEntity extends object> = ReturnType<typeof entityRef<TEntity>>;
+type EntityQuery<TEntity extends object> = ReturnType<typeof selectFromEntity<TEntity>>;
 
 /**
  * Generic list endpoint handler with pagination and filtering
@@ -20,18 +23,17 @@ export async function listWithPagination<TEntity extends object, TQueryDto exten
   ctx: RequestContext<unknown, TQueryDto>,
   entityClass: EntityClass<TEntity>,
   filterMappings: Record<string, { field: keyof TEntity; operator: "equals" | "contains" }>,
-  queryBuilder?: <Q>(qb: Q) => Q
+  queryBuilder?: (qb: EntityQuery<TEntity>) => EntityQuery<TEntity>
 ): Promise<unknown> {
   const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
   const { page, pageSize } = parsePagination(paginationQuery);
   const filters = parseFilter<TEntity, keyof TEntity>(paginationQuery, filterMappings);
-  const ref = entityRef(entityClass);
+  const ref: EntityRef<TEntity> = entityRef(entityClass);
+  const idColumn = getColumn(ref, "id");
 
   return async (session: OrmSession) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const refAny = ref as any;
     let query = applyFilter(
-      selectFromEntity(entityClass).orderBy(refAny.id, "ASC"),
+      selectFromEntity(entityClass).orderBy(idColumn, "ASC"),
       entityClass,
       filters
     );
@@ -71,12 +73,12 @@ export async function listOptions<TEntity extends object>(
   entityClass: EntityClass<TEntity>,
   optionsLabelField: keyof TEntity = "nome" as keyof TEntity
 ): Promise<Array<{ id: number; nome: string }>> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ref = entityRef(entityClass) as any;
-  const labelRef = ref[optionsLabelField as string];
+  const ref: EntityRef<TEntity> = entityRef(entityClass);
+  const idColumn = getColumn(ref, "id");
+  const labelColumn = getColumn(ref, optionsLabelField as string);
   const result = await selectFromEntity(entityClass)
-    .select({ id: ref.id, nome: labelRef })
-    .orderBy(labelRef, "ASC")
+    .select({ id: idColumn, nome: labelColumn })
+    .orderBy(labelColumn, "ASC")
     .executePlain(session);
   return result as unknown as Array<{ id: number; nome: string }>;
 }

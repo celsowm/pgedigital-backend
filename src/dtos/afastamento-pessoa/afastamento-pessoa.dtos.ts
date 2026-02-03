@@ -41,8 +41,8 @@ export class AfastamentoPessoaSubstitutoInputDto {
   @Field(t.optional(t.boolean()))
   usa_equipe_acervo_substituto?: boolean;
 
-  @Field(t.optional(t.any()))
-  final_codigo_pa?: unknown;
+  @Field(t.optional(t.union([t.string(), t.number(), t.null()])))
+  final_codigo_pa?: string | number | null;
 }
 
 @Dto({ description: "Substitutos associados ao afastamento." })

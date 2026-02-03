@@ -19,7 +19,9 @@ import {
   lte,
   or,
   selectFromEntity,
-  toPagedResponse
+  toPagedResponse,
+  type ExpressionNode,
+  type OrmSession
 } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { AfastamentoPessoa } from "../entities/AfastamentoPessoa";
@@ -43,6 +45,8 @@ import {
 } from "../repositories/afastamento-pessoa.repository";
 
 const FINAL_DE_PROCESSO_NOME = "Final de Processo";
+type AfastamentoPessoaQuery = ReturnType<typeof selectFromEntity<AfastamentoPessoa>>;
+type VwAfastamentoPessoaRef = ReturnType<typeof entityRef<VwAfastamentoPessoa>>;
 
 export class AfastamentoPessoaService {
   private readonly repository: AfastamentoPessoaRepository;
@@ -175,7 +179,7 @@ export class AfastamentoPessoaService {
     });
   }
 
-  private async loadDetail(session: any, id: number): Promise<AfastamentoPessoaDetailDto> {
+  private async loadDetail(session: OrmSession, id: number): Promise<AfastamentoPessoaDetailDto> {
     const [detail] = await this.repository.buildDetailQuery()
       .where(eq(this.repository.entityRef.id, id))
       .execute(session);
@@ -254,7 +258,7 @@ export class AfastamentoPessoaService {
     });
   }
 
-  private applyCustomFilters(query: any, params: AfastamentoPessoaQueryDto): any {
+  private applyCustomFilters(query: AfastamentoPessoaQuery, params: AfastamentoPessoaQueryDto): AfastamentoPessoaQuery {
     const ref = this.repository.entityRef;
     const queryParams = params ?? {};
     const usuarioRef = entityRef(Usuario);
@@ -294,19 +298,19 @@ export class AfastamentoPessoaService {
     }
 
     if (queryParams.substitutoId) {
-      query = query.whereHas("substitutos", (qb: any) =>
+      query = query.whereHas("substitutos", (qb) =>
         qb.where(eq(usuarioRef.id, queryParams.substitutoId))
       );
     }
 
     if (queryParams.especializadaId) {
-      query = query.whereHas("usuario", (qb: any) =>
+      query = query.whereHas("usuario", (qb) =>
         qb.where(eq(usuarioRef.especializada_id, queryParams.especializadaId))
       );
     }
 
     if (queryParams.cargoContains) {
-      query = query.whereHas("usuario", (qb: any) =>
+      query = query.whereHas("usuario", (qb) =>
         qb.where(like(usuarioRef.cargo, `%${queryParams.cargoContains}%`))
       );
     }
@@ -362,7 +366,7 @@ export class AfastamentoPessoaService {
     return datas;
   }
 
-  private buildOverlapPredicate(viewRef: any, datas: string[]): any | null {
+  private buildOverlapPredicate(viewRef: VwAfastamentoPessoaRef, datas: string[]): ExpressionNode | null {
     if (datas.length === 0) return null;
     const predicates = datas.map((data) =>
       and(lte(viewRef.menor_data_inicio, data), gte(viewRef.maior_data_fim, data))
@@ -371,7 +375,7 @@ export class AfastamentoPessoaService {
   }
 
   private async validacaoAfastamento(
-    session: any,
+    session: OrmSession,
     afastamento: AfastamentoPessoa,
     substitutoIds: number[],
     vinculoAfastado?: string | null,
@@ -425,7 +429,7 @@ export class AfastamentoPessoaService {
   }
 
   private async substitutoEstaAfastado(
-    session: any,
+    session: OrmSession,
     datas: string[],
     substitutoIds: number[]
   ): Promise<boolean> {
@@ -444,7 +448,7 @@ export class AfastamentoPessoaService {
   }
 
   private async estaSubstituindoAfastamento(
-    session: any,
+    session: OrmSession,
     datas: string[],
     usuarioId: number
   ): Promise<boolean> {
@@ -466,7 +470,7 @@ export class AfastamentoPessoaService {
   }
 
   private async afastamentoVigenteParaUsuario(
-    session: any,
+    session: OrmSession,
     datas: string[],
     usuarioId: number,
     excludeId?: number
@@ -488,7 +492,7 @@ export class AfastamentoPessoaService {
   }
 
   private async todosProcuradores(
-    session: any,
+    session: OrmSession,
     usuarioAfastadoId: number,
     substitutoIds: number[]
   ): Promise<boolean> {
@@ -526,7 +530,7 @@ export class AfastamentoPessoaService {
   }
 
   private async syncSubstitutos(
-    session: any,
+    session: OrmSession,
     afastamentoPessoa: AfastamentoPessoa,
     substitutos: AfastamentoPessoaSubstitutoInputDto[],
     tipoDivisaoCargaTrabalhoId: number,
@@ -580,7 +584,7 @@ export class AfastamentoPessoaService {
     return JSON.stringify(value);
   }
 
-  private async removeSubstitutos(session: any, afastamentoId: number): Promise<void> {
+  private async removeSubstitutos(session: OrmSession, afastamentoId: number): Promise<void> {
     const pivotRef = entityRef(AfastamentoPessoaUsuario);
     const rows = await selectFromEntity(AfastamentoPessoaUsuario)
       .where(eq(pivotRef.afastamento_pessoa_id, afastamentoId))
@@ -625,7 +629,7 @@ export class AfastamentoPessoaService {
     };
   }
 
-  private async criaFila(session: any, substitutoIds: number[]): Promise<FilaCircular | null> {
+  private async criaFila(session: OrmSession, substitutoIds: number[]): Promise<FilaCircular | null> {
     if (!substitutoIds.length) return null;
 
     const fila = new FilaCircular();
@@ -637,7 +641,7 @@ export class AfastamentoPessoaService {
     return fila;
   }
 
-  private async getTipoDivisaoFinalProcessoId(session: any): Promise<number | null> {
+  private async getTipoDivisaoFinalProcessoId(session: OrmSession): Promise<number | null> {
     if (this.tipoDivisaoFinalProcessoId !== undefined) {
       return this.tipoDivisaoFinalProcessoId;
     }
@@ -653,7 +657,7 @@ export class AfastamentoPessoaService {
   }
 
   private async getUsuarioAfastadoInfo(
-    session: any,
+    session: OrmSession,
     usuarioId: number
   ): Promise<{ cargo?: string; vinculo?: string | null; lotacao?: string | null } | null> {
     const usuarioRef = entityRef(Usuario);

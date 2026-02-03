@@ -15,8 +15,7 @@ export const ACERVO_FILTER_MAPPINGS = createFilterMappings<AcervoFilterFields>({
 export class AcervoRepository extends BaseRepository<Acervo> {
   readonly entityClass = Acervo;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override buildListQuery(): any {
+  override buildListQuery(): ReturnType<typeof selectFromEntity<Acervo>> {
     return selectFromEntity(Acervo)
       .includePick("especializada", ["id", "nome"])
       .includePick("procuradorTitular", ["id", "nome"])
@@ -24,8 +23,7 @@ export class AcervoRepository extends BaseRepository<Acervo> {
       .orderBy(this.entityRef.id, "ASC");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buildBaseRelationsQuery(): any {
+  buildBaseRelationsQuery(): ReturnType<typeof selectFromEntity<Acervo>> {
     return selectFromEntity(Acervo)
       .includePick("especializada", ["id", "nome"])
       .includePick("procuradorTitular", ["id", "nome"])
@@ -35,8 +33,7 @@ export class AcervoRepository extends BaseRepository<Acervo> {
       .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buildDetailQuery(): any {
+  buildDetailQuery(): ReturnType<typeof selectFromEntity<Acervo>> {
     return this.buildBaseRelationsQuery()
       .include("equipes", { columns: ["id", "nome"], include: { especializada: { columns: ["id", "nome"] } } })
       .include("classificacoes", { columns: ["id", "nome"] })

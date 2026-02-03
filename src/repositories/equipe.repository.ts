@@ -12,8 +12,7 @@ export const EQUIPE_FILTER_MAPPINGS = createFilterMappings<EquipeFilterFields>({
 export class EquipeRepository extends BaseRepository<Equipe> {
   readonly entityClass = Equipe;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override buildListQuery(): any {
+  override buildListQuery(): ReturnType<typeof selectFromEntity<Equipe>> {
     return selectFromEntity(Equipe)
       .includePick("especializada", ["id", "nome"])
       .orderBy(this.entityRef.id, "ASC");

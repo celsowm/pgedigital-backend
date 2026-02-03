@@ -12,8 +12,7 @@ export const AFASTAMENTO_PESSOA_FILTER_MAPPINGS =
 export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPessoa> {
   readonly entityClass = AfastamentoPessoa;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override buildListQuery(): any {
+  override buildListQuery(): ReturnType<typeof selectFromEntity<AfastamentoPessoa>> {
     return selectFromEntity(AfastamentoPessoa)
       .include("usuario", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
@@ -30,8 +29,7 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
       .orderBy(this.entityRef.id, "ASC");
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  buildDetailQuery(): any {
+  buildDetailQuery(): ReturnType<typeof selectFromEntity<AfastamentoPessoa>> {
     return selectFromEntity(AfastamentoPessoa)
       .include("usuario", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
