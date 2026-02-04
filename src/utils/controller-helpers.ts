@@ -9,37 +9,124 @@ import {
   getColumn,
   selectFromEntity,
   toPagedResponse,
-  type OrmSession
+  type OrmSession,
+  type ColumnDef
 } from "metal-orm";
 
 type EntityClass<T> = new (...args: unknown[]) => T;
 type EntityRef<TEntity extends object> = ReturnType<typeof entityRef<TEntity>>;
 type EntityQuery<TEntity extends object> = ReturnType<typeof selectFromEntity<TEntity>>;
+type SortDirection = "ASC" | "DESC";
+
+export interface ParsedSorting {
+  sortBy: string | null;
+  sortOrder: SortDirection;
+}
+
+export interface SortingConfig {
+  defaultSortBy?: string;
+  defaultSortOrder?: SortDirection;
+  allowedColumns?: string[];
+}
 
 /**
- * Generic list endpoint handler with pagination and filtering
+ * Parses sorting parameters from query parameters.
+ * @param query - Query parameters
+ * @param config - Sorting configuration
+ * @returns Parsed sorting result
  */
-export async function listWithPagination<TEntity extends object, TQueryDto extends object | undefined>(
+export function parseSorting(
+  query: Record<string, unknown>,
+  config: SortingConfig = {}
+): ParsedSorting {
+  const { defaultSortBy = null, defaultSortOrder = "ASC", allowedColumns } = config;
+
+  const rawSortBy = typeof query.sortBy === "string" ? query.sortBy.trim() : null;
+  let sortBy = rawSortBy ? rawSortBy : defaultSortBy;
+  
+  if (sortBy && allowedColumns && !allowedColumns.includes(sortBy)) {
+    sortBy = defaultSortBy;
+  }
+
+  const rawOrder = typeof query.sortOrder === "string" ? query.sortOrder.trim().toUpperCase() : null;
+  const sortOrder: SortDirection = rawOrder === "DESC" ? "DESC" : (rawOrder === "ASC" ? "ASC" : defaultSortOrder);
+
+  return { sortBy, sortOrder };
+}
+
+export interface ListWithPaginationOptions<TEntity extends object> {
+  filterMappings: Record<string, { field: keyof TEntity; operator: "equals" | "contains" }>;
+  sortableColumns?: (keyof TEntity & string)[];
+  defaultSortBy?: keyof TEntity & string;
+  defaultSortOrder?: SortDirection;
+  queryBuilder?: (qb: EntityQuery<TEntity>) => EntityQuery<TEntity>;
+}
+
+/**
+ * Generic list endpoint handler with pagination, filtering, and sorting
+ */
+export function listWithPagination<TEntity extends object, TQueryDto extends object | undefined>(
+  ctx: RequestContext<unknown, TQueryDto>,
+  entityClass: EntityClass<TEntity>,
+  options: ListWithPaginationOptions<TEntity>
+): (session: OrmSession) => Promise<unknown>;
+
+/**
+ * @deprecated Use the options object overload instead
+ */
+export function listWithPagination<TEntity extends object, TQueryDto extends object | undefined>(
   ctx: RequestContext<unknown, TQueryDto>,
   entityClass: EntityClass<TEntity>,
   filterMappings: Record<string, { field: keyof TEntity; operator: "equals" | "contains" }>,
   queryBuilder?: (qb: EntityQuery<TEntity>) => EntityQuery<TEntity>
-): Promise<unknown> {
+): (session: OrmSession) => Promise<unknown>;
+
+export function listWithPagination<TEntity extends object, TQueryDto extends object | undefined>(
+  ctx: RequestContext<unknown, TQueryDto>,
+  entityClass: EntityClass<TEntity>,
+  filterMappingsOrOptions: Record<string, { field: keyof TEntity; operator: "equals" | "contains" }> | ListWithPaginationOptions<TEntity>,
+  queryBuilder?: (qb: EntityQuery<TEntity>) => EntityQuery<TEntity>
+): (session: OrmSession) => Promise<unknown> {
+  const isOptionsObject = (obj: unknown): obj is ListWithPaginationOptions<TEntity> =>
+    typeof obj === "object" && obj !== null && "filterMappings" in obj;
+
+  const options: ListWithPaginationOptions<TEntity> = isOptionsObject(filterMappingsOrOptions)
+    ? filterMappingsOrOptions
+    : { filterMappings: filterMappingsOrOptions, queryBuilder };
+
   const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
   const { page, pageSize } = parsePagination(paginationQuery);
-  const filters = parseFilter<TEntity, keyof TEntity>(paginationQuery, filterMappings);
+  const filters = parseFilter<TEntity, keyof TEntity>(paginationQuery, options.filterMappings);
+  
+  const { sortBy, sortOrder } = parseSorting(paginationQuery, {
+    defaultSortBy: options.defaultSortBy ?? "id",
+    defaultSortOrder: options.defaultSortOrder ?? "ASC",
+    allowedColumns: options.sortableColumns
+  });
+
   const ref: EntityRef<TEntity> = entityRef(entityClass);
-  const idColumn = getColumn(ref, "id");
 
   return async (session: OrmSession) => {
     let query = applyFilter(
-      selectFromEntity(entityClass).orderBy(idColumn, "ASC"),
+      selectFromEntity(entityClass),
       entityClass,
       filters
     );
 
-    if (queryBuilder) {
-      query = queryBuilder(query);
+    if (options.queryBuilder) {
+      query = options.queryBuilder(query);
+    }
+
+    if (sortBy) {
+      const sortColumn = getColumn(ref, sortBy) as ColumnDef;
+      query = query.orderBy(sortColumn, sortOrder);
+      if (sortBy !== "id") {
+        const idColumn = getColumn(ref, "id") as ColumnDef;
+        query = query.orderBy(idColumn, "ASC");
+      }
+    } else {
+      const idColumn = getColumn(ref, "id") as ColumnDef;
+      query = query.orderBy(idColumn, "ASC");
     }
 
     const paged = await query.executePaged(session, { page, pageSize });

@@ -9,6 +9,7 @@ import {
   applyFilter,
   entityRef,
   eq,
+  getColumn,
   gt,
   gte,
   inList,
@@ -20,6 +21,7 @@ import {
   or,
   selectFromEntity,
   toPagedResponse,
+  type ColumnDef,
   type ExpressionNode,
   type OrmSession
 } from "metal-orm";
@@ -43,8 +45,10 @@ import {
   AfastamentoPessoaRepository,
   AFASTAMENTO_PESSOA_FILTER_MAPPINGS
 } from "../repositories/afastamento-pessoa.repository";
+import { parseSorting } from "../utils/controller-helpers";
 
 const FINAL_DE_PROCESSO_NOME = "Final de Processo";
+const SORTABLE_COLUMNS = ["id", "data_inicio", "data_fim", "usuario_id", "tipo_afastamento_id"] as const;
 type AfastamentoPessoaQuery = ReturnType<typeof selectFromEntity<AfastamentoPessoa>>;
 type VwAfastamentoPessoaRef = ReturnType<typeof entityRef<VwAfastamentoPessoa>>;
 
@@ -64,6 +68,11 @@ export class AfastamentoPessoaService {
       paginationQuery,
       AFASTAMENTO_PESSOA_FILTER_MAPPINGS
     );
+    const { sortBy, sortOrder } = parseSorting(paginationQuery, {
+      defaultSortBy: "data_inicio",
+      defaultSortOrder: "DESC",
+      allowedColumns: [...SORTABLE_COLUMNS]
+    });
 
     return withSession(async (session) => {
       let baseQuery = this.repository.buildListQuery();
@@ -72,6 +81,16 @@ export class AfastamentoPessoaService {
       }
 
       baseQuery = this.applyCustomFilters(baseQuery, query ?? {});
+
+      if (sortBy) {
+        const ref = entityRef(AfastamentoPessoa);
+        const sortColumn = getColumn(ref, sortBy as keyof AfastamentoPessoa) as ColumnDef;
+        baseQuery = baseQuery.orderBy(sortColumn, sortOrder);
+        if (sortBy !== "id") {
+          const idColumn = getColumn(ref, "id") as ColumnDef;
+          baseQuery = baseQuery.orderBy(idColumn, "ASC");
+        }
+      }
 
       const paged = await baseQuery.executePaged(session, { page, pageSize });
       return toPagedResponse(paged);

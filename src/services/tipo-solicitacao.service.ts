@@ -1,9 +1,4 @@
-import { parseFilter, parsePagination } from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
-import { withSession } from "../db/mssql";
-import { TipoSolicitacao } from "../entities/TipoSolicitacao";
 import type {
-  TipoSolicitacaoOptionDto,
   TipoSolicitacaoQueryDto
 } from "../dtos/tipo-solicitacao/tipo-solicitacao.dtos";
 import {
@@ -11,43 +6,22 @@ import {
   TIPO_SOLICITACAO_FILTER_MAPPINGS,
   type TipoSolicitacaoFilterFields
 } from "../repositories/tipo-solicitacao.repository";
+import { BaseService, type ListConfig } from "./base.service";
+import type { TipoSolicitacao } from "../entities/TipoSolicitacao";
 
-export class TipoSolicitacaoService {
-  private readonly repository: TipoSolicitacaoRepository;
+const SORTABLE_COLUMNS = ["id", "nome"] as const;
+
+export class TipoSolicitacaoService extends BaseService<TipoSolicitacao, TipoSolicitacaoFilterFields, TipoSolicitacaoQueryDto> {
+  protected readonly repository: TipoSolicitacaoRepository;
+  protected readonly listConfig: ListConfig<TipoSolicitacao, TipoSolicitacaoFilterFields> = {
+    filterMappings: TIPO_SOLICITACAO_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
 
   constructor(repository?: TipoSolicitacaoRepository) {
+    super();
     this.repository = repository ?? new TipoSolicitacaoRepository();
-  }
-
-  async list(query: TipoSolicitacaoQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<TipoSolicitacao, TipoSolicitacaoFilterFields>(
-      paginationQuery,
-      TIPO_SOLICITACAO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: TipoSolicitacaoQueryDto): Promise<TipoSolicitacaoOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<TipoSolicitacao, TipoSolicitacaoFilterFields>(
-      paginationQuery,
-      TIPO_SOLICITACAO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
   }
 }

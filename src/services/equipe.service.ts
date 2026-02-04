@@ -1,15 +1,8 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { Equipe } from "../entities/Equipe";
 import type {
   CreateEquipeDto,
-  EquipeOptionDto,
   EquipeQueryDto,
   EquipeWithEspecializadaDto,
   ReplaceEquipeDto,
@@ -20,47 +13,24 @@ import {
   EQUIPE_FILTER_MAPPINGS,
   type EquipeFilterFields
 } from "../repositories/equipe.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class EquipeService {
-  private readonly repository: EquipeRepository;
+const SORTABLE_COLUMNS = ["id", "nome", "especializada_id"] as const;
+
+export class EquipeService extends BaseService<Equipe, EquipeFilterFields, EquipeQueryDto> {
+  protected readonly repository: EquipeRepository;
+  protected readonly listConfig: ListConfig<Equipe, EquipeFilterFields> = {
+    filterMappings: EQUIPE_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "equipe";
 
   constructor(repository?: EquipeRepository) {
+    super();
     this.repository = repository ?? new EquipeRepository();
   }
-
-  async list(query: EquipeQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Equipe, EquipeFilterFields>(
-      paginationQuery,
-      EQUIPE_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: EquipeQueryDto): Promise<EquipeOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<Equipe, EquipeFilterFields>(
-      paginationQuery,
-      EQUIPE_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<EquipeWithEspecializadaDto> {
     return withSession(async (session) => {
       const equipe = await this.repository.getWithEspecializada(session, id);

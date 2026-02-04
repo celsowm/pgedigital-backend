@@ -1,50 +1,27 @@
-import { parseFilter, parsePagination } from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
-import { withSession } from "../db/mssql";
-import { Usuario } from "../entities/Usuario";
-import type { UsuarioQueryDto } from "../dtos/usuario/usuario.dtos";
+import type {
+  UsuarioQueryDto
+} from "../dtos/usuario/usuario.dtos";
 import {
   UsuarioRepository,
   USUARIO_FILTER_MAPPINGS,
   type UsuarioFilterFields
 } from "../repositories/usuario.repository";
+import { BaseService, type ListConfig } from "./base.service";
+import type { Usuario } from "../entities/Usuario";
 
-export class UsuarioService {
-  private readonly repository: UsuarioRepository;
+const SORTABLE_COLUMNS = ["id", "nome", "login", "cargo"] as const;
+
+export class UsuarioService extends BaseService<Usuario, UsuarioFilterFields, UsuarioQueryDto> {
+  protected readonly repository: UsuarioRepository;
+  protected readonly listConfig: ListConfig<Usuario, UsuarioFilterFields> = {
+    filterMappings: USUARIO_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
 
   constructor(repository?: UsuarioRepository) {
+    super();
     this.repository = repository ?? new UsuarioRepository();
-  }
-
-  async list(query: UsuarioQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Usuario, UsuarioFilterFields>(
-      paginationQuery,
-      USUARIO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: UsuarioQueryDto): Promise<Array<{ id: number; nome: string }>> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<Usuario, UsuarioFilterFields>(
-      paginationQuery,
-      USUARIO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
   }
 }

@@ -1,11 +1,14 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { NotaVersao } from "../../entities/NotaVersao";
-import { createCrudErrors } from "../common";
+import {
+  createCrudErrors,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
+} from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
 const notaVersaoCrud = createMetalCrudDtoClasses(NotaVersao, {
@@ -28,8 +31,9 @@ export type ReplaceNotaVersaoDto = NotaVersaoMutationDto;
 export type UpdateNotaVersaoDto = UpdateDto<NotaVersaoDto>;
 export type NotaVersaoParamsDto = InstanceType<typeof NotaVersaoParamsDto>;
 
-export const NotaVersaoQueryDtoClass = createPagedFilterQueryDtoClass({
+export const NotaVersaoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "NotaVersaoQueryDto",
+  sortableColumns: ["id", "data", "sprint", "ativo"],
   filters: {
     sprint: { schema: t.integer({ minimum: 1 }), operator: "equals" },
     ativo: { schema: t.boolean(), operator: "equals" },
@@ -37,7 +41,7 @@ export const NotaVersaoQueryDtoClass = createPagedFilterQueryDtoClass({
   }
 });
 
-export interface NotaVersaoQueryDto {
+export interface NotaVersaoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   sprint?: number;

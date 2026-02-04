@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { TipoDivisaoCargaTrabalho } from "../../entities/TipoDivisaoCargaTrabalh
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,14 @@ export type ReplaceTipoDivisaoCargaTrabalhoDto = TipoDivisaoCargaTrabalhoMutatio
 export type UpdateTipoDivisaoCargaTrabalhoDto = UpdateDto<TipoDivisaoCargaTrabalhoDto>;
 export type TipoDivisaoCargaTrabalhoParamsDto = InstanceType<typeof TipoDivisaoCargaTrabalhoParamsDto>;
 
-export const TipoDivisaoCargaTrabalhoQueryDtoClass = createPagedFilterQueryDtoClass({
+export const TipoDivisaoCargaTrabalhoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "TipoDivisaoCargaTrabalhoQueryDto",
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface TipoDivisaoCargaTrabalhoQueryDto {
+export interface TipoDivisaoCargaTrabalhoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

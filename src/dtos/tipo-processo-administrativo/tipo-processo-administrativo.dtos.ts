@@ -1,5 +1,10 @@
-import { createPagedFilterQueryDtoClass, t } from "adorn-api";
-import { createOptionDto, createOptionsArraySchema } from "../common";
+import { t } from "adorn-api";
+import {
+  createOptionDto,
+  createOptionsArraySchema,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
+} from "../common";
 
 const TipoProcessoAdministrativoOptionDtoClass = createOptionDto(
   "TipoProcessoAdministrativoOptionDto",
@@ -8,14 +13,14 @@ const TipoProcessoAdministrativoOptionDtoClass = createOptionDto(
 export { TipoProcessoAdministrativoOptionDtoClass as TipoProcessoAdministrativoOptionDto };
 export type TipoProcessoAdministrativoOptionDto = InstanceType<typeof TipoProcessoAdministrativoOptionDtoClass>;
 
-export const TipoProcessoAdministrativoQueryDtoClass = createPagedFilterQueryDtoClass({
+export const TipoProcessoAdministrativoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "TipoProcessoAdministrativoQueryDto",
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface TipoProcessoAdministrativoQueryDto {
+export interface TipoProcessoAdministrativoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

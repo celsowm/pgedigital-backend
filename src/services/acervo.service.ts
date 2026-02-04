@@ -1,16 +1,9 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { Acervo } from "../entities/Acervo";
 import type {
   AcervoDetailDto,
   AcervoQueryDto,
-  AcervoOptionDto,
   CreateAcervoDto,
   ReplaceAcervoDto,
   UpdateAcervoDto
@@ -20,47 +13,25 @@ import {
   ACERVO_FILTER_MAPPINGS,
   type AcervoFilterFields
 } from "../repositories/acervo.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class AcervoService {
-  private readonly repository: AcervoRepository;
+const SORTABLE_COLUMNS = ["id", "nome", "ativo", "created", "modified"] as const;
+
+export class AcervoService extends BaseService<Acervo, AcervoFilterFields, AcervoQueryDto> {
+  protected readonly repository: AcervoRepository;
+  protected readonly listConfig: ListConfig<Acervo, AcervoFilterFields> = {
+    filterMappings: ACERVO_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
+
   private readonly entityName = "acervo";
 
   constructor(repository?: AcervoRepository) {
+    super();
     this.repository = repository ?? new AcervoRepository();
   }
-
-  async list(query: AcervoQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Acervo, AcervoFilterFields>(
-      paginationQuery,
-      ACERVO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: AcervoQueryDto): Promise<AcervoOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<Acervo, AcervoFilterFields>(
-      paginationQuery,
-      ACERVO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
       const acervo = await this.repository.getDetail(session, id);

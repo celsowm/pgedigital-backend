@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { TipoAcervo } from "../../entities/TipoAcervo";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,15 @@ export type ReplaceTipoAcervoDto = TipoAcervoMutationDto;
 export type UpdateTipoAcervoDto = UpdateDto<TipoAcervoDto>;
 export type TipoAcervoParamsDto = InstanceType<typeof TipoAcervoParamsDto>;
 
-export const TipoAcervoQueryDtoClass = createPagedFilterQueryDtoClass({
+export const TipoAcervoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "TipoAcervoQueryDto",
+  sortableColumns: ["id", "nome"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface TipoAcervoQueryDto {
+export interface TipoAcervoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

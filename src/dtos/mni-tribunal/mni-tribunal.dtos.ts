@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { MniTribunal } from "../../entities/MniTribunal";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,8 +34,9 @@ export type ReplaceMniTribunalDto = MniTribunalMutationDto;
 export type UpdateMniTribunalDto = UpdateDto<MniTribunalDto>;
 export type MniTribunalParamsDto = InstanceType<typeof MniTribunalParamsDto>;
 
-export const MniTribunalQueryDtoClass = createPagedFilterQueryDtoClass({
+export const MniTribunalQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "MniTribunalQueryDto",
+  sortableColumns: ["id", "sigla", "descricao", "identificador_cnj"],
   filters: {
     descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
     siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
@@ -42,7 +44,7 @@ export const MniTribunalQueryDtoClass = createPagedFilterQueryDtoClass({
   }
 });
 
-export interface MniTribunalQueryDto {
+export interface MniTribunalQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   descricaoContains?: string;

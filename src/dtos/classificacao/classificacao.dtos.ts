@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { Classificacao } from "../../entities/Classificacao";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,15 @@ export type ReplaceClassificacaoDto = ClassificacaoMutationDto;
 export type UpdateClassificacaoDto = UpdateDto<ClassificacaoDto>;
 export type ClassificacaoParamsDto = InstanceType<typeof ClassificacaoParamsDto>;
 
-export const ClassificacaoQueryDtoClass = createPagedFilterQueryDtoClass({
-  name: "ClassificacaoQueryDto",
+export const ClassificacaoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
+  name: "ificacaoQueryDto",
+  sortableColumns: ["id", "nome", "peso"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface ClassificacaoQueryDto {
+export interface ClassificacaoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

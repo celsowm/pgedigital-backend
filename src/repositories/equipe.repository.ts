@@ -14,8 +14,7 @@ export class EquipeRepository extends BaseRepository<Equipe> {
 
   override buildListQuery(): ReturnType<typeof selectFromEntity<Equipe>> {
     return selectFromEntity(Equipe)
-      .includePick("especializada", ["id", "nome"])
-      .orderBy(this.entityRef.id, "ASC");
+      .includePick("especializada", ["id", "nome"]);
   }
 
   async getWithEspecializada(session: OrmSession, id: number): Promise<Equipe | null> {

@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { Materia } from "../../entities/Materia";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,15 @@ export type ReplaceMateriaDto = MateriaMutationDto;
 export type UpdateMateriaDto = UpdateDto<MateriaDto>;
 export type MateriaParamsDto = InstanceType<typeof MateriaParamsDto>;
 
-export const MateriaQueryDtoClass = createPagedFilterQueryDtoClass({
+export const MateriaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "MateriaQueryDto",
+  sortableColumns: ["id", "nome"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface MateriaQueryDto {
+export interface MateriaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

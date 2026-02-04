@@ -1,16 +1,9 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { NaturezaIncidente } from "../entities/NaturezaIncidente";
 import type {
   CreateNaturezaIncidenteDto,
   NaturezaIncidenteDto,
-  NaturezaIncidenteOptionDto,
   NaturezaIncidenteQueryDto,
   ReplaceNaturezaIncidenteDto,
   UpdateNaturezaIncidenteDto
@@ -20,47 +13,24 @@ import {
   NATUREZA_INCIDENTE_FILTER_MAPPINGS,
   type NaturezaIncidenteFilterFields
 } from "../repositories/natureza-incidente.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class NaturezaIncidenteService {
-  private readonly repository: NaturezaIncidenteRepository;
+const SORTABLE_COLUMNS = ["id", "nome"] as const;
+
+export class NaturezaIncidenteService extends BaseService<NaturezaIncidente, NaturezaIncidenteFilterFields, NaturezaIncidenteQueryDto> {
+  protected readonly repository: NaturezaIncidenteRepository;
+  protected readonly listConfig: ListConfig<NaturezaIncidente, NaturezaIncidenteFilterFields> = {
+    filterMappings: NATUREZA_INCIDENTE_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "natureza incidente";
 
   constructor(repository?: NaturezaIncidenteRepository) {
+    super();
     this.repository = repository ?? new NaturezaIncidenteRepository();
   }
-
-  async list(query: NaturezaIncidenteQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<NaturezaIncidente, NaturezaIncidenteFilterFields>(
-      paginationQuery,
-      NATUREZA_INCIDENTE_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: NaturezaIncidenteQueryDto): Promise<NaturezaIncidenteOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<NaturezaIncidente, NaturezaIncidenteFilterFields>(
-      paginationQuery,
-      NATUREZA_INCIDENTE_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<NaturezaIncidenteDto> {
     return withSession(async (session) => {
       const naturezaIncidente = await this.repository.findById(session, id);

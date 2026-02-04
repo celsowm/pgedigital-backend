@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { TipoAfastamento } from "../../entities/TipoAfastamento";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,15 @@ export type ReplaceTipoAfastamentoDto = TipoAfastamentoMutationDto;
 export type UpdateTipoAfastamentoDto = UpdateDto<TipoAfastamentoDto>;
 export type TipoAfastamentoParamsDto = InstanceType<typeof TipoAfastamentoParamsDto>;
 
-export const TipoAfastamentoQueryDtoClass = createPagedFilterQueryDtoClass({
+export const TipoAfastamentoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "TipoAfastamentoQueryDto",
+  sortableColumns: ["id", "nome"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface TipoAfastamentoQueryDto {
+export interface TipoAfastamentoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

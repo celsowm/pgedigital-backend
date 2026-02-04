@@ -47,9 +47,7 @@ export abstract class BaseRepository<TEntity extends object> {
   }
 
   buildListQuery(): EntityQuery<TEntity> {
-    const ref = this.entityRef;
-    return selectFromEntity(this.entityClass as EntityClass<TEntity>)
-      .orderBy(getColumn(ref, "id"), "ASC");
+    return selectFromEntity(this.entityClass as EntityClass<TEntity>);
   }
 
   buildOptionsQuery(labelField?: keyof TEntity): OptionsQuery<TEntity> {

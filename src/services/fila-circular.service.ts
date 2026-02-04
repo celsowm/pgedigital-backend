@@ -1,10 +1,4 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { FilaCircular } from "../entities/FilaCircular";
 import type {
@@ -20,45 +14,27 @@ import {
   FILA_CIRCULAR_FILTER_MAPPINGS,
   type FilaCircularFilterFields
 } from "../repositories/fila-circular.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class FilaCircularService {
-  private readonly repository: FilaCircularRepository;
+const SORTABLE_COLUMNS = ["id", "ultimo_elemento"] as const;
+
+export class FilaCircularService extends BaseService<FilaCircular, FilaCircularFilterFields, FilaCircularQueryDto> {
+  protected readonly repository: FilaCircularRepository;
+  protected readonly listConfig: ListConfig<FilaCircular, FilaCircularFilterFields> = {
+    filterMappings: FILA_CIRCULAR_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "fila circular";
 
   constructor(repository?: FilaCircularRepository) {
+    super();
     this.repository = repository ?? new FilaCircularRepository();
   }
 
-  async list(query: FilaCircularQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<FilaCircular, FilaCircularFilterFields>(
-      paginationQuery,
-      FILA_CIRCULAR_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: FilaCircularQueryDto): Promise<FilaCircularOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<FilaCircular, FilaCircularFilterFields>(
-      paginationQuery,
-      FILA_CIRCULAR_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery("ultimo_elemento");
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session) as Promise<FilaCircularOptionDto[]>;
-    });
+  override async listOptions(query: FilaCircularQueryDto): Promise<FilaCircularOptionDto[]> {
+    return super.listOptions(query, "ultimo_elemento");
   }
 
   async getOne(id: number): Promise<FilaCircularDto> {

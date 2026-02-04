@@ -1,16 +1,9 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { Materia } from "../entities/Materia";
 import type {
   CreateMateriaDto,
   MateriaDto,
-  MateriaOptionDto,
   MateriaQueryDto,
   ReplaceMateriaDto,
   UpdateMateriaDto
@@ -20,47 +13,24 @@ import {
   MATERIA_FILTER_MAPPINGS,
   type MateriaFilterFields
 } from "../repositories/materia.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class MateriaService {
-  private readonly repository: MateriaRepository;
+const SORTABLE_COLUMNS = ["id", "nome"] as const;
+
+export class MateriaService extends BaseService<Materia, MateriaFilterFields, MateriaQueryDto> {
+  protected readonly repository: MateriaRepository;
+  protected readonly listConfig: ListConfig<Materia, MateriaFilterFields> = {
+    filterMappings: MATERIA_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "matéria";
 
   constructor(repository?: MateriaRepository) {
+    super();
     this.repository = repository ?? new MateriaRepository();
   }
-
-  async list(query: MateriaQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Materia, MateriaFilterFields>(
-      paginationQuery,
-      MATERIA_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: MateriaQueryDto): Promise<MateriaOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<Materia, MateriaFilterFields>(
-      paginationQuery,
-      MATERIA_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<MateriaDto> {
     return withSession(async (session) => {
       const materia = await this.repository.findById(session, id);

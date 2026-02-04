@@ -3,7 +3,6 @@ import {
   Field,
   MergeDto,
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -14,7 +13,9 @@ import {
   createOptionDto,
   EspecializadaResumoDto,
   type CreateDto,
-  type UpdateDto
+  type UpdateDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 
 const equipeCrud = createMetalCrudDtoClasses(Equipe, {
@@ -49,15 +50,16 @@ export class EquipeEspecializadaDto {
 })
 export class EquipeWithEspecializadaDto {}
 
-export const EquipeQueryDtoClass = createPagedFilterQueryDtoClass({
+export const EquipeQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "EquipeQueryDto",
+  sortableColumns: ["id", "nome", "especializada_id"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
     especializadaId: { schema: t.integer(), operator: "equals" }
   }
 });
 
-export interface EquipeQueryDto {
+export interface EquipeQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

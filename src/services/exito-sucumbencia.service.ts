@@ -1,16 +1,9 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { ExitoSucumbencia } from "../entities/ExitoSucumbencia";
 import type {
   CreateExitoSucumbenciaDto,
   ExitoSucumbenciaDto,
-  ExitoSucumbenciaOptionDto,
   ExitoSucumbenciaQueryDto,
   ReplaceExitoSucumbenciaDto,
   UpdateExitoSucumbenciaDto
@@ -20,47 +13,24 @@ import {
   EXITO_SUCUMBENCIA_FILTER_MAPPINGS,
   type ExitoSucumbenciaFilterFields
 } from "../repositories/exito-sucumbencia.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class ExitoSucumbenciaService {
-  private readonly repository: ExitoSucumbenciaRepository;
+const SORTABLE_COLUMNS = ["id", "nome"] as const;
+
+export class ExitoSucumbenciaService extends BaseService<ExitoSucumbencia, ExitoSucumbenciaFilterFields, ExitoSucumbenciaQueryDto> {
+  protected readonly repository: ExitoSucumbenciaRepository;
+  protected readonly listConfig: ListConfig<ExitoSucumbencia, ExitoSucumbenciaFilterFields> = {
+    filterMappings: EXITO_SUCUMBENCIA_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "êxito de sucumbência";
 
   constructor(repository?: ExitoSucumbenciaRepository) {
+    super();
     this.repository = repository ?? new ExitoSucumbenciaRepository();
   }
-
-  async list(query: ExitoSucumbenciaQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<ExitoSucumbencia, ExitoSucumbenciaFilterFields>(
-      paginationQuery,
-      EXITO_SUCUMBENCIA_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: ExitoSucumbenciaQueryDto): Promise<ExitoSucumbenciaOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<ExitoSucumbencia, ExitoSucumbenciaFilterFields>(
-      paginationQuery,
-      EXITO_SUCUMBENCIA_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<ExitoSucumbenciaDto> {
     return withSession(async (session) => {
       const exitoSucumbencia = await this.repository.findById(session, id);

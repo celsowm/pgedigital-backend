@@ -16,8 +16,7 @@ export class UsuarioRepository extends BaseRepository<Usuario> {
   override buildListQuery(): ReturnType<typeof selectFromEntity<Usuario>> {
     return selectFromEntity(Usuario)
       .includePick("especializada", ["nome", "sigla"])
-      .includePick("usuarioThumbnail", ["id", "thumbnail"])
-      .orderBy(this.entityRef.id, "ASC");
+      .includePick("usuarioThumbnail", ["id", "thumbnail"]);
   }
 
   async findByLogin(session: OrmSession, login: string): Promise<Usuario | null> {

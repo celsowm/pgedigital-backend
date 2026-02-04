@@ -1,16 +1,9 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { TipoAfastamento } from "../entities/TipoAfastamento";
 import type {
   CreateTipoAfastamentoDto,
   TipoAfastamentoDto,
-  TipoAfastamentoOptionDto,
   TipoAfastamentoQueryDto,
   ReplaceTipoAfastamentoDto,
   UpdateTipoAfastamentoDto
@@ -20,47 +13,24 @@ import {
   TIPO_AFASTAMENTO_FILTER_MAPPINGS,
   type TipoAfastamentoFilterFields
 } from "../repositories/tipo-afastamento.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class TipoAfastamentoService {
-  private readonly repository: TipoAfastamentoRepository;
+const SORTABLE_COLUMNS = ["id", "nome"] as const;
+
+export class TipoAfastamentoService extends BaseService<TipoAfastamento, TipoAfastamentoFilterFields, TipoAfastamentoQueryDto> {
+  protected readonly repository: TipoAfastamentoRepository;
+  protected readonly listConfig: ListConfig<TipoAfastamento, TipoAfastamentoFilterFields> = {
+    filterMappings: TIPO_AFASTAMENTO_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "tipo afastamento";
 
   constructor(repository?: TipoAfastamentoRepository) {
+    super();
     this.repository = repository ?? new TipoAfastamentoRepository();
   }
-
-  async list(query: TipoAfastamentoQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<TipoAfastamento, TipoAfastamentoFilterFields>(
-      paginationQuery,
-      TIPO_AFASTAMENTO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: TipoAfastamentoQueryDto): Promise<TipoAfastamentoOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<TipoAfastamento, TipoAfastamentoFilterFields>(
-      paginationQuery,
-      TIPO_AFASTAMENTO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<TipoAfastamentoDto> {
     return withSession(async (session) => {
       const tipoAfastamento = await this.repository.findById(session, id);

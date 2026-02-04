@@ -1,16 +1,16 @@
+import { HttpError, applyInput, parseFilter, parsePagination } from "adorn-api";
 import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+  applyFilter,
+  entityRef,
+  getColumn,
+  toPagedResponse,
+  type ColumnDef
+} from "metal-orm";
 import { withSession } from "../db/mssql";
 import { Especializada } from "../entities/Especializada";
 import { Usuario } from "../entities/Usuario";
 import type {
   CreateEspecializadaDto,
-  EspecializadaOptionDto,
   EspecializadaQueryDto,
   EspecializadaWithResponsavelDto,
   ReplaceEspecializadaDto,
@@ -23,16 +23,27 @@ import {
   type EspecializadaFilterFields,
   type ResponsavelFilterFields
 } from "../repositories/especializada.repository";
+import { BaseService, type ListConfig } from "./base.service";
+import { parseSorting } from "../utils/controller-helpers";
 
-export class EspecializadaService {
-  private readonly repository: EspecializadaRepository;
+const SORTABLE_COLUMNS = ["id", "nome", "sigla", "codigo_ad"] as const;
+
+export class EspecializadaService extends BaseService<Especializada, EspecializadaFilterFields, EspecializadaQueryDto> {
+  protected readonly repository: EspecializadaRepository;
+  protected readonly listConfig: ListConfig<Especializada, EspecializadaFilterFields> = {
+    filterMappings: ESPECIALIZADA_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "especializada";
 
   constructor(repository?: EspecializadaRepository) {
+    super();
     this.repository = repository ?? new EspecializadaRepository();
   }
 
-  async list(query: EspecializadaQueryDto): Promise<unknown> {
+  override async list(query: EspecializadaQueryDto): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
     const responsavelFilters = parseFilter<Usuario, ResponsavelFilterFields>(
       paginationQuery,
@@ -43,6 +54,12 @@ export class EspecializadaService {
       paginationQuery,
       ESPECIALIZADA_FILTER_MAPPINGS
     );
+
+    const { sortBy, sortOrder } = parseSorting(paginationQuery, {
+      defaultSortBy: this.listConfig.defaultSortBy ?? "id",
+      defaultSortOrder: this.listConfig.defaultSortOrder ?? "ASC",
+      allowedColumns: this.listConfig.sortableColumns
+    });
 
     return withSession(async (session) => {
       let queryBuilder = applyFilter(
@@ -57,6 +74,16 @@ export class EspecializadaService {
         );
       }
 
+      if (sortBy) {
+        const ref = entityRef(Especializada);
+        const sortColumn = getColumn(ref, sortBy) as ColumnDef;
+        queryBuilder = queryBuilder.orderBy(sortColumn, sortOrder);
+        if (sortBy !== "id") {
+          const idColumn = getColumn(ref, "id") as ColumnDef;
+          queryBuilder = queryBuilder.orderBy(idColumn, "ASC");
+        }
+      }
+
       const paged = await queryBuilder.executePaged(session, { page, pageSize });
       return toPagedResponse(paged);
     });
@@ -65,23 +92,6 @@ export class EspecializadaService {
   async listSiglas(): Promise<string[]> {
     return withSession((session) => this.repository.listSiglas(session));
   }
-
-  async listOptions(query: EspecializadaQueryDto): Promise<EspecializadaOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<Especializada, EspecializadaFilterFields>(
-      paginationQuery,
-      ESPECIALIZADA_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<EspecializadaWithResponsavelDto> {
     return withSession(async (session) => {
       const especializada = await this.repository.getWithResponsavel(session, id);

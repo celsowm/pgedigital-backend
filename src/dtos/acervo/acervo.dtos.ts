@@ -3,7 +3,6 @@ import {
   Field,
   MergeDto,
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -22,7 +21,9 @@ import {
   ClassificacaoResumoDto,
   TemaResumoDto,
   type CreateDto,
-  type UpdateDto
+  type UpdateDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 
 // ============ CRUD DTOs ============
@@ -196,8 +197,9 @@ export class AcervoDetailDto {
 }
 
 // ============ Query/Response DTOs ============
-export const AcervoQueryDtoClass = createPagedFilterQueryDtoClass({
+export const AcervoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "AcervoQueryDto",
+  sortableColumns: ["id", "nome", "ativo", "created", "modified"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
     especializadaId: { schema: t.integer(), operator: "equals" },
@@ -206,7 +208,7 @@ export const AcervoQueryDtoClass = createPagedFilterQueryDtoClass({
   }
 });
 
-export interface AcervoQueryDto {
+export interface AcervoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

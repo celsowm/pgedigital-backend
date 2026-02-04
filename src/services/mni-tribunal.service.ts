@@ -1,10 +1,4 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { MniTribunal } from "../entities/MniTribunal";
 import type {
@@ -20,45 +14,27 @@ import {
   MNI_TRIBUNAL_FILTER_MAPPINGS,
   type MniTribunalFilterFields
 } from "../repositories/mni-tribunal.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class MniTribunalService {
-  private readonly repository: MniTribunalRepository;
+const SORTABLE_COLUMNS = ["id", "sigla", "descricao", "identificador_cnj"] as const;
+
+export class MniTribunalService extends BaseService<MniTribunal, MniTribunalFilterFields, MniTribunalQueryDto> {
+  protected readonly repository: MniTribunalRepository;
+  protected readonly listConfig: ListConfig<MniTribunal, MniTribunalFilterFields> = {
+    filterMappings: MNI_TRIBUNAL_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "MNI Tribunal";
 
   constructor(repository?: MniTribunalRepository) {
+    super();
     this.repository = repository ?? new MniTribunalRepository();
   }
 
-  async list(query: MniTribunalQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<MniTribunal, MniTribunalFilterFields>(
-      paginationQuery,
-      MNI_TRIBUNAL_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: MniTribunalQueryDto): Promise<MniTribunalOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<MniTribunal, MniTribunalFilterFields>(
-      paginationQuery,
-      MNI_TRIBUNAL_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery("descricao");
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
+  override async listOptions(query: MniTribunalQueryDto): Promise<MniTribunalOptionDto[]> {
+    return super.listOptions(query, "descricao");
   }
 
   async getOne(id: number): Promise<MniTribunalDto> {

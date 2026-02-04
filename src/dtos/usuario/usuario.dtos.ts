@@ -3,12 +3,17 @@ import {
   Field,
   MergeDto,
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Usuario } from "../../entities/Usuario";
-import { createCrudErrors, createOptionDto, createOptionsArraySchema } from "../common";
+import {
+  createCrudErrors,
+  createOptionDto,
+  createOptionsArraySchema,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
+} from "../common";
 
 const usuarioCrud = createMetalCrudDtoClasses(Usuario, {
   response: { description: "Usuário retornado pela API." },
@@ -56,8 +61,9 @@ export class UsuarioRelationsDto {
 })
 export class UsuarioWithRelationsDto {}
 
-export const UsuarioQueryDtoClass = createPagedFilterQueryDtoClass({
+export const UsuarioQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "UsuarioQueryDto",
+  sortableColumns: ["id", "nome", "login", "cargo"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
     cargoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
@@ -65,7 +71,7 @@ export const UsuarioQueryDtoClass = createPagedFilterQueryDtoClass({
   }
 });
 
-export interface UsuarioQueryDto {
+export interface UsuarioQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

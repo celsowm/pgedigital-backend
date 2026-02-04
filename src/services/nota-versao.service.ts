@@ -1,10 +1,4 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { NotaVersao } from "../entities/NotaVersao";
 import type {
@@ -19,31 +13,24 @@ import {
   NOTA_VERSAO_FILTER_MAPPINGS,
   type NotaVersaoFilterFields
 } from "../repositories/nota-versao.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class NotaVersaoService {
-  private readonly repository: NotaVersaoRepository;
+const SORTABLE_COLUMNS = ["id", "data", "sprint", "ativo"] as const;
+
+export class NotaVersaoService extends BaseService<NotaVersao, NotaVersaoFilterFields, NotaVersaoQueryDto> {
+  protected readonly repository: NotaVersaoRepository;
+  protected readonly listConfig: ListConfig<NotaVersao, NotaVersaoFilterFields> = {
+    filterMappings: NOTA_VERSAO_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "nota versao";
 
   constructor(repository?: NotaVersaoRepository) {
+    super();
     this.repository = repository ?? new NotaVersaoRepository();
   }
-
-  async list(query: NotaVersaoQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<NotaVersao, NotaVersaoFilterFields>(
-      paginationQuery,
-      NOTA_VERSAO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
   async getOne(id: number): Promise<NotaVersaoDto> {
     return withSession(async (session) => {
       const notaVersao = await this.repository.findById(session, id);

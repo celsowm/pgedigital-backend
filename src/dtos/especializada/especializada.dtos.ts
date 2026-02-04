@@ -3,7 +3,6 @@ import {
   Field,
   MergeDto,
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -14,7 +13,9 @@ import {
   createOptionDto,
   ResponsavelResumoDto,
   type CreateDto,
-  type UpdateDto
+  type UpdateDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 
 const especializadaCrud = createMetalCrudDtoClasses(Especializada, {
@@ -49,8 +50,9 @@ export class EspecializadaResponsavelDto {
 })
 export class EspecializadaWithResponsavelDto {}
 
-export const EspecializadaQueryDtoClass = createPagedFilterQueryDtoClass({
+export const EspecializadaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "EspecializadaQueryDto",
+  sortableColumns: ["id", "nome", "sigla", "codigo_ad"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
     siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
@@ -61,7 +63,7 @@ export const EspecializadaQueryDtoClass = createPagedFilterQueryDtoClass({
   }
 });
 
-export interface EspecializadaQueryDto {
+export interface EspecializadaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

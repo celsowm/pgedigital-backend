@@ -1,11 +1,15 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { TipoSolicitacao } from "../../entities/TipoSolicitacao";
-import { createOptionsArraySchema, createOptionDto } from "../common";
+import {
+  createOptionsArraySchema,
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
+} from "../common";
 
 const tipoSolicitacaoCrud = createMetalCrudDtoClasses(TipoSolicitacao, {
   response: { description: "Tipo de solicitacao retornado pela API." },
@@ -15,15 +19,16 @@ const tipoSolicitacaoCrud = createMetalCrudDtoClasses(TipoSolicitacao, {
 export const { response: TipoSolicitacaoDto } = tipoSolicitacaoCrud;
 export type TipoSolicitacaoDto = TipoSolicitacao;
 
-export const TipoSolicitacaoQueryDtoClass = createPagedFilterQueryDtoClass({
+export const TipoSolicitacaoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "TipoSolicitacaoQueryDto",
+  sortableColumns: ["id", "nome"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
     solicitacaoExterna: { schema: t.boolean(), operator: "equals" }
   }
 });
 
-export interface TipoSolicitacaoQueryDto {
+export interface TipoSolicitacaoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

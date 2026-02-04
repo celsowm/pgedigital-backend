@@ -24,9 +24,7 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
         include: { especializada: { columns: ["id", "nome"] }, usuarioThumbnail: { columns: ["id", "thumbnail"] } },
         pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"], merge: true }
-      })
-      .orderBy(this.entityRef.data_inicio, "DESC")
-      .orderBy(this.entityRef.id, "ASC");
+      });
   }
 
   buildDetailQuery(): ReturnType<typeof selectFromEntity<AfastamentoPessoa>> {

@@ -3,7 +3,6 @@ import {
   Field,
   MergeDto,
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -12,7 +11,8 @@ import {
   TipoDivisaoCargaTrabalhoResumoDto,
   EspecializadaResumoDto,
   createCrudErrors,
-  createIdNomeResumoDto
+  createIdNomeResumoDto,
+  createPagedFilterSortingQueryDtoClass
 } from "../common";
 
 const afastamentoPessoaCrud = createMetalCrudDtoClasses(AfastamentoPessoa, {
@@ -240,8 +240,9 @@ const AFASTAMENTO_PESSOA_QUERY_FILTERS: Record<
   { schema: (typeof AFASTAMENTO_PESSOA_FILTER_DEFS)[AfastamentoPessoaFilterKey]["schema"]; operator: FilterOperator }
 >;
 
-export const AfastamentoPessoaQueryDtoClass = createPagedFilterQueryDtoClass({
+export const AfastamentoPessoaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "AfastamentoPessoaQueryDto",
+  sortableColumns: ["id", "data_inicio", "data_fim", "usuario_id", "tipo_afastamento_id"],
   filters: AFASTAMENTO_PESSOA_QUERY_FILTERS
 });
 

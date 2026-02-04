@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { NaturezaIncidente } from "../../entities/NaturezaIncidente";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,15 @@ export type ReplaceNaturezaIncidenteDto = NaturezaIncidenteMutationDto;
 export type UpdateNaturezaIncidenteDto = UpdateDto<NaturezaIncidenteDto>;
 export type NaturezaIncidenteParamsDto = InstanceType<typeof NaturezaIncidenteParamsDto>;
 
-export const NaturezaIncidenteQueryDtoClass = createPagedFilterQueryDtoClass({
+export const NaturezaIncidenteQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "NaturezaIncidenteQueryDto",
+  sortableColumns: ["id", "nome"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface NaturezaIncidenteQueryDto {
+export interface NaturezaIncidenteQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

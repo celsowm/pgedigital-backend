@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { FilaCircular } from "../../entities/FilaCircular";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,12 +34,13 @@ export type ReplaceFilaCircularDto = FilaCircularMutationDto;
 export type UpdateFilaCircularDto = UpdateDto<FilaCircularDto>;
 export type FilaCircularParamsDto = InstanceType<typeof FilaCircularParamsDto>;
 
-export const FilaCircularQueryDtoClass = createPagedFilterQueryDtoClass({
+export const FilaCircularQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "FilaCircularQueryDto",
+  sortableColumns: ["id", "ultimo_elemento"],
   filters: {}
 });
 
-export interface FilaCircularQueryDto {
+export interface FilaCircularQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
 }

@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { ExitoSucumbencia } from "../../entities/ExitoSucumbencia";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,15 @@ export type ReplaceExitoSucumbenciaDto = ExitoSucumbenciaMutationDto;
 export type UpdateExitoSucumbenciaDto = UpdateDto<ExitoSucumbenciaDto>;
 export type ExitoSucumbenciaParamsDto = InstanceType<typeof ExitoSucumbenciaParamsDto>;
 
-export const ExitoSucumbenciaQueryDtoClass = createPagedFilterQueryDtoClass({
+export const ExitoSucumbenciaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "ExitoSucumbenciaQueryDto",
+  sortableColumns: ["id", "nome"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface ExitoSucumbenciaQueryDto {
+export interface ExitoSucumbenciaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

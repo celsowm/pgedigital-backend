@@ -19,8 +19,7 @@ export class AcervoRepository extends BaseRepository<Acervo> {
     return selectFromEntity(Acervo)
       .includePick("especializada", ["id", "nome"])
       .include("procuradorTitular", { columns: ["id", "nome"], include: { usuarioThumbnail: { columns: ["id", "thumbnail"] } } })
-      .includePick("tipoAcervo", ["id", "nome"])
-      .orderBy(this.entityRef.id, "ASC");
+      .includePick("tipoAcervo", ["id", "nome"]);
   }
 
   buildBaseRelationsQuery(): ReturnType<typeof selectFromEntity<Acervo>> {

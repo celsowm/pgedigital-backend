@@ -1,16 +1,9 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { TipoAcervo } from "../entities/TipoAcervo";
 import type {
   CreateTipoAcervoDto,
   TipoAcervoDto,
-  TipoAcervoOptionDto,
   TipoAcervoQueryDto,
   ReplaceTipoAcervoDto,
   UpdateTipoAcervoDto
@@ -20,47 +13,24 @@ import {
   TIPO_ACERVO_FILTER_MAPPINGS,
   type TipoAcervoFilterFields
 } from "../repositories/tipo-acervo.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class TipoAcervoService {
-  private readonly repository: TipoAcervoRepository;
+const SORTABLE_COLUMNS = ["id", "nome"] as const;
+
+export class TipoAcervoService extends BaseService<TipoAcervo, TipoAcervoFilterFields, TipoAcervoQueryDto> {
+  protected readonly repository: TipoAcervoRepository;
+  protected readonly listConfig: ListConfig<TipoAcervo, TipoAcervoFilterFields> = {
+    filterMappings: TIPO_ACERVO_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
   private readonly entityName = "tipo acervo";
 
   constructor(repository?: TipoAcervoRepository) {
+    super();
     this.repository = repository ?? new TipoAcervoRepository();
   }
-
-  async list(query: TipoAcervoQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<TipoAcervo, TipoAcervoFilterFields>(
-      paginationQuery,
-      TIPO_ACERVO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: TipoAcervoQueryDto): Promise<TipoAcervoOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<TipoAcervo, TipoAcervoFilterFields>(
-      paginationQuery,
-      TIPO_ACERVO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<TipoAcervoDto> {
     return withSession(async (session) => {
       const tipoAcervo = await this.repository.findById(session, id);

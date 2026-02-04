@@ -1,15 +1,8 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { Classificacao } from "../entities/Classificacao";
 import type {
   ClassificacaoDto,
-  ClassificacaoOptionDto,
   ClassificacaoQueryDto,
   CreateClassificacaoDto,
   ReplaceClassificacaoDto,
@@ -20,47 +13,25 @@ import {
   CLASSIFICACAO_FILTER_MAPPINGS,
   type ClassificacaoFilterFields
 } from "../repositories/classificacao.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class ClassificacaoService {
-  private readonly repository: ClassificacaoRepository;
+const SORTABLE_COLUMNS = ["id", "nome", "peso"] as const;
+
+export class ClassificacaoService extends BaseService<Classificacao, ClassificacaoFilterFields, ClassificacaoQueryDto> {
+  protected readonly repository: ClassificacaoRepository;
+  protected readonly listConfig: ListConfig<Classificacao, ClassificacaoFilterFields> = {
+    filterMappings: CLASSIFICACAO_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
+
   private readonly entityName = "classificação";
 
   constructor(repository?: ClassificacaoRepository) {
+    super();
     this.repository = repository ?? new ClassificacaoRepository();
   }
-
-  async list(query: ClassificacaoQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Classificacao, ClassificacaoFilterFields>(
-      paginationQuery,
-      CLASSIFICACAO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: ClassificacaoQueryDto): Promise<ClassificacaoOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<Classificacao, ClassificacaoFilterFields>(
-      paginationQuery,
-      CLASSIFICACAO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<ClassificacaoDto> {
     return withSession(async (session) => {
       const classificacao = await this.repository.findById(session, id);

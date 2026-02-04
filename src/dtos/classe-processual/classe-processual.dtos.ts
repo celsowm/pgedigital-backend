@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedFilterQueryDtoClass,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
@@ -8,7 +7,9 @@ import { ClasseProcessual } from "../../entities/ClasseProcessual";
 import {
   createCrudErrors,
   createOptionsArraySchema,
-  createOptionDto
+  createOptionDto,
+  createPagedFilterSortingQueryDtoClass,
+  type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
@@ -33,14 +34,15 @@ export type ReplaceClasseProcessualDto = ClasseProcessualMutationDto;
 export type UpdateClasseProcessualDto = UpdateDto<ClasseProcessualDto>;
 export type ClasseProcessualParamsDto = InstanceType<typeof ClasseProcessualParamsDto>;
 
-export const ClasseProcessualQueryDtoClass = createPagedFilterQueryDtoClass({
-  name: "ClasseProcessualQueryDto",
+export const ClasseProcessualQueryDtoClass = createPagedFilterSortingQueryDtoClass({
+  name: "eProcessualQueryDto",
+  sortableColumns: ["id", "nome", "situacao"],
   filters: {
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
   }
 });
 
-export interface ClasseProcessualQueryDto {
+export interface ClasseProcessualQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;

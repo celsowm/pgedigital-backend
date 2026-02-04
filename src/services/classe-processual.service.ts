@@ -1,15 +1,8 @@
-import {
-  HttpError,
-  applyInput,
-  parseFilter,
-  parsePagination
-} from "adorn-api";
-import { applyFilter, toPagedResponse } from "metal-orm";
+import { HttpError, applyInput } from "adorn-api";
 import { withSession } from "../db/mssql";
 import { ClasseProcessual } from "../entities/ClasseProcessual";
 import type {
   ClasseProcessualDto,
-  ClasseProcessualOptionDto,
   ClasseProcessualQueryDto,
   CreateClasseProcessualDto,
   ReplaceClasseProcessualDto,
@@ -20,47 +13,25 @@ import {
   CLASSE_PROCESSUAL_FILTER_MAPPINGS,
   type ClasseProcessualFilterFields
 } from "../repositories/classe-processual.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class ClasseProcessualService {
-  private readonly repository: ClasseProcessualRepository;
+const SORTABLE_COLUMNS = ["id", "nome", "situacao"] as const;
+
+export class ClasseProcessualService extends BaseService<ClasseProcessual, ClasseProcessualFilterFields, ClasseProcessualQueryDto> {
+  protected readonly repository: ClasseProcessualRepository;
+  protected readonly listConfig: ListConfig<ClasseProcessual, ClasseProcessualFilterFields> = {
+    filterMappings: CLASSE_PROCESSUAL_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "id",
+    defaultSortOrder: "ASC"
+  };
+
   private readonly entityName = "classe processual";
 
   constructor(repository?: ClasseProcessualRepository) {
+    super();
     this.repository = repository ?? new ClasseProcessualRepository();
   }
-
-  async list(query: ClasseProcessualQueryDto): Promise<unknown> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<ClasseProcessual, ClasseProcessualFilterFields>(
-      paginationQuery,
-      CLASSE_PROCESSUAL_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      const baseQuery = this.repository.buildListQuery();
-      const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
-      const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
-    });
-  }
-
-  async listOptions(query: ClasseProcessualQueryDto): Promise<ClasseProcessualOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<ClasseProcessual, ClasseProcessualFilterFields>(
-      paginationQuery,
-      CLASSE_PROCESSUAL_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      return optionsQuery.executePlain(session);
-    });
-  }
-
   async getOne(id: number): Promise<ClasseProcessualDto> {
     return withSession(async (session) => {
       const classeProcessual = await this.repository.findById(session, id);
