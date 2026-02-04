@@ -23,6 +23,8 @@ import { ClassificacaoController } from "./controllers/classificacao.controller"
 import { FilaCircularController } from "./controllers/fila-circular.controller";
 import { AfastamentoPessoaController } from "./controllers/afastamento-pessoa.controller";
 import { AuthController } from "./controllers/auth.controller";
+import { TipoMigracaoAcervoController } from "./controllers/tipo-migracao-acervo.controller";
+import { TipoSolicitacaoController } from "./controllers/tipo-solicitacao.controller";
 
 export async function createApp(): Promise<Express> {
   const corsOrigins = (process.env.PGE_DIGITAL_CORS_ORIGINS ?? "")
@@ -31,7 +33,7 @@ export async function createApp(): Promise<Express> {
     .filter(Boolean);
 
   const app = await createExpressApp({
-    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, AfastamentoPessoaController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController, ExitoSucumbenciaController, ClassificacaoController, FilaCircularController, AuthController],
+    controllers: [AcervoController, EspecializadaController, NotaVersaoController, TestController, UsuarioController, EquipeController, TipoAcervoController, TipoAfastamentoController, AfastamentoPessoaController, MniTribunalController, ClasseProcessualController, TipoProcessoAdministrativoController, MateriaController, NaturezaIncidenteController, TipoDivisaoCargaTrabalhoController, TipoProvidenciaJuridicaController, TipoAudienciaController, ExitoSucumbenciaController, ClassificacaoController, FilaCircularController, AuthController, TipoMigracaoAcervoController, TipoSolicitacaoController],
     cors: {
       origin: corsOrigins.length ? corsOrigins : "*",
       credentials: true
