@@ -1,4 +1,4 @@
-import { eq, entityRef, selectFromEntity, type OrmSession } from "metal-orm";
+import { entityRef, gte, selectFromEntity, type OrmSession } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { Usuario } from "../entities/Usuario";
 import { UsuarioThumbnail } from "../entities/UsuarioThumbnail";
@@ -27,6 +27,24 @@ export class UsuarioThumbnailService {
     this.ldapService = ldapService ?? new LdapService();
   }
 
+  private getTodayStart(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  }
+
+  private async getUsuariosUpdatedToday(session: OrmSession): Promise<Set<number>> {
+    const thumbnailRef = entityRef(UsuarioThumbnail);
+    const today = this.getTodayStart();
+    
+    const results = await selectFromEntity(UsuarioThumbnail)
+      .select("usuario_id")
+      .where(gte(thumbnailRef.data_atualizacao, today))
+      .executePlain(session) as { usuario_id: number }[];
+    
+    return new Set(results.map(r => r.usuario_id));
+  }
+
   async updateFromLdap(options: {
     logger?: UsuarioThumbnailUpdateLogger;
   } = {}): Promise<UsuarioThumbnailUpdateResult> {
@@ -39,11 +57,14 @@ export class UsuarioThumbnailService {
     };
 
     await withSession(async (session) => {
-      const usuarioRef = entityRef(Usuario);
-      const usuarios = (await selectFromEntity(Usuario)
+      const updatedTodayIds = await this.getUsuariosUpdatedToday(session);
+      logger.log(`Skipping ${updatedTodayIds.size} users already updated today`);
+      
+      const allUsuarios = (await selectFromEntity(Usuario)
         .select("id", "login")
-        .where(eq(usuarioRef.estado_inatividade, false))
         .executePlain(session)) as UsuarioThumbnailTarget[];
+      
+      const usuarios = allUsuarios.filter(u => !updatedTodayIds.has(u.id));
 
       result.total = usuarios.length;
       logger.log(`Found ${usuarios.length} active users to process`);
