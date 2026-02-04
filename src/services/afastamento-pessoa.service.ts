@@ -43,7 +43,6 @@ import {
   AfastamentoPessoaRepository,
   AFASTAMENTO_PESSOA_FILTER_MAPPINGS
 } from "../repositories/afastamento-pessoa.repository";
-import { convertThumbnailsInResponse, convertThumbnailsRecursively } from "../utils/thumbnail.utils";
 
 const FINAL_DE_PROCESSO_NOME = "Final de Processo";
 type AfastamentoPessoaQuery = ReturnType<typeof selectFromEntity<AfastamentoPessoa>>;
@@ -75,14 +74,14 @@ export class AfastamentoPessoaService {
       baseQuery = this.applyCustomFilters(baseQuery, query ?? {});
 
       const paged = await baseQuery.executePaged(session, { page, pageSize });
-      return convertThumbnailsInResponse(toPagedResponse(paged));
+      return toPagedResponse(paged);
     });
   }
 
   async getOne(id: number): Promise<AfastamentoPessoaDetailDto> {
     return withSession(async (session) => {
       const detail = await this.loadDetail(session, id);
-      return convertThumbnailsRecursively(detail);
+      return detail;
     });
   }
 

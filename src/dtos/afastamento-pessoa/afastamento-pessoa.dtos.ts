@@ -80,7 +80,7 @@ export class UsuarioThumbnailResumoDto {
   @Field(t.integer())
   id!: number;
 
-  @Field(t.optional(t.string()))
+  @Field(t.optional(t.bytes()))
   thumbnail?: string;
 }
 

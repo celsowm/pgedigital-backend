@@ -5,7 +5,6 @@ import { withSession } from "../db/mssql";
 import type { AuthLoginRequestDto, AuthLoginResponseDto } from "../dtos/auth/auth.dtos";
 import { UsuarioRepository } from "../repositories/usuario.repository";
 import { LdapService } from "./ldap.service";
-import { convertThumbnailsRecursively } from "../utils/thumbnail.utils";
 
 type AuthTokenPayload = {
   login: string;
@@ -83,7 +82,7 @@ export class AuthService {
       token_type: "Bearer",
       expires_in: authConfig.JWT_EXPIRES_IN_SECONDS,
       ldap: ldapUser,
-      usuario: usuario ? convertThumbnailsRecursively(usuario) : null
+      usuario: usuario ?? null
     };
   }
 
