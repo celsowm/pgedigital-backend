@@ -18,7 +18,7 @@ export class AcervoRepository extends BaseRepository<Acervo> {
   override buildListQuery(): ReturnType<typeof selectFromEntity<Acervo>> {
     return selectFromEntity(Acervo)
       .includePick("especializada", ["id", "nome"])
-      .includePick("procuradorTitular", ["id", "nome"])
+      .include("procuradorTitular", { columns: ["id", "nome"], include: { usuarioThumbnail: { columns: ["id", "thumbnail"] } } })
       .includePick("tipoAcervo", ["id", "nome"])
       .orderBy(this.entityRef.id, "ASC");
   }
@@ -26,7 +26,7 @@ export class AcervoRepository extends BaseRepository<Acervo> {
   buildBaseRelationsQuery(): ReturnType<typeof selectFromEntity<Acervo>> {
     return selectFromEntity(Acervo)
       .includePick("especializada", ["id", "nome"])
-      .includePick("procuradorTitular", ["id", "nome"])
+      .include("procuradorTitular", { columns: ["id", "nome"], include: { usuarioThumbnail: { columns: ["id", "thumbnail"] } } })
       .includePick("tipoAcervo", ["id", "nome"])
       .includePick("tipoMigracaoAcervo", ["id", "nome"])
       .includePick("equipeResponsavel", ["id", "nome"])
@@ -40,7 +40,7 @@ export class AcervoRepository extends BaseRepository<Acervo> {
       .include("temasRelacionados", { columns: ["id", "nome"], include: { materia: { columns: ["nome"] } } })
       .include("destinatarios", {
         columns: ["id", "nome", "login", "cargo", "estado_inatividade"],
-        include: { especializada: { columns: ["id", "nome"] } }
+        include: { especializada: { columns: ["id", "nome"] }, usuarioThumbnail: { columns: ["id", "thumbnail"] } }
       })
       .include("raizesCNPJs", { pivot: { columns: ["id", "raiz"] } });
   }

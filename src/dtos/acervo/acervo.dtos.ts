@@ -65,6 +65,15 @@ export class TemaComMateriaDto {
   materia?: MateriaResumoDto;
 }
 
+@Dto({ description: "Thumbnail do usuário." })
+export class UsuarioThumbnailResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.optional(t.string()))
+  thumbnail?: string;
+}
+
 @Dto({ description: "Resumo de destinatário do acervo." })
 export class DestinatarioResumoDto {
   @Field(t.integer())
@@ -84,6 +93,9 @@ export class DestinatarioResumoDto {
 
   @Field(t.optional(t.boolean()))
   estado_inatividade?: boolean;
+
+  @Field(t.optional(t.ref(UsuarioThumbnailResumoDto)))
+  usuarioThumbnail?: UsuarioThumbnailResumoDto;
 }
 
 @Dto({ description: "Resumo de raiz de CNPJ vinculada ao acervo." })

@@ -20,6 +20,7 @@ import {
   ACERVO_FILTER_MAPPINGS,
   type AcervoFilterFields
 } from "../repositories/acervo.repository";
+import { convertThumbnailsInResponse, convertThumbnailsRecursively } from "../utils/thumbnail.utils";
 
 export class AcervoService {
   private readonly repository: AcervoRepository;
@@ -41,7 +42,7 @@ export class AcervoService {
       const baseQuery = this.repository.buildListQuery();
       const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
       const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
+      return convertThumbnailsInResponse(toPagedResponse(paged));
     });
   }
 
@@ -67,7 +68,7 @@ export class AcervoService {
       if (!acervo) {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
-      return acervo;
+      return convertThumbnailsRecursively(acervo);
     });
   }
 

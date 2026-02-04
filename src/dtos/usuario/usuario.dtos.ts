@@ -32,17 +32,29 @@ export class EspecializadaResumoDto {
   sigla!: string | null;
 }
 
-@Dto({ description: "Relacionamento com a especializada do usuário." })
-export class UsuarioEspecializadaDto {
-  @Field(t.ref(EspecializadaResumoDto))
-  especializada!: EspecializadaResumoDto | null;
+@Dto({ description: "Thumbnail do usuário." })
+export class UsuarioThumbnailDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.optional(t.string()))
+  thumbnail?: string;
 }
 
-@MergeDto([UsuarioDto, UsuarioEspecializadaDto], {
-  name: "UsuarioWithEspecializadaDto",
-  description: "Usuário com especializada resumida."
+@Dto({ description: "Relacionamentos do usuário." })
+export class UsuarioRelationsDto {
+  @Field(t.optional(t.ref(EspecializadaResumoDto)))
+  especializada?: EspecializadaResumoDto | null;
+
+  @Field(t.optional(t.ref(UsuarioThumbnailDto)))
+  usuarioThumbnail?: UsuarioThumbnailDto | null;
+}
+
+@MergeDto([UsuarioDto, UsuarioRelationsDto], {
+  name: "UsuarioWithRelationsDto",
+  description: "Usuário com especializada e thumbnail."
 })
-export class UsuarioWithEspecializadaDto {}
+export class UsuarioWithRelationsDto {}
 
 export const UsuarioQueryDtoClass = createPagedFilterQueryDtoClass({
   name: "UsuarioQueryDto",
@@ -63,7 +75,7 @@ export interface UsuarioQueryDto {
 
 export const UsuarioPagedResponseDto = createPagedResponseDtoClass({
   name: "UsuarioPagedResponseDto",
-  itemDto: UsuarioWithEspecializadaDto,
+  itemDto: UsuarioWithRelationsDto,
   description: "Paged usuario list response."
 });
 

@@ -16,13 +16,13 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
     return selectFromEntity(AfastamentoPessoa)
       .include("usuario", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
-        include: { especializada: { columns: ["id", "nome"] } }
+        include: { especializada: { columns: ["id", "nome"] }, usuarioThumbnail: { columns: ["id", "thumbnail"] } }
       })
       .includePick("tipoAfastamento", ["id", "nome"])
       .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
       .include("substitutos", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
-        include: { especializada: { columns: ["id", "nome"] } },
+        include: { especializada: { columns: ["id", "nome"] }, usuarioThumbnail: { columns: ["id", "thumbnail"] } },
         pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"], merge: true }
       })
       .orderBy(this.entityRef.data_inicio, "DESC")
@@ -33,14 +33,14 @@ export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPesso
     return selectFromEntity(AfastamentoPessoa)
       .include("usuario", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
-        include: { especializada: { columns: ["id", "nome"] } }
+        include: { especializada: { columns: ["id", "nome"] }, usuarioThumbnail: { columns: ["id", "thumbnail"] } }
       })
       .includePick("tipoAfastamento", ["id", "nome"])
       .includePick("tipoDivisaoCargaTrabalho", ["id", "nome"])
       .includePick("filaCircular", ["id", "ultimo_elemento"])
       .include("substitutos", {
         columns: ["id", "nome", "cargo", "vinculo", "especializada_id"],
-        include: { especializada: { columns: ["id", "nome"] } },
+        include: { especializada: { columns: ["id", "nome"] }, usuarioThumbnail: { columns: ["id", "thumbnail"] } },
         pivot: { columns: ["usa_equipe_acervo_substituto", "final_codigo_pa"], merge: true }
       });
   }

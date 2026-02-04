@@ -1,4 +1,4 @@
-import { createIdNomeResumoDto, createResumoWithEspecializadaDto } from "./base-resumo.dto";
+import { createIdNomeResumoDto, createIdNomeWithThumbnailResumoDto, createResumoWithEspecializadaDto } from "./base-resumo.dto";
 
 /**
  * Central registry of all resumo DTOs
@@ -40,13 +40,13 @@ export const TipoDivisaoCargaTrabalhoResumoDto = createIdNomeResumoDto(
   "Resumo do tipo de divisão de carga de trabalho."
 );
 
-// Pessoa-related resumos
-export const ProcuradorTitularResumoDto = createIdNomeResumoDto(
+// Pessoa-related resumos (with thumbnail support)
+export const ProcuradorTitularResumoDto = createIdNomeWithThumbnailResumoDto(
   "ProcuradorTitularResumoDto",
   "Resumo do procurador titular."
 );
 
-export const ResponsavelResumoDto = createIdNomeResumoDto(
+export const ResponsavelResumoDto = createIdNomeWithThumbnailResumoDto(
   "ResponsavelResumoDto",
   "Resumo do responsável."
 );

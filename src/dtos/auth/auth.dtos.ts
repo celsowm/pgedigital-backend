@@ -1,5 +1,5 @@
 import { Dto, Field, t } from "adorn-api";
-import { UsuarioWithEspecializadaDto } from "../usuario/usuario.dtos";
+import { UsuarioWithRelationsDto } from "../usuario/usuario.dtos";
 
 @Dto({ description: "Payload de login usando AD/LDAP." })
 export class AuthLoginRequestDto {
@@ -51,8 +51,8 @@ export class AuthLoginResponseDto {
   @Field(t.ref(LdapUserDto))
   ldap!: LdapUserDto;
 
-  @Field(t.optional(t.ref(UsuarioWithEspecializadaDto)))
-  usuario?: InstanceType<typeof UsuarioWithEspecializadaDto> | null;
+  @Field(t.optional(t.ref(UsuarioWithRelationsDto)))
+  usuario?: InstanceType<typeof UsuarioWithRelationsDto> | null;
 }
 
 @Dto({ description: "Resposta de refresh do token de acesso." })

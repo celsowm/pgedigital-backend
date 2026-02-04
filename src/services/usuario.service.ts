@@ -8,6 +8,7 @@ import {
   USUARIO_FILTER_MAPPINGS,
   type UsuarioFilterFields
 } from "../repositories/usuario.repository";
+import { convertThumbnailsInResponse } from "../utils/thumbnail.utils";
 
 export class UsuarioService {
   private readonly repository: UsuarioRepository;
@@ -28,7 +29,7 @@ export class UsuarioService {
       const baseQuery = this.repository.buildListQuery();
       const filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
       const paged = await filteredQuery.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
+      return convertThumbnailsInResponse(toPagedResponse(paged));
     });
   }
 

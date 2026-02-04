@@ -33,6 +33,39 @@ export function createIdNomeResumoDto(
 }
 
 /**
+ * DTO for usuario thumbnail (id only, thumbnail is base64 encoded)
+ */
+@Dto({ description: "Thumbnail do usuário." })
+export class UsuarioThumbnailResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.optional(t.string()))
+  thumbnail?: string;
+}
+
+/**
+ * Factory for resumo with id + nome + optional thumbnail
+ */
+export function createIdNomeWithThumbnailResumoDto(
+  name: string,
+  description: string
+) {
+  @Dto({ name, description })
+  class ResumoWithThumbnailDto {
+    @Field(t.integer())
+    id!: number;
+
+    @Field(t.string({ minLength: 1 }))
+    nome!: string;
+
+    @Field(t.optional(t.ref(UsuarioThumbnailResumoDto)))
+    usuarioThumbnail?: UsuarioThumbnailResumoDto;
+  }
+  return ResumoWithThumbnailDto;
+}
+
+/**
  * Factory for resumo with id + nome + optional especializada reference
  */
 export function createResumoWithEspecializadaDto(

@@ -75,6 +75,15 @@ export const TipoAfastamentoResumoDto = createIdNomeResumoDto(
   "Resumo do tipo de afastamento."
 );
 
+@Dto({ description: "Thumbnail do usuário." })
+export class UsuarioThumbnailResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.optional(t.string()))
+  thumbnail?: string;
+}
+
 @Dto({ description: "Resumo do usuario." })
 export class UsuarioResumoDto {
   @Field(t.integer())
@@ -91,6 +100,9 @@ export class UsuarioResumoDto {
 
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
   especializada?: InstanceType<typeof EspecializadaResumoDto>;
+
+  @Field(t.optional(t.ref(UsuarioThumbnailResumoDto)))
+  usuarioThumbnail?: UsuarioThumbnailResumoDto;
 }
 
 @Dto({ description: "Resumo da fila circular." })
@@ -118,6 +130,9 @@ export class AfastamentoPessoaSubstitutoDto {
 
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
   especializada?: InstanceType<typeof EspecializadaResumoDto>;
+
+  @Field(t.optional(t.ref(UsuarioThumbnailResumoDto)))
+  usuarioThumbnail?: UsuarioThumbnailResumoDto;
 
   @Field(t.optional(t.boolean()))
   usa_equipe_acervo_substituto?: boolean;

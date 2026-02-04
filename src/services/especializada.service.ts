@@ -23,6 +23,7 @@ import {
   type EspecializadaFilterFields,
   type ResponsavelFilterFields
 } from "../repositories/especializada.repository";
+import { convertThumbnailsInResponse, convertThumbnailsRecursively } from "../utils/thumbnail.utils";
 
 export class EspecializadaService {
   private readonly repository: EspecializadaRepository;
@@ -58,7 +59,7 @@ export class EspecializadaService {
       }
 
       const paged = await queryBuilder.executePaged(session, { page, pageSize });
-      return toPagedResponse(paged);
+      return convertThumbnailsInResponse(toPagedResponse(paged));
     });
   }
 
@@ -88,7 +89,7 @@ export class EspecializadaService {
       if (!especializada) {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
-      return especializada as EspecializadaWithResponsavelDto;
+      return convertThumbnailsRecursively(especializada) as EspecializadaWithResponsavelDto;
     });
   }
 
