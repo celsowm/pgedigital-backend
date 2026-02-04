@@ -14,6 +14,7 @@ import { MateriaController } from "./controllers/materia.controller";
 import { MniTribunalController } from "./controllers/mni-tribunal.controller";
 import { NaturezaIncidenteController } from "./controllers/natureza-incidente.controller";
 import { NotaVersaoController } from "./controllers/nota-versao.controller";
+import { PessoaController } from "./controllers/pessoa.controller";
 import { TestController } from "./controllers/test.controller";
 import { TipoAcervoController } from "./controllers/tipo-acervo.controller";
 import { TipoAfastamentoController } from "./controllers/tipo-afastamento.controller";
@@ -33,7 +34,7 @@ export async function createApp(): Promise<Express> {
     .filter(Boolean);
 
   const app = await createExpressApp({
-    controllers: [AfastamentoPessoaController, AuthController, AcervoController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
+    controllers: [AfastamentoPessoaController, AuthController, AcervoController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, PessoaController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
     cors: {
       origin: corsOrigins.length ? corsOrigins : "*",
       credentials: true
