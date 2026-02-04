@@ -77,6 +77,18 @@ export class LdapService {
       .replace(/\0/g, "\\00");
   }
 
+  private normalizeLoginForSearch(login: string): string {
+    const trimmed = login.trim();
+    if (trimmed.includes("\\")) {
+      const parts = trimmed.split("\\");
+      return parts[parts.length - 1] ?? trimmed;
+    }
+    if (trimmed.includes("@")) {
+      return trimmed.split("@")[0] ?? trimmed;
+    }
+    return trimmed;
+  }
+
   private async search(
     client: Client,
     base: string,
@@ -196,8 +208,9 @@ export class LdapService {
     return this.withClient(async (client) => {
       await this.bind(client, this.buildUpnLogin(this.USER_ADMIN), this.PASS_ADMIN);
 
-      const safeLogin = this.escapeLdapFilterValue(login);
-      const filter = `(&(sAMAccountName=${safeLogin}))`;
+      const normalizedLogin = this.normalizeLoginForSearch(login);
+      const safeLogin = this.escapeLdapFilterValue(normalizedLogin);
+      const filter = `(|(sAMAccountName=${safeLogin})(userPrincipalName=${safeLogin})(mail=${safeLogin}))`;
       const results = await this.search(client, this.BASE_DN, {
         scope: "sub",
         filter,
