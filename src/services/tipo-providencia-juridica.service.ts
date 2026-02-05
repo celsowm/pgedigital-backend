@@ -1,5 +1,5 @@
 import { parseFilter } from "adorn-api";
-import { applyFilter } from "metal-orm";
+import { applyFilter, type WhereInput } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { TipoProvidenciaJuridica } from "../entities/TipoProvidenciaJuridica";
 import type {
@@ -31,7 +31,11 @@ export class TipoProvidenciaJuridicaService {
     return withSession(async (session) => {
       let optionsQuery = this.repository.buildOptionsQuery();
       if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
+        optionsQuery = applyFilter(
+          optionsQuery,
+          this.repository.entityClass,
+          filters as WhereInput<typeof this.repository.entityClass>
+        );
       }
       return optionsQuery.executePlain(session);
     });

@@ -23,7 +23,8 @@ import {
   toPagedResponse,
   type ColumnDef,
   type ExpressionNode,
-  type OrmSession
+  type OrmSession,
+  type WhereInput
 } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { AfastamentoPessoa } from "../entities/AfastamentoPessoa";
@@ -77,7 +78,11 @@ export class AfastamentoPessoaService {
     return withSession(async (session) => {
       let baseQuery = this.repository.buildListQuery();
       if (filters) {
-        baseQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
+        baseQuery = applyFilter(
+          baseQuery,
+          this.repository.entityClass,
+          filters as WhereInput<typeof this.repository.entityClass>
+        );
       }
 
       baseQuery = this.applyCustomFilters(baseQuery, query ?? {});

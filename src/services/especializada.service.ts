@@ -4,7 +4,8 @@ import {
   entityRef,
   getColumn,
   toPagedResponse,
-  type ColumnDef
+  type ColumnDef,
+  type WhereInput
 } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { Especializada } from "../entities/Especializada";
@@ -65,12 +66,12 @@ export class EspecializadaService extends BaseService<Especializada, Especializa
       let queryBuilder = applyFilter(
         this.repository.buildListQuery(),
         this.repository.entityClass,
-        filters
+        filters as WhereInput<typeof this.repository.entityClass>
       );
 
       if (responsavelFilters) {
         queryBuilder = queryBuilder.whereHas("responsavel", (qb) =>
-          applyFilter(qb, Usuario, responsavelFilters)
+          applyFilter(qb, Usuario, responsavelFilters as WhereInput<typeof Usuario>)
         );
       }
 

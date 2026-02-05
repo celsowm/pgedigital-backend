@@ -5,7 +5,8 @@ import {
   getColumn,
   toPagedResponse,
   type ColumnDef,
-  type OrmSession
+  type OrmSession,
+  type WhereInput
 } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { parseSorting, type SortingConfig } from "../utils/controller-helpers";
@@ -31,10 +32,7 @@ export abstract class BaseService<
   async list(query: TQuery): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
     const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter(
-      paginationQuery,
-      this.listConfig.filterMappings as Parameters<typeof parseFilter>[1]
-    );
+    const filters = parseFilter(paginationQuery, this.listConfig.filterMappings);
 
     const sortingConfig: SortingConfig = {
       defaultSortBy: this.listConfig.defaultSortBy ?? "id",
@@ -45,7 +43,11 @@ export abstract class BaseService<
 
     return withSession(async (session: OrmSession) => {
       const baseQuery = this.repository.buildListQuery();
-      let filteredQuery = applyFilter(baseQuery, this.repository.entityClass, filters);
+      let filteredQuery = applyFilter(
+        baseQuery,
+        this.repository.entityClass,
+        filters as WhereInput<typeof this.repository.entityClass>
+      );
 
       if (sortBy) {
         const ref = entityRef(this.repository.entityClass);
@@ -67,15 +69,16 @@ export abstract class BaseService<
     labelField?: keyof TEntity
   ): Promise<Array<{ id: number; nome: string }>> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter(
-      paginationQuery,
-      this.listConfig.filterMappings as Parameters<typeof parseFilter>[1]
-    );
+    const filters = parseFilter(paginationQuery, this.listConfig.filterMappings);
 
     return withSession(async (session: OrmSession) => {
       let optionsQuery = this.repository.buildOptionsQuery(labelField);
       if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
+        optionsQuery = applyFilter(
+          optionsQuery,
+          this.repository.entityClass,
+          filters as WhereInput<typeof this.repository.entityClass>
+        );
       }
       return optionsQuery.executePlain(session) as unknown as Array<{ id: number; nome: string }>;
     });

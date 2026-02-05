@@ -10,8 +10,10 @@ import {
   selectFromEntity,
   toPagedResponse,
   type OrmSession,
-  type ColumnDef
+  type ColumnDef,
+  type WhereInput
 } from "metal-orm";
+import type { FilterMapping } from "../repositories/base.repository";
 
 type EntityClass<T> = new (...args: unknown[]) => T;
 type EntityRef<TEntity extends object> = ReturnType<typeof entityRef<TEntity>>;
@@ -55,7 +57,7 @@ export function parseSorting(
 }
 
 export interface ListWithPaginationOptions<TEntity extends object> {
-  filterMappings: Record<string, { field: keyof TEntity; operator: "equals" | "contains" }>;
+  filterMappings: FilterMapping;
   sortableColumns?: (keyof TEntity & string)[];
   defaultSortBy?: keyof TEntity & string;
   defaultSortOrder?: SortDirection;
@@ -77,14 +79,14 @@ export function listWithPagination<TEntity extends object, TQueryDto extends obj
 export function listWithPagination<TEntity extends object, TQueryDto extends object | undefined>(
   ctx: RequestContext<unknown, TQueryDto>,
   entityClass: EntityClass<TEntity>,
-  filterMappings: Record<string, { field: keyof TEntity; operator: "equals" | "contains" }>,
+  filterMappings: FilterMapping,
   queryBuilder?: (qb: EntityQuery<TEntity>) => EntityQuery<TEntity>
 ): (session: OrmSession) => Promise<unknown>;
 
 export function listWithPagination<TEntity extends object, TQueryDto extends object | undefined>(
   ctx: RequestContext<unknown, TQueryDto>,
   entityClass: EntityClass<TEntity>,
-  filterMappingsOrOptions: Record<string, { field: keyof TEntity; operator: "equals" | "contains" }> | ListWithPaginationOptions<TEntity>,
+  filterMappingsOrOptions: FilterMapping | ListWithPaginationOptions<TEntity>,
   queryBuilder?: (qb: EntityQuery<TEntity>) => EntityQuery<TEntity>
 ): (session: OrmSession) => Promise<unknown> {
   const isOptionsObject = (obj: unknown): obj is ListWithPaginationOptions<TEntity> =>
@@ -96,7 +98,7 @@ export function listWithPagination<TEntity extends object, TQueryDto extends obj
 
   const paginationQuery = (ctx.query ?? {}) as Record<string, unknown>;
   const { page, pageSize } = parsePagination(paginationQuery);
-  const filters = parseFilter<TEntity, keyof TEntity>(paginationQuery, options.filterMappings);
+  const filters = parseFilter(paginationQuery, options.filterMappings);
   
   const { sortBy, sortOrder } = parseSorting(paginationQuery, {
     defaultSortBy: options.defaultSortBy ?? "id",
@@ -110,7 +112,7 @@ export function listWithPagination<TEntity extends object, TQueryDto extends obj
     let query = applyFilter(
       selectFromEntity(entityClass),
       entityClass,
-      filters
+      filters as WhereInput<typeof entityClass>
     );
 
     if (options.queryBuilder) {

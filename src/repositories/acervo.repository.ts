@@ -15,13 +15,8 @@ export const ACERVO_FILTER_MAPPINGS = createFilterMappings<AcervoFilterFields>({
   especializadaId: { field: "especializada_id", operator: "equals" },
   tipoAcervoId: { field: "tipo_acervo_id", operator: "equals" },
   procuradorTitularId: { field: "procurador_titular_id", operator: "equals" },
+  procuradorTitularNomeContains: { field: "procuradorTitular.some.nome", operator: "contains" },
   ativo: { field: "ativo", operator: "equals" }
-});
-
-export type ProcuradorTitularFilterFields = "nome";
-
-export const PROCURADOR_TITULAR_FILTER_MAPPINGS = createFilterMappings<ProcuradorTitularFilterFields>({
-  procuradorTitularNomeContains: { field: "nome", operator: "contains" }
 });
 
 export class AcervoRepository extends BaseRepository<Acervo> {

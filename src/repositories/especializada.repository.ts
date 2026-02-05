@@ -6,13 +6,8 @@ export type EspecializadaFilterFields = "nome" | "sigla";
 
 export const ESPECIALIZADA_FILTER_MAPPINGS = createFilterMappings<EspecializadaFilterFields>({
   nomeContains: { field: "nome", operator: "contains" },
-  siglaContains: { field: "sigla", operator: "contains" }
-});
-
-export type ResponsavelFilterFields = "nome";
-
-export const RESPONSAVEL_FILTER_MAPPINGS = createFilterMappings<ResponsavelFilterFields>({
-  responsavelNomeContains: { field: "nome", operator: "contains" }
+  siglaContains: { field: "sigla", operator: "contains" },
+  responsavelNomeContains: { field: "responsavel.nome", operator: "contains" }
 });
 
 export class EspecializadaRepository extends BaseRepository<Especializada> {

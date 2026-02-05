@@ -1,3 +1,4 @@
+import type { FilterMapping as AdornFilterMapping } from "adorn-api";
 import {
   entityRef,
   getColumn,
@@ -6,8 +7,8 @@ import {
   type SelectQueryBuilder
 } from "metal-orm";
 
-export type FilterOperator = "equals" | "contains";
-export type FilterMapping<F extends string> = Record<string, { field: F; operator: FilterOperator }>;
+export type FilterOperator = AdornFilterMapping["operator"];
+export type FilterMapping<F extends string = string> = Record<string, AdornFilterMapping>;
 
 export function createFilterMappings<F extends string>(
   mappings: FilterMapping<F>

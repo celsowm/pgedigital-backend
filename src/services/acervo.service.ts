@@ -4,11 +4,11 @@ import {
   entityRef,
   getColumn,
   toPagedResponse,
-  type ColumnDef
+  type ColumnDef,
+  type WhereInput
 } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { Acervo } from "../entities/Acervo";
-import { Usuario } from "../entities/Usuario";
 import type {
   AcervoDetailDto,
   AcervoQueryDto,
@@ -19,9 +19,7 @@ import type {
 import {
   AcervoRepository,
   ACERVO_FILTER_MAPPINGS,
-  PROCURADOR_TITULAR_FILTER_MAPPINGS,
-  type AcervoFilterFields,
-  type ProcuradorTitularFilterFields
+  type AcervoFilterFields
 } from "../repositories/acervo.repository";
 import { BaseService, type ListConfig } from "./base.service";
 import { parseSorting } from "../utils/controller-helpers";
@@ -46,10 +44,6 @@ export class AcervoService extends BaseService<Acervo, AcervoFilterFields, Acerv
 
   override async list(query: AcervoQueryDto): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const procuradorTitularFilters = parseFilter<Usuario, ProcuradorTitularFilterFields>(
-      paginationQuery,
-      PROCURADOR_TITULAR_FILTER_MAPPINGS
-    );
     const { page, pageSize } = parsePagination(paginationQuery);
     const filters = parseFilter<Acervo, AcervoFilterFields>(
       paginationQuery,
@@ -66,14 +60,8 @@ export class AcervoService extends BaseService<Acervo, AcervoFilterFields, Acerv
       let queryBuilder = applyFilter(
         this.repository.buildListQuery(),
         this.repository.entityClass,
-        filters
+        filters as WhereInput<typeof this.repository.entityClass>
       );
-
-      if (procuradorTitularFilters) {
-        queryBuilder = queryBuilder.whereHas("procuradorTitular", (qb) =>
-          applyFilter(qb, Usuario, procuradorTitularFilters)
-        );
-      }
 
       if (sortBy) {
         const ref = entityRef(this.repository.entityClass);
@@ -95,10 +83,6 @@ export class AcervoService extends BaseService<Acervo, AcervoFilterFields, Acerv
     labelField?: keyof Acervo
   ): Promise<Array<{ id: number; nome: string }>> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const procuradorTitularFilters = parseFilter<Usuario, ProcuradorTitularFilterFields>(
-      paginationQuery,
-      PROCURADOR_TITULAR_FILTER_MAPPINGS
-    );
     const filters = parseFilter<Acervo, AcervoFilterFields>(
       paginationQuery,
       ACERVO_FILTER_MAPPINGS
@@ -107,11 +91,10 @@ export class AcervoService extends BaseService<Acervo, AcervoFilterFields, Acerv
     return withSession(async (session) => {
       let optionsQuery = this.repository.buildOptionsQuery(labelField);
       if (filters) {
-        optionsQuery = applyFilter(optionsQuery, this.repository.entityClass, filters);
-      }
-      if (procuradorTitularFilters) {
-        optionsQuery = optionsQuery.whereHas("procuradorTitular", (qb) =>
-          applyFilter(qb, Usuario, procuradorTitularFilters)
+        optionsQuery = applyFilter(
+          optionsQuery,
+          this.repository.entityClass,
+          filters as WhereInput<typeof this.repository.entityClass>
         );
       }
       return optionsQuery.executePlain(session) as unknown as Array<{ id: number; nome: string }>;
