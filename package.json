@@ -28,11 +28,11 @@
   },
   "homepage": "https://github.com/celsowm/pgedigital-backend#readme",
   "dependencies": {
-    "adorn-api": "^1.0.43",
+    "adorn-api": "^1.0.44",
     "es-abstract": "^1.24.1",
     "jsonwebtoken": "^9.0.2",
     "ldapts": "^8.1.5",
-    "metal-orm": "^1.0.116"
+    "metal-orm": "^1.0.117"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
