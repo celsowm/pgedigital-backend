@@ -3,11 +3,16 @@ import { Especializada } from "../entities/Especializada";
 import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type EspecializadaFilterFields = "nome" | "sigla";
+export type ResponsavelFilterFields = "nome";
 
 export const ESPECIALIZADA_FILTER_MAPPINGS = createFilterMappings<EspecializadaFilterFields>({
   nomeContains: { field: "nome", operator: "contains" },
   siglaContains: { field: "sigla", operator: "contains" },
   responsavelNomeContains: { field: "responsavel.nome", operator: "contains" }
+});
+
+export const RESPONSAVEL_FILTER_MAPPINGS = createFilterMappings<ResponsavelFilterFields>({
+  nomeContains: { field: "nome", operator: "contains" }
 });
 
 export class EspecializadaRepository extends BaseRepository<Especializada> {
