@@ -204,6 +204,8 @@ export const AcervoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
     nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
     especializadaId: { schema: t.integer(), operator: "equals" },
     tipoAcervoId: { schema: t.integer(), operator: "equals" },
+    procuradorTitularNomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    procuradorTitularId: { schema: t.integer(), operator: "equals" },
     ativo: { schema: t.integer(), operator: "equals" }
   }
 });
@@ -214,6 +216,8 @@ export interface AcervoQueryDto extends SortingQueryParams {
   nomeContains?: string;
   especializadaId?: number;
   tipoAcervoId?: number;
+  procuradorTitularNomeContains?: string;
+  procuradorTitularId?: number;
   ativo?: number;
 }
 

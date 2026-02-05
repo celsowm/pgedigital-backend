@@ -3,13 +3,25 @@ import { Acervo } from "../entities/Acervo";
 import type { AcervoDetailDto, AcervoWithRelationsDto } from "../dtos/acervo/acervo.dtos";
 import { BaseRepository, createFilterMappings } from "./base.repository";
 
-export type AcervoFilterFields = "nome" | "especializada_id" | "tipo_acervo_id" | "ativo";
+export type AcervoFilterFields =
+  | "nome"
+  | "especializada_id"
+  | "tipo_acervo_id"
+  | "procurador_titular_id"
+  | "ativo";
 
 export const ACERVO_FILTER_MAPPINGS = createFilterMappings<AcervoFilterFields>({
   nomeContains: { field: "nome", operator: "contains" },
   especializadaId: { field: "especializada_id", operator: "equals" },
   tipoAcervoId: { field: "tipo_acervo_id", operator: "equals" },
+  procuradorTitularId: { field: "procurador_titular_id", operator: "equals" },
   ativo: { field: "ativo", operator: "equals" }
+});
+
+export type ProcuradorTitularFilterFields = "nome";
+
+export const PROCURADOR_TITULAR_FILTER_MAPPINGS = createFilterMappings<ProcuradorTitularFilterFields>({
+  procuradorTitularNomeContains: { field: "nome", operator: "contains" }
 });
 
 export class AcervoRepository extends BaseRepository<Acervo> {
