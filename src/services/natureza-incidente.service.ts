@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome"] as const;
 
-export class NaturezaIncidenteService extends BaseService<NaturezaIncidente, NaturezaIncidenteFilterFields, NaturezaIncidenteQueryDto> {
+export class NaturezaIncidenteService extends BaseService<NaturezaIncidente, NaturezaIncidenteQueryDto> {
   protected readonly repository: NaturezaIncidenteRepository;
-  protected readonly listConfig: ListConfig<NaturezaIncidente, NaturezaIncidenteFilterFields> = {
+  protected readonly listConfig: ListConfig<NaturezaIncidente> = {
     filterMappings: NATUREZA_INCIDENTE_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

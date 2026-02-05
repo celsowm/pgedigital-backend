@@ -3,7 +3,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type ClassificacaoFilterFields = "nome";
 
-export const CLASSIFICACAO_FILTER_MAPPINGS = createFilterMappings<ClassificacaoFilterFields>({
+export const CLASSIFICACAO_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" }
 });
 

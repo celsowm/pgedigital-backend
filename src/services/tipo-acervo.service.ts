@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome"] as const;
 
-export class TipoAcervoService extends BaseService<TipoAcervo, TipoAcervoFilterFields, TipoAcervoQueryDto> {
+export class TipoAcervoService extends BaseService<TipoAcervo, TipoAcervoQueryDto> {
   protected readonly repository: TipoAcervoRepository;
-  protected readonly listConfig: ListConfig<TipoAcervo, TipoAcervoFilterFields> = {
+  protected readonly listConfig: ListConfig<TipoAcervo> = {
     filterMappings: TIPO_ACERVO_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

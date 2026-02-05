@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome"] as const;
 
-export class ExitoSucumbenciaService extends BaseService<ExitoSucumbencia, ExitoSucumbenciaFilterFields, ExitoSucumbenciaQueryDto> {
+export class ExitoSucumbenciaService extends BaseService<ExitoSucumbencia, ExitoSucumbenciaQueryDto> {
   protected readonly repository: ExitoSucumbenciaRepository;
-  protected readonly listConfig: ListConfig<ExitoSucumbencia, ExitoSucumbenciaFilterFields> = {
+  protected readonly listConfig: ListConfig<ExitoSucumbencia> = {
     filterMappings: EXITO_SUCUMBENCIA_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

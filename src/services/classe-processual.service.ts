@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome", "situacao"] as const;
 
-export class ClasseProcessualService extends BaseService<ClasseProcessual, ClasseProcessualFilterFields, ClasseProcessualQueryDto> {
+export class ClasseProcessualService extends BaseService<ClasseProcessual, ClasseProcessualQueryDto> {
   protected readonly repository: ClasseProcessualRepository;
-  protected readonly listConfig: ListConfig<ClasseProcessual, ClasseProcessualFilterFields> = {
+  protected readonly listConfig: ListConfig<ClasseProcessual> = {
     filterMappings: CLASSE_PROCESSUAL_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

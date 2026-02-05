@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome"] as const;
 
-export class TipoAfastamentoService extends BaseService<TipoAfastamento, TipoAfastamentoFilterFields, TipoAfastamentoQueryDto> {
+export class TipoAfastamentoService extends BaseService<TipoAfastamento, TipoAfastamentoQueryDto> {
   protected readonly repository: TipoAfastamentoRepository;
-  protected readonly listConfig: ListConfig<TipoAfastamento, TipoAfastamentoFilterFields> = {
+  protected readonly listConfig: ListConfig<TipoAfastamento> = {
     filterMappings: TIPO_AFASTAMENTO_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

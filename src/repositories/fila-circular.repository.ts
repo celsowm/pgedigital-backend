@@ -3,7 +3,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type FilaCircularFilterFields = never;
 
-export const FILA_CIRCULAR_FILTER_MAPPINGS = createFilterMappings<FilaCircularFilterFields>({});
+export const FILA_CIRCULAR_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({});
 
 export class FilaCircularRepository extends BaseRepository<FilaCircular> {
   readonly entityClass = FilaCircular;

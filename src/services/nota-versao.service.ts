@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "data", "sprint", "ativo"] as const;
 
-export class NotaVersaoService extends BaseService<NotaVersao, NotaVersaoFilterFields, NotaVersaoQueryDto> {
+export class NotaVersaoService extends BaseService<NotaVersao, NotaVersaoQueryDto> {
   protected readonly repository: NotaVersaoRepository;
-  protected readonly listConfig: ListConfig<NotaVersao, NotaVersaoFilterFields> = {
+  protected readonly listConfig: ListConfig<NotaVersao> = {
     filterMappings: NOTA_VERSAO_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

@@ -23,7 +23,7 @@ export class TipoDivisaoCargaTrabalhoService {
     query: TipoDivisaoCargaTrabalhoQueryDto
   ): Promise<TipoDivisaoCargaTrabalhoOptionDto[]> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<TipoDivisaoCargaTrabalho, TipoDivisaoCargaTrabalhoFilterFields>(
+    const filters = parseFilter(
       paginationQuery,
       TIPO_DIVISAO_CARGA_TRABALHO_FILTER_MAPPINGS
     );

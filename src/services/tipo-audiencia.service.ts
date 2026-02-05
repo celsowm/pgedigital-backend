@@ -12,9 +12,9 @@ import type { TipoAudiencia } from "../entities/TipoAudiencia";
 
 const SORTABLE_COLUMNS = ["id", "descricao"] as const;
 
-export class TipoAudienciaService extends BaseService<TipoAudiencia, TipoAudienciaFilterFields, TipoAudienciaQueryDto> {
+export class TipoAudienciaService extends BaseService<TipoAudiencia, TipoAudienciaQueryDto> {
   protected readonly repository: TipoAudienciaRepository;
-  protected readonly listConfig: ListConfig<TipoAudiencia, TipoAudienciaFilterFields> = {
+  protected readonly listConfig: ListConfig<TipoAudiencia> = {
     filterMappings: TIPO_AUDIENCIA_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

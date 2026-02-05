@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome", "especializada_id"] as const;
 
-export class EquipeService extends BaseService<Equipe, EquipeFilterFields, EquipeQueryDto> {
+export class EquipeService extends BaseService<Equipe, EquipeQueryDto> {
   protected readonly repository: EquipeRepository;
-  protected readonly listConfig: ListConfig<Equipe, EquipeFilterFields> = {
+  protected readonly listConfig: ListConfig<Equipe> = {
     filterMappings: EQUIPE_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

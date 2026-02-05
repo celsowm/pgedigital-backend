@@ -3,7 +3,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type TipoAcervoFilterFields = "nome";
 
-export const TIPO_ACERVO_FILTER_MAPPINGS = createFilterMappings<TipoAcervoFilterFields>({
+export const TIPO_ACERVO_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" }
 });
 

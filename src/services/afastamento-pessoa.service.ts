@@ -65,7 +65,7 @@ export class AfastamentoPessoaService {
   async list(query: AfastamentoPessoaQueryDto): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
     const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<AfastamentoPessoa, AfastamentoPessoaFilterFields>(
+    const filters = parseFilter(
       paginationQuery,
       AFASTAMENTO_PESSOA_FILTER_MAPPINGS
     );

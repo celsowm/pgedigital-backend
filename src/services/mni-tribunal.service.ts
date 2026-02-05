@@ -18,9 +18,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "sigla", "descricao", "identificador_cnj"] as const;
 
-export class MniTribunalService extends BaseService<MniTribunal, MniTribunalFilterFields, MniTribunalQueryDto> {
+export class MniTribunalService extends BaseService<MniTribunal, MniTribunalQueryDto> {
   protected readonly repository: MniTribunalRepository;
-  protected readonly listConfig: ListConfig<MniTribunal, MniTribunalFilterFields> = {
+  protected readonly listConfig: ListConfig<MniTribunal> = {
     filterMappings: MNI_TRIBUNAL_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

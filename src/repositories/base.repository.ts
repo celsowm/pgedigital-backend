@@ -8,11 +8,12 @@ import {
 } from "metal-orm";
 
 export type FilterOperator = AdornFilterMapping["operator"];
-export type FilterMapping<F extends string = string> = Record<string, AdornFilterMapping>;
+export type FilterMapping<TEntity extends Record<string, unknown> = Record<string, unknown>> =
+  Record<string, AdornFilterMapping<TEntity>>;
 
-export function createFilterMappings<F extends string>(
-  mappings: FilterMapping<F>
-): FilterMapping<F> {
+export function createFilterMappings<TEntity extends Record<string, unknown>>(
+  mappings: FilterMapping<TEntity>
+): FilterMapping<TEntity> {
   return mappings;
 }
 

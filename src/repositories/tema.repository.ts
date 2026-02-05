@@ -5,7 +5,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type TemaFilterFields = "nome" | "materia_id" | "parent_id";
 
-export const TEMA_FILTER_MAPPINGS = createFilterMappings<TemaFilterFields>({
+export const TEMA_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" },
   materiaId: { field: "materia_id", operator: "equals" },
   parentId: { field: "parent_id", operator: "equals" }

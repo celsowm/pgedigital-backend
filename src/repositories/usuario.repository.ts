@@ -4,7 +4,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type UsuarioFilterFields = "nome" | "cargo" | "especializada_id";
 
-export const USUARIO_FILTER_MAPPINGS = createFilterMappings<UsuarioFilterFields>({
+export const USUARIO_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" },
   cargoContains: { field: "cargo", operator: "contains" },
   especializadaId: { field: "especializada_id", operator: "equals" }

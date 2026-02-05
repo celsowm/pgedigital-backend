@@ -3,7 +3,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type ClasseProcessualFilterFields = "nome";
 
-export const CLASSE_PROCESSUAL_FILTER_MAPPINGS = createFilterMappings<ClasseProcessualFilterFields>({
+export const CLASSE_PROCESSUAL_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" }
 });
 

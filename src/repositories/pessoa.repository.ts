@@ -3,7 +3,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type PessoaFilterFields = "nome" | "numero_documento_principal";
 
-export const PESSOA_FILTER_MAPPINGS = createFilterMappings<PessoaFilterFields>({
+export const PESSOA_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" },
   numeroDocumentoPrincipalContains: { field: "numero_documento_principal", operator: "contains" }
 });

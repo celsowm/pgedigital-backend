@@ -23,7 +23,7 @@ export class TipoProvidenciaJuridicaService {
     query: TipoProvidenciaJuridicaQueryDto
   ): Promise<TipoProvidenciaJuridicaOptionDto[]> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<TipoProvidenciaJuridica, TipoProvidenciaJuridicaFilterFields>(
+    const filters = parseFilter(
       paginationQuery,
       TIPO_PROVIDENCIA_JURIDICA_FILTER_MAPPINGS
     );

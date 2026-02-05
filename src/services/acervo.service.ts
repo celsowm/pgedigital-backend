@@ -26,9 +26,9 @@ import { parseSorting } from "../utils/controller-helpers";
 
 const SORTABLE_COLUMNS = ["id", "nome", "ativo", "created", "modified"] as const;
 
-export class AcervoService extends BaseService<Acervo, AcervoFilterFields, AcervoQueryDto> {
+export class AcervoService extends BaseService<Acervo, AcervoQueryDto> {
   protected readonly repository: AcervoRepository;
-  protected readonly listConfig: ListConfig<Acervo, AcervoFilterFields> = {
+  protected readonly listConfig: ListConfig<Acervo> = {
     filterMappings: ACERVO_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",
@@ -45,7 +45,7 @@ export class AcervoService extends BaseService<Acervo, AcervoFilterFields, Acerv
   override async list(query: AcervoQueryDto): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
     const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Acervo, AcervoFilterFields>(
+    const filters = parseFilter(
       paginationQuery,
       ACERVO_FILTER_MAPPINGS
     );
@@ -83,7 +83,7 @@ export class AcervoService extends BaseService<Acervo, AcervoFilterFields, Acerv
     labelField?: keyof Acervo
   ): Promise<Array<{ id: number; nome: string }>> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<Acervo, AcervoFilterFields>(
+    const filters = parseFilter(
       paginationQuery,
       ACERVO_FILTER_MAPPINGS
     );

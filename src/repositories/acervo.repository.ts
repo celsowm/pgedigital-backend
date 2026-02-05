@@ -10,7 +10,7 @@ export type AcervoFilterFields =
   | "procurador_titular_id"
   | "ativo";
 
-export const ACERVO_FILTER_MAPPINGS = createFilterMappings<AcervoFilterFields>({
+export const ACERVO_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" },
   especializadaId: { field: "especializada_id", operator: "equals" },
   tipoAcervoId: { field: "tipo_acervo_id", operator: "equals" },

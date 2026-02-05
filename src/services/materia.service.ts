@@ -17,9 +17,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome"] as const;
 
-export class MateriaService extends BaseService<Materia, MateriaFilterFields, MateriaQueryDto> {
+export class MateriaService extends BaseService<Materia, MateriaQueryDto> {
   protected readonly repository: MateriaRepository;
-  protected readonly listConfig: ListConfig<Materia, MateriaFilterFields> = {
+  protected readonly listConfig: ListConfig<Materia> = {
     filterMappings: MATERIA_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

@@ -18,9 +18,9 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "ultimo_elemento"] as const;
 
-export class FilaCircularService extends BaseService<FilaCircular, FilaCircularFilterFields, FilaCircularQueryDto> {
+export class FilaCircularService extends BaseService<FilaCircular, FilaCircularQueryDto> {
   protected readonly repository: FilaCircularRepository;
-  protected readonly listConfig: ListConfig<FilaCircular, FilaCircularFilterFields> = {
+  protected readonly listConfig: ListConfig<FilaCircular> = {
     filterMappings: FILA_CIRCULAR_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

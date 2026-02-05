@@ -41,9 +41,9 @@ const treeConfig = getTreeConfig(Tema) ?? {
 
 const tree = treeQuery(temaTable, treeConfig);
 
-export class TemaService extends BaseService<Tema, TemaFilterFields, TemaQueryDto> {
+export class TemaService extends BaseService<Tema, TemaQueryDto> {
   protected readonly repository: TemaRepository;
-  protected readonly listConfig: ListConfig<Tema, TemaFilterFields> = {
+  protected readonly listConfig: ListConfig<Tema> = {
     filterMappings: TEMA_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

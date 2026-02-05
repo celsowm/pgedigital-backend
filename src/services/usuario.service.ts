@@ -11,9 +11,9 @@ import type { Usuario } from "../entities/Usuario";
 
 const SORTABLE_COLUMNS = ["id", "nome", "login", "cargo"] as const;
 
-export class UsuarioService extends BaseService<Usuario, UsuarioFilterFields, UsuarioQueryDto> {
+export class UsuarioService extends BaseService<Usuario, UsuarioQueryDto> {
   protected readonly repository: UsuarioRepository;
-  protected readonly listConfig: ListConfig<Usuario, UsuarioFilterFields> = {
+  protected readonly listConfig: ListConfig<Usuario> = {
     filterMappings: USUARIO_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

@@ -11,9 +11,9 @@ import type { TipoSolicitacao } from "../entities/TipoSolicitacao";
 
 const SORTABLE_COLUMNS = ["id", "nome"] as const;
 
-export class TipoSolicitacaoService extends BaseService<TipoSolicitacao, TipoSolicitacaoFilterFields, TipoSolicitacaoQueryDto> {
+export class TipoSolicitacaoService extends BaseService<TipoSolicitacao, TipoSolicitacaoQueryDto> {
   protected readonly repository: TipoSolicitacaoRepository;
-  protected readonly listConfig: ListConfig<TipoSolicitacao, TipoSolicitacaoFilterFields> = {
+  protected readonly listConfig: ListConfig<TipoSolicitacao> = {
     filterMappings: TIPO_SOLICITACAO_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",

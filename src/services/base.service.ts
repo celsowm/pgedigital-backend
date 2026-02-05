@@ -14,8 +14,8 @@ import type { BaseRepository, FilterMapping } from "../repositories/base.reposit
 
 type SortDirection = "ASC" | "DESC";
 
-export interface ListConfig<TEntity extends object, TFilterFields extends string> {
-  filterMappings: FilterMapping<TFilterFields>;
+export interface ListConfig<TEntity extends object> {
+  filterMappings: FilterMapping;
   sortableColumns?: (keyof TEntity & string)[];
   defaultSortBy?: keyof TEntity & string;
   defaultSortOrder?: SortDirection;
@@ -23,11 +23,10 @@ export interface ListConfig<TEntity extends object, TFilterFields extends string
 
 export abstract class BaseService<
   TEntity extends object,
-  TFilterFields extends string = string,
   TQuery extends object = Record<string, unknown>
 > {
   protected abstract readonly repository: BaseRepository<TEntity>;
-  protected abstract readonly listConfig: ListConfig<TEntity, TFilterFields>;
+  protected abstract readonly listConfig: ListConfig<TEntity>;
 
   async list(query: TQuery): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;

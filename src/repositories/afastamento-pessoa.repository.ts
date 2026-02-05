@@ -7,7 +7,7 @@ import {
 import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export const AFASTAMENTO_PESSOA_FILTER_MAPPINGS =
-  createFilterMappings<AfastamentoPessoaFilterFields>(AFASTAMENTO_PESSOA_FILTER_MAPPINGS_SOURCE);
+  createFilterMappings<Record<string, unknown>>(AFASTAMENTO_PESSOA_FILTER_MAPPINGS_SOURCE);
 
 export class AfastamentoPessoaRepository extends BaseRepository<AfastamentoPessoa> {
   readonly entityClass = AfastamentoPessoa;

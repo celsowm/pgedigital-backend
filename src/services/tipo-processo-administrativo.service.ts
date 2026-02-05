@@ -23,7 +23,7 @@ export class TipoProcessoAdministrativoService {
     query: TipoProcessoAdministrativoQueryDto
   ): Promise<TipoProcessoAdministrativoOptionDto[]> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter<TipoProcessoAdministrativo, TipoProcessoAdministrativoFilterFields>(
+    const filters = parseFilter(
       paginationQuery,
       TIPO_PROCESSO_ADMINISTRATIVO_FILTER_MAPPINGS
     );

@@ -3,7 +3,7 @@ import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type MateriaFilterFields = "nome";
 
-export const MATERIA_FILTER_MAPPINGS = createFilterMappings<MateriaFilterFields>({
+export const MATERIA_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   nomeContains: { field: "nome", operator: "contains" }
 });
 

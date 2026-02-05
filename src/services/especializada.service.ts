@@ -29,9 +29,9 @@ import { parseSorting } from "../utils/controller-helpers";
 
 const SORTABLE_COLUMNS = ["id", "nome", "sigla", "codigo_ad"] as const;
 
-export class EspecializadaService extends BaseService<Especializada, EspecializadaFilterFields, EspecializadaQueryDto> {
+export class EspecializadaService extends BaseService<Especializada, EspecializadaQueryDto> {
   protected readonly repository: EspecializadaRepository;
-  protected readonly listConfig: ListConfig<Especializada, EspecializadaFilterFields> = {
+  protected readonly listConfig: ListConfig<Especializada> = {
     filterMappings: ESPECIALIZADA_FILTER_MAPPINGS,
     sortableColumns: [...SORTABLE_COLUMNS],
     defaultSortBy: "id",
@@ -46,12 +46,12 @@ export class EspecializadaService extends BaseService<Especializada, Especializa
 
   override async list(query: EspecializadaQueryDto): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const responsavelFilters = parseFilter<Usuario, ResponsavelFilterFields>(
+    const responsavelFilters = parseFilter(
       paginationQuery,
       RESPONSAVEL_FILTER_MAPPINGS
     );
     const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter<Especializada, EspecializadaFilterFields>(
+    const filters = parseFilter(
       paginationQuery,
       ESPECIALIZADA_FILTER_MAPPINGS
     );
