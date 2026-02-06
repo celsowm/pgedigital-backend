@@ -26,7 +26,7 @@ export class MniTribunalService extends BaseService<MniTribunal, MniTribunalQuer
     defaultSortBy: "id",
     defaultSortOrder: "ASC"
   };
-  private readonly entityName = "MNI Tribunal";
+  protected readonly entityName = "MNI Tribunal";
 
   constructor(repository?: MniTribunalRepository) {
     super();

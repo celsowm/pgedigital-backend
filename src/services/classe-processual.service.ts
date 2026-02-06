@@ -26,7 +26,7 @@ export class ClasseProcessualService extends BaseService<ClasseProcessual, Class
     defaultSortOrder: "ASC"
   };
 
-  private readonly entityName = "classe processual";
+  protected readonly entityName = "classe processual";
 
   constructor(repository?: ClasseProcessualRepository) {
     super();

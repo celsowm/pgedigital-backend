@@ -70,7 +70,7 @@ export abstract class BaseService<
   }
 
   async listOptions(
-    query: TQuery,
+    query?: TQuery,
     labelField?: keyof TEntity
   ): Promise<Array<{ id: number; nome: string }>> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
