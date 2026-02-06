@@ -40,9 +40,6 @@ export class EspecializadaResumoDto {
 
 @Dto({ description: "Thumbnail do usuário." })
 export class UsuarioThumbnailDto {
-  @Field(t.integer())
-  id!: number;
-
   @Field(t.optional(t.bytes()))
   thumbnail?: string;
 }

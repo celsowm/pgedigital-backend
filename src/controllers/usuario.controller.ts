@@ -42,7 +42,8 @@ export class UsuarioController {
 
   @Get("/:id/thumbnail")
   @Params(UsuarioParamsDto)
-  @Returns(UsuarioThumbnailDto)
+  @Returns({ status: 200, schema: UsuarioThumbnailDto, description: "Thumbnail found" })
+  @Returns({ status: 204, description: "No thumbnail available for user" })
   async getThumbnail(ctx: RequestContext<unknown, undefined, UsuarioParamsDto>): Promise<UsuarioThumbnailDto | null> {
     const id = parseIdOrThrow(ctx.params.id, "usuario");
     return withSession(async (session) => {
