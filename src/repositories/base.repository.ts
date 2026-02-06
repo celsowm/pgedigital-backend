@@ -31,9 +31,9 @@ export interface BaseRepositoryOptions<TEntity, K extends keyof TEntity = keyof 
   defaultLabelField?: K;
 }
 
-export abstract class BaseRepository<TEntity extends object> {
+export abstract class BaseRepository<TEntity extends object, TDetail = TEntity> {
   abstract readonly entityClass: EntityClass<TEntity>;
-  
+
   private _entityRef?: EntityRef<TEntity>;
   protected readonly defaultLabelField: keyof TEntity;
 
@@ -64,5 +64,9 @@ export abstract class BaseRepository<TEntity extends object> {
 
   async findById(session: OrmSession, id: number): Promise<TEntity | null> {
     return session.find(this.entityClass as EntityClass<TEntity>, id);
+  }
+
+  async getDetail(session: OrmSession, id: number): Promise<TDetail | null> {
+    return (await this.findById(session, id)) as unknown as TDetail;
   }
 }

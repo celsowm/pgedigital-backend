@@ -1,4 +1,4 @@
-import { parseFilter, parsePagination } from "adorn-api";
+import { HttpError, applyInput, parseFilter, parsePagination } from "adorn-api";
 import {
   applyFilter,
   entityRef,
@@ -23,10 +23,15 @@ export interface ListConfig<TEntity extends object> {
 
 export abstract class BaseService<
   TEntity extends object,
-  TQuery extends object = Record<string, unknown>
+  TQuery extends object = Record<string, unknown>,
+  TDetail = TEntity,
+  TCreateInput = unknown,
+  TReplaceInput = unknown,
+  TUpdateInput = unknown
 > {
-  protected abstract readonly repository: BaseRepository<TEntity>;
+  protected abstract readonly repository: BaseRepository<TEntity, TDetail>;
   protected abstract readonly listConfig: ListConfig<TEntity>;
+  protected abstract readonly entityName: string;
 
   async list(query: TQuery): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
@@ -80,6 +85,76 @@ export abstract class BaseService<
         );
       }
       return optionsQuery.executePlain(session) as unknown as Array<{ id: number; nome: string }>;
+    });
+  }
+
+  async getOne(id: number): Promise<TDetail> {
+    return withSession(async (session: OrmSession) => {
+      const detail = await this.repository.getDetail(session, id);
+      if (!detail) {
+        throw new HttpError(404, `${this.entityName} not found.`);
+      }
+      return detail as unknown as TDetail;
+    });
+  }
+
+  async create(input: TCreateInput): Promise<TDetail> {
+    return withSession(async (session: OrmSession) => {
+      const entity = new (this.repository.entityClass as new () => TEntity)();
+      applyInput(entity, input as Partial<TEntity>, { partial: false });
+      await session.persist(entity);
+      await session.commit();
+
+      const detail = await this.repository.getDetail(session, (entity as Record<string, unknown>).id as number);
+      if (!detail) {
+        throw new HttpError(404, `${this.entityName} not found.`);
+      }
+      return detail as unknown as TDetail;
+    });
+  }
+
+  async replace(id: number, input: TReplaceInput): Promise<TDetail> {
+    return withSession(async (session: OrmSession) => {
+      const entity = await this.repository.findById(session, id);
+      if (!entity) {
+        throw new HttpError(404, `${this.entityName} not found.`);
+      }
+      applyInput(entity, input as Partial<TEntity>, { partial: false });
+      await session.commit();
+
+      const detail = await this.repository.getDetail(session, id);
+      if (!detail) {
+        throw new HttpError(404, `${this.entityName} not found.`);
+      }
+      return detail as unknown as TDetail;
+    });
+  }
+
+  async update(id: number, input: TUpdateInput): Promise<TDetail> {
+    return withSession(async (session: OrmSession) => {
+      const entity = await this.repository.findById(session, id);
+      if (!entity) {
+        throw new HttpError(404, `${this.entityName} not found.`);
+      }
+      applyInput(entity, input as Partial<TEntity>, { partial: true });
+      await session.commit();
+
+      const detail = await this.repository.getDetail(session, id);
+      if (!detail) {
+        throw new HttpError(404, `${this.entityName} not found.`);
+      }
+      return detail as unknown as TDetail;
+    });
+  }
+
+  async remove(id: number): Promise<void> {
+    return withSession(async (session: OrmSession) => {
+      const entity = await this.repository.findById(session, id);
+      if (!entity) {
+        throw new HttpError(404, `${this.entityName} not found.`);
+      }
+      await session.remove(entity);
+      await session.commit();
     });
   }
 }

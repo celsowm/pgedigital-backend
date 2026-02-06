@@ -1,5 +1,6 @@
 import { eq, isNotNull, selectFromEntity, type OrmSession } from "metal-orm";
 import { Especializada } from "../entities/Especializada";
+import type { EspecializadaWithResponsavelDto } from "../dtos/especializada/especializada.dtos";
 import { BaseRepository, createFilterMappings } from "./base.repository";
 
 export type EspecializadaFilterFields = "nome" | "sigla";
@@ -14,7 +15,7 @@ export const RESPONSAVEL_FILTER_MAPPINGS = createFilterMappings<Record<string, u
   responsavelNomeContains: { field: "nome", operator: "contains" }
 });
 
-export class EspecializadaRepository extends BaseRepository<Especializada> {
+export class EspecializadaRepository extends BaseRepository<Especializada, EspecializadaWithResponsavelDto> {
   readonly entityClass = Especializada;
 
   override buildListQuery(): ReturnType<typeof selectFromEntity<Especializada>> {
@@ -28,6 +29,10 @@ export class EspecializadaRepository extends BaseRepository<Especializada> {
       .where(eq(this.entityRef.id, id))
       .execute(session);
     return especializada ?? null;
+  }
+
+  override async getDetail(session: OrmSession, id: number): Promise<EspecializadaWithResponsavelDto | null> {
+    return (await this.getWithResponsavel(session, id)) as EspecializadaWithResponsavelDto | null;
   }
 
   async listSiglas(session: OrmSession): Promise<string[]> {

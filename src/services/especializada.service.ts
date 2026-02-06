@@ -1,4 +1,4 @@
-import { HttpError, applyInput, parseFilter, parsePagination } from "adorn-api";
+import { HttpError, parseFilter, parsePagination } from "adorn-api";
 import {
   applyFilter,
   entityRef,
@@ -20,16 +20,21 @@ import type {
 import {
   EspecializadaRepository,
   ESPECIALIZADA_FILTER_MAPPINGS,
-  RESPONSAVEL_FILTER_MAPPINGS,
-  type EspecializadaFilterFields,
-  type ResponsavelFilterFields
+  RESPONSAVEL_FILTER_MAPPINGS
 } from "../repositories/especializada.repository";
 import { BaseService, type ListConfig } from "./base.service";
 import { parseSorting } from "../utils/controller-helpers";
 
 const SORTABLE_COLUMNS = ["id", "nome", "sigla", "codigo_ad"] as const;
 
-export class EspecializadaService extends BaseService<Especializada, EspecializadaQueryDto> {
+export class EspecializadaService extends BaseService<
+  Especializada,
+  EspecializadaQueryDto,
+  EspecializadaWithResponsavelDto,
+  CreateEspecializadaDto,
+  ReplaceEspecializadaDto,
+  UpdateEspecializadaDto
+> {
   protected readonly repository: EspecializadaRepository;
   protected readonly listConfig: ListConfig<Especializada> = {
     filterMappings: ESPECIALIZADA_FILTER_MAPPINGS,
@@ -37,7 +42,7 @@ export class EspecializadaService extends BaseService<Especializada, Especializa
     defaultSortBy: "id",
     defaultSortOrder: "ASC"
   };
-  private readonly entityName = "especializada";
+  protected readonly entityName = "especializada";
 
   constructor(repository?: EspecializadaRepository) {
     super();
@@ -92,74 +97,5 @@ export class EspecializadaService extends BaseService<Especializada, Especializa
 
   async listSiglas(): Promise<string[]> {
     return withSession((session) => this.repository.listSiglas(session));
-  }
-  async getOne(id: number): Promise<EspecializadaWithResponsavelDto> {
-    return withSession(async (session) => {
-      const especializada = await this.repository.getWithResponsavel(session, id);
-      if (!especializada) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return especializada as EspecializadaWithResponsavelDto;
-    });
-  }
-
-  async create(input: CreateEspecializadaDto): Promise<EspecializadaWithResponsavelDto> {
-    return withSession(async (session) => {
-      const especializada = new Especializada();
-      applyInput(especializada, input as Partial<Especializada>, { partial: false });
-      await session.persist(especializada);
-      await session.commit();
-
-      const reloaded = await this.repository.getWithResponsavel(session, especializada.id);
-      if (!reloaded) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return reloaded as EspecializadaWithResponsavelDto;
-    });
-  }
-
-  async replace(id: number, input: ReplaceEspecializadaDto): Promise<EspecializadaWithResponsavelDto> {
-    return withSession(async (session) => {
-      const especializada = await this.repository.findById(session, id);
-      if (!especializada) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      applyInput(especializada, input as Partial<Especializada>, { partial: false });
-      await session.commit();
-
-      const reloaded = await this.repository.getWithResponsavel(session, id);
-      if (!reloaded) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return reloaded as EspecializadaWithResponsavelDto;
-    });
-  }
-
-  async update(id: number, input: UpdateEspecializadaDto): Promise<EspecializadaWithResponsavelDto> {
-    return withSession(async (session) => {
-      const especializada = await this.repository.findById(session, id);
-      if (!especializada) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      applyInput(especializada, input as Partial<Especializada>, { partial: true });
-      await session.commit();
-
-      const reloaded = await this.repository.getWithResponsavel(session, id);
-      if (!reloaded) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return reloaded as EspecializadaWithResponsavelDto;
-    });
-  }
-
-  async remove(id: number): Promise<void> {
-    return withSession(async (session) => {
-      const especializada = await this.repository.findById(session, id);
-      if (!especializada) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      await session.remove(especializada);
-      await session.commit();
-    });
   }
 }

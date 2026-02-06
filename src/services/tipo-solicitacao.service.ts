@@ -1,13 +1,10 @@
-import type {
-  TipoSolicitacaoQueryDto
-} from "../dtos/tipo-solicitacao/tipo-solicitacao.dtos";
+import { TipoSolicitacao } from "../entities/TipoSolicitacao";
+import type { TipoSolicitacaoQueryDto } from "../dtos/tipo-solicitacao/tipo-solicitacao.dtos";
 import {
   TipoSolicitacaoRepository,
-  TIPO_SOLICITACAO_FILTER_MAPPINGS,
-  type TipoSolicitacaoFilterFields
+  TIPO_SOLICITACAO_FILTER_MAPPINGS
 } from "../repositories/tipo-solicitacao.repository";
 import { BaseService, type ListConfig } from "./base.service";
-import type { TipoSolicitacao } from "../entities/TipoSolicitacao";
 
 const SORTABLE_COLUMNS = ["id", "nome"] as const;
 
@@ -19,6 +16,8 @@ export class TipoSolicitacaoService extends BaseService<TipoSolicitacao, TipoSol
     defaultSortBy: "id",
     defaultSortOrder: "ASC"
   };
+
+  protected readonly entityName = "tipo solicitação";
 
   constructor(repository?: TipoSolicitacaoRepository) {
     super();

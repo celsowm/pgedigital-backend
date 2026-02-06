@@ -19,7 +19,7 @@ export const ACERVO_FILTER_MAPPINGS = createFilterMappings<Record<string, unknow
   ativo: { field: "ativo", operator: "equals" }
 });
 
-export class AcervoRepository extends BaseRepository<Acervo> {
+export class AcervoRepository extends BaseRepository<Acervo, AcervoDetailDto> {
   readonly entityClass = Acervo;
 
   override buildListQuery(): ReturnType<typeof selectFromEntity<Acervo>> {
@@ -58,7 +58,7 @@ export class AcervoRepository extends BaseRepository<Acervo> {
     return (acervo ?? null) as AcervoWithRelationsDto | null;
   }
 
-  async getDetail(session: OrmSession, id: number): Promise<AcervoDetailDto | null> {
+  override async getDetail(session: OrmSession, id: number): Promise<AcervoDetailDto | null> {
     const [acervo] = await this.buildDetailQuery()
       .where(eq(this.entityRef.id, id))
       .execute(session);

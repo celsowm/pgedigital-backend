@@ -1,43 +1,28 @@
-import { parseFilter } from "adorn-api";
-import { applyFilter, type WhereInput } from "metal-orm";
-import { withSession } from "../db/mssql";
 import { TipoDivisaoCargaTrabalho } from "../entities/TipoDivisaoCargaTrabalho";
 import type {
-  TipoDivisaoCargaTrabalhoOptionDto,
   TipoDivisaoCargaTrabalhoQueryDto
 } from "../dtos/tipo-divisao-carga-trabalho/tipo-divisao-carga-trabalho.dtos";
 import {
   TipoDivisaoCargaTrabalhoRepository,
-  TIPO_DIVISAO_CARGA_TRABALHO_FILTER_MAPPINGS,
-  type TipoDivisaoCargaTrabalhoFilterFields
+  TIPO_DIVISAO_CARGA_TRABALHO_FILTER_MAPPINGS
 } from "../repositories/tipo-divisao-carga-trabalho.repository";
+import { BaseService, type ListConfig } from "./base.service";
 
-export class TipoDivisaoCargaTrabalhoService {
-  private readonly repository: TipoDivisaoCargaTrabalhoRepository;
+export class TipoDivisaoCargaTrabalhoService extends BaseService<
+  TipoDivisaoCargaTrabalho,
+  TipoDivisaoCargaTrabalhoQueryDto
+> {
+  protected readonly repository: TipoDivisaoCargaTrabalhoRepository;
+  protected readonly listConfig: ListConfig<TipoDivisaoCargaTrabalho> = {
+    filterMappings: TIPO_DIVISAO_CARGA_TRABALHO_FILTER_MAPPINGS,
+    defaultSortBy: "nome",
+    defaultSortOrder: "ASC"
+  };
+
+  protected readonly entityName = "tipo divisão carga trabalho";
 
   constructor(repository?: TipoDivisaoCargaTrabalhoRepository) {
+    super();
     this.repository = repository ?? new TipoDivisaoCargaTrabalhoRepository();
-  }
-
-  async listOptions(
-    query: TipoDivisaoCargaTrabalhoQueryDto
-  ): Promise<TipoDivisaoCargaTrabalhoOptionDto[]> {
-    const paginationQuery = (query ?? {}) as Record<string, unknown>;
-    const filters = parseFilter(
-      paginationQuery,
-      TIPO_DIVISAO_CARGA_TRABALHO_FILTER_MAPPINGS
-    );
-
-    return withSession(async (session) => {
-      let optionsQuery = this.repository.buildOptionsQuery();
-      if (filters) {
-        optionsQuery = applyFilter(
-          optionsQuery,
-          this.repository.entityClass,
-          filters as WhereInput<typeof this.repository.entityClass>
-        );
-      }
-      return optionsQuery.executePlain(session);
-    });
   }
 }

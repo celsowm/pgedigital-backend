@@ -16,7 +16,14 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "data_inicio", "data_fim", "descricao"] as const;
 
-export class FeriadoService extends BaseService<Feriado, FeriadoQueryDto> {
+export class FeriadoService extends BaseService<
+  Feriado,
+  FeriadoQueryDto,
+  FeriadoDto,
+  CreateFeriadoDto,
+  ReplaceFeriadoDto,
+  UpdateFeriadoDto
+> {
   protected readonly repository: FeriadoRepository;
   protected readonly listConfig: ListConfig<Feriado> = {
     filterMappings: FERIADO_FILTER_MAPPINGS,
@@ -24,7 +31,7 @@ export class FeriadoService extends BaseService<Feriado, FeriadoQueryDto> {
     defaultSortBy: "id",
     defaultSortOrder: "ASC"
   };
-  private readonly entityName = "feriado";
+  protected readonly entityName = "feriado";
 
   constructor(repository?: FeriadoRepository) {
     super();
@@ -47,57 +54,21 @@ export class FeriadoService extends BaseService<Feriado, FeriadoQueryDto> {
     }
   }
 
-  async getOne(id: number): Promise<FeriadoDto> {
-    return withSession(async (session) => {
-      const feriado = await this.repository.getDetail(session, id);
-      if (!feriado) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return feriado as FeriadoDto;
-    });
-  }
-
-  async create(input: CreateFeriadoDto): Promise<FeriadoDto> {
+  override async create(input: CreateFeriadoDto): Promise<FeriadoDto> {
     const mutableInput = { ...input } as Record<string, unknown>;
     this.applyDefaultDataFim(mutableInput);
     this.validateDates(mutableInput as { data_inicio?: Date; data_fim?: Date });
-
-    return withSession(async (session) => {
-      const feriado = new Feriado();
-      applyInput(feriado, mutableInput as Partial<Feriado>, { partial: false });
-      await session.persist(feriado);
-      await session.commit();
-
-      const detail = await this.repository.getDetail(session, feriado.id);
-      if (!detail) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return detail as FeriadoDto;
-    });
+    return super.create(mutableInput as CreateFeriadoDto);
   }
 
-  async replace(id: number, input: ReplaceFeriadoDto): Promise<FeriadoDto> {
+  override async replace(id: number, input: ReplaceFeriadoDto): Promise<FeriadoDto> {
     const mutableInput = { ...input } as Record<string, unknown>;
     this.applyDefaultDataFim(mutableInput);
     this.validateDates(mutableInput as { data_inicio?: Date; data_fim?: Date });
-
-    return withSession(async (session) => {
-      const feriado = await this.repository.findById(session, id);
-      if (!feriado) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      applyInput(feriado, mutableInput as Partial<Feriado>, { partial: false });
-      await session.commit();
-
-      const detail = await this.repository.getDetail(session, id);
-      if (!detail) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return detail as FeriadoDto;
-    });
+    return super.replace(id, mutableInput as ReplaceFeriadoDto);
   }
 
-  async update(id: number, input: UpdateFeriadoDto): Promise<FeriadoDto> {
+  override async update(id: number, input: UpdateFeriadoDto): Promise<FeriadoDto> {
     this.validateDates(input as { data_inicio?: Date; data_fim?: Date });
 
     return withSession(async (session) => {
@@ -124,17 +95,6 @@ export class FeriadoService extends BaseService<Feriado, FeriadoQueryDto> {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
       return detail as FeriadoDto;
-    });
-  }
-
-  async remove(id: number): Promise<void> {
-    return withSession(async (session) => {
-      const feriado = await this.repository.findById(session, id);
-      if (!feriado) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      await session.remove(feriado);
-      await session.commit();
     });
   }
 }

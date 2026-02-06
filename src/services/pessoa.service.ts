@@ -1,5 +1,3 @@
-import { HttpError, applyInput } from "adorn-api";
-import { withSession } from "../db/mssql";
 import { Pessoa } from "../entities/Pessoa";
 import type {
   CreatePessoaDto,
@@ -10,14 +8,20 @@ import type {
 } from "../dtos/pessoa/pessoa.dtos";
 import {
   PessoaRepository,
-  PESSOA_FILTER_MAPPINGS,
-  type PessoaFilterFields
+  PESSOA_FILTER_MAPPINGS
 } from "../repositories/pessoa.repository";
 import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome", "numero_documento_principal", "tipo_pessoa"] as const;
 
-export class PessoaService extends BaseService<Pessoa, PessoaQueryDto> {
+export class PessoaService extends BaseService<
+  Pessoa,
+  PessoaQueryDto,
+  PessoaDto,
+  CreatePessoaDto,
+  ReplacePessoaDto,
+  UpdatePessoaDto
+> {
   protected readonly repository: PessoaRepository;
   protected readonly listConfig: ListConfig<Pessoa> = {
     filterMappings: PESSOA_FILTER_MAPPINGS,
@@ -25,65 +29,10 @@ export class PessoaService extends BaseService<Pessoa, PessoaQueryDto> {
     defaultSortBy: "id",
     defaultSortOrder: "ASC"
   };
-  private readonly entityName = "pessoa";
+  protected readonly entityName = "pessoa";
 
   constructor(repository?: PessoaRepository) {
     super();
     this.repository = repository ?? new PessoaRepository();
-  }
-
-  async getOne(id: number): Promise<PessoaDto> {
-    return withSession(async (session) => {
-      const pessoa = await this.repository.findById(session, id);
-      if (!pessoa) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return pessoa as PessoaDto;
-    });
-  }
-
-  async create(input: CreatePessoaDto): Promise<PessoaDto> {
-    return withSession(async (session) => {
-      const pessoa = new Pessoa();
-      applyInput(pessoa, input as Partial<Pessoa>, { partial: false });
-      await session.persist(pessoa);
-      await session.commit();
-      return pessoa as PessoaDto;
-    });
-  }
-
-  async replace(id: number, input: ReplacePessoaDto): Promise<PessoaDto> {
-    return withSession(async (session) => {
-      const pessoa = await this.repository.findById(session, id);
-      if (!pessoa) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      applyInput(pessoa, input as Partial<Pessoa>, { partial: false });
-      await session.commit();
-      return pessoa as PessoaDto;
-    });
-  }
-
-  async update(id: number, input: UpdatePessoaDto): Promise<PessoaDto> {
-    return withSession(async (session) => {
-      const pessoa = await this.repository.findById(session, id);
-      if (!pessoa) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      applyInput(pessoa, input as Partial<Pessoa>, { partial: true });
-      await session.commit();
-      return pessoa as PessoaDto;
-    });
-  }
-
-  async remove(id: number): Promise<void> {
-    return withSession(async (session) => {
-      const pessoa = await this.repository.findById(session, id);
-      if (!pessoa) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      await session.remove(pessoa);
-      await session.commit();
-    });
   }
 }

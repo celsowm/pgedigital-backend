@@ -11,7 +11,7 @@ export const TEMA_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>
   parentId: { field: "parent_id", operator: "equals" }
 });
 
-export class TemaRepository extends BaseRepository<Tema> {
+export class TemaRepository extends BaseRepository<Tema, TemaWithRelationsDto> {
   readonly entityClass = Tema;
 
   async getWithRelations(session: OrmSession, id: number): Promise<TemaWithRelationsDto | null> {
@@ -20,5 +20,9 @@ export class TemaRepository extends BaseRepository<Tema> {
       .where(eq(this.entityRef.id, id))
       .execute(session);
     return (tema ?? null) as TemaWithRelationsDto | null;
+  }
+
+  override async getDetail(session: OrmSession, id: number): Promise<TemaWithRelationsDto | null> {
+    return this.getWithRelations(session, id);
   }
 }

@@ -41,7 +41,14 @@ const treeConfig = getTreeConfig(Tema) ?? {
 
 const tree = treeQuery(temaTable, treeConfig);
 
-export class TemaService extends BaseService<Tema, TemaQueryDto> {
+export class TemaService extends BaseService<
+  Tema,
+  TemaQueryDto,
+  TemaWithRelationsDto,
+  CreateTemaDto,
+  ReplaceTemaDto,
+  UpdateTemaDto
+> {
   protected readonly repository: TemaRepository;
   protected readonly listConfig: ListConfig<Tema> = {
     filterMappings: TEMA_FILTER_MAPPINGS,
@@ -49,7 +56,7 @@ export class TemaService extends BaseService<Tema, TemaQueryDto> {
     defaultSortBy: "id",
     defaultSortOrder: "ASC"
   };
-  private readonly entityName = "tema";
+  protected readonly entityName = "tema";
 
   constructor(repository?: TemaRepository) {
     super();
@@ -96,15 +103,6 @@ export class TemaService extends BaseService<Tema, TemaQueryDto> {
     });
   }
 
-  async getOne(id: number): Promise<TemaWithRelationsDto> {
-    return withSession(async (session) => {
-      const tema = await this.repository.getWithRelations(session, id);
-      if (!tema) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return tema as TemaWithRelationsDto;
-    });
-  }
 
   async create(input: CreateTemaDto): Promise<TemaDto> {
     return withSession(async (session) => {
