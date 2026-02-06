@@ -6,7 +6,8 @@ import {
   toPagedResponse,
   type ColumnDef,
   type OrmSession,
-  type WhereInput
+  type WhereInput,
+  type ManyToManyCollection
 } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { parseSorting, type SortingConfig } from "../utils/controller-helpers";
@@ -156,5 +157,40 @@ export abstract class BaseService<
       await session.remove(entity);
       await session.commit();
     });
+  }
+
+  /**
+   * Syncs a ManyToManyCollection with a list of incoming IDs or objects.
+   * Leverages metal-orm's attach/detach while automating the diffing logic.
+   */
+  protected async syncCollection<T extends { id: number | string }>(
+    collection: ManyToManyCollection<T>,
+    incoming: Array<number | string | { id: number | string; pivot?: Record<string, any> }>,
+    options: { replace?: boolean } = {}
+  ): Promise<void> {
+    await collection.load();
+
+    const normalized = incoming.map((item) => {
+      if (typeof item === "object" && item !== null && "id" in item) {
+        return item as { id: number | string; pivot?: Record<string, any> };
+      }
+      return { id: item as number | string };
+    });
+
+    const incomingIds = new Set(normalized.map((item) => String(item.id)));
+
+    // Attach/Update new ones
+    for (const item of normalized) {
+      collection.attach(item.id as number, item.pivot);
+    }
+
+    // Detach missing ones if replace is true
+    if (options.replace) {
+      for (const existing of [...collection.getItems()]) {
+        if (!incomingIds.has(String(existing.id))) {
+          collection.detach(existing);
+        }
+      }
+    }
   }
 }

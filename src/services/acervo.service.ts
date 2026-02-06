@@ -1,29 +1,22 @@
-import {
-  applyInput,
-  HttpError,
-} from "adorn-api";
-import {
-  type OrmSession,
-  type ManyToManyCollection
-} from "metal-orm";
+import { applyInput, HttpError } from "adorn-api";
+import { type OrmSession } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { Acervo } from "../entities/Acervo";
 import type {
   AcervoDetailDto,
   AcervoQueryDto,
   CreateAcervoDto,
+  RaizCnpjInputDto,
   ReplaceAcervoDto,
-  UpdateAcervoDto,
-  RaizCnpjInputDto
+  UpdateAcervoDto
 } from "../dtos/acervo/acervo.dtos";
 import {
   AcervoRepository,
-  ACERVO_FILTER_MAPPINGS,
-  type AcervoFilterFields
+  ACERVO_FILTER_MAPPINGS
 } from "../repositories/acervo.repository";
 import { BaseService, type ListConfig } from "./base.service";
 
-const SORTABLE_COLUMNS = ["id", "nome", "ativo", "created", "modified"] as const;
+const SORTABLE_COLUMNS = ["id", "nome", "procurador_titular_id"] as const;
 
 export class AcervoService extends BaseService<
   Acervo,
@@ -48,102 +41,47 @@ export class AcervoService extends BaseService<
     this.repository = repository ?? new AcervoRepository();
   }
 
-
-  async create(input: CreateAcervoDto): Promise<AcervoDetailDto> {
+  override async create(input: CreateAcervoDto): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
-      const { classificacoes, temas, equipes_apoio, destinatarios, raizes_cnpjs, ...rest } =
-        input as Record<string, unknown>;
-
       const acervo = new Acervo();
-      applyInput(acervo, rest as Partial<Acervo>, { partial: false });
+      applyInput(acervo, input as Partial<Acervo>, { partial: false });
       await session.persist(acervo);
+      await this.syncRelations(acervo, input);
       await session.commit();
 
-      await this.syncRelations(session, acervo, {
-        classificacoes: classificacoes as number[] | undefined,
-        temas: temas as number[] | undefined,
-        equipes_apoio: equipes_apoio as number[] | undefined,
-        destinatarios: destinatarios as number[] | undefined,
-        raizes_cnpjs: raizes_cnpjs as RaizCnpjInputDto[] | undefined
-      });
-      await session.commit();
-
-      const detail = await this.repository.getDetail(session, acervo.id);
-      if (!detail) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return detail;
+      return (await this.repository.getDetail(session, acervo.id)) as AcervoDetailDto;
     });
   }
 
-  async replace(id: number, input: ReplaceAcervoDto): Promise<AcervoDetailDto> {
+  override async replace(id: number, input: ReplaceAcervoDto): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
       const acervo = await this.repository.findById(session, id);
       if (!acervo) {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
-      const { classificacoes, temas, equipes_apoio, destinatarios, raizes_cnpjs, ...rest } =
-        input as Record<string, unknown>;
-
-      applyInput(acervo, rest as Partial<Acervo>, { partial: false });
-
-      await this.syncRelations(session, acervo, {
-        classificacoes: classificacoes as number[] | undefined,
-        temas: temas as number[] | undefined,
-        equipes_apoio: equipes_apoio as number[] | undefined,
-        destinatarios: destinatarios as number[] | undefined,
-        raizes_cnpjs: raizes_cnpjs as RaizCnpjInputDto[] | undefined
-      }, { replace: true });
+      applyInput(acervo, input as Partial<Acervo>, { partial: false });
+      await this.syncRelations(acervo, input, { replace: true });
       await session.commit();
 
-      const detail = await this.repository.getDetail(session, id);
-      if (!detail) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return detail;
+      return (await this.repository.getDetail(session, id)) as AcervoDetailDto;
     });
   }
 
-  async update(id: number, input: UpdateAcervoDto): Promise<AcervoDetailDto> {
+  override async update(id: number, input: UpdateAcervoDto): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
       const acervo = await this.repository.findById(session, id);
       if (!acervo) {
         throw new HttpError(404, `${this.entityName} not found.`);
       }
-      const { classificacoes, temas, equipes_apoio, destinatarios, raizes_cnpjs, ...rest } =
-        input as Record<string, unknown>;
-
-      applyInput(acervo, rest as Partial<Acervo>, { partial: true });
-
-      const hasRelations = classificacoes !== undefined || temas !== undefined ||
-        equipes_apoio !== undefined || destinatarios !== undefined || raizes_cnpjs !== undefined;
-
-      if (hasRelations) {
-        await this.syncRelations(session, acervo, {
-          classificacoes: classificacoes as number[] | undefined,
-          temas: temas as number[] | undefined,
-          equipes_apoio: equipes_apoio as number[] | undefined,
-          destinatarios: destinatarios as number[] | undefined,
-          raizes_cnpjs: raizes_cnpjs as RaizCnpjInputDto[] | undefined
-        }, { replace: true });
-      }
+      applyInput(acervo, input as Partial<Acervo>, { partial: true });
+      await this.syncRelations(acervo, input);
       await session.commit();
 
-      const detail = await this.repository.getDetail(session, id);
-      if (!detail) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
-      return detail;
+      return (await this.repository.getDetail(session, id)) as AcervoDetailDto;
     });
-  }
-
-
-  async remove(id: number): Promise<void> {
-    return super.remove(id);
   }
 
   private async syncRelations(
-    session: OrmSession,
     acervo: Acervo,
     input: {
       classificacoes?: number[];
@@ -154,66 +92,25 @@ export class AcervoService extends BaseService<
     },
     options: { replace?: boolean } = {}
   ): Promise<void> {
+    const syncTasks: Promise<void>[] = [];
+
     if (input.classificacoes !== undefined) {
-      await this.syncIdCollection(acervo, "classificacoes", input.classificacoes, options.replace);
+      syncTasks.push(this.syncCollection(acervo.classificacoes, input.classificacoes, options));
     }
     if (input.temas !== undefined) {
-      await this.syncIdCollection(acervo, "temasRelacionados", input.temas, options.replace);
+      syncTasks.push(this.syncCollection(acervo.temasRelacionados, input.temas, options));
     }
     if (input.equipes_apoio !== undefined) {
-      await this.syncIdCollection(acervo, "equipes", input.equipes_apoio, options.replace);
+      syncTasks.push(this.syncCollection(acervo.equipes, input.equipes_apoio, options));
     }
     if (input.destinatarios !== undefined) {
-      await this.syncIdCollection(acervo, "destinatarios", input.destinatarios, options.replace);
+      syncTasks.push(this.syncCollection(acervo.destinatarios, input.destinatarios, options));
     }
     if (input.raizes_cnpjs !== undefined) {
-      await this.syncRaizesCnpjs(acervo, input.raizes_cnpjs, options.replace);
-    }
-  }
-
-  private async syncIdCollection(
-    acervo: Acervo,
-    relationName: "classificacoes" | "temasRelacionados" | "equipes" | "destinatarios",
-    ids: number[],
-    replace?: boolean
-  ): Promise<void> {
-    const collection = acervo[relationName] as ManyToManyCollection<unknown>;
-    await collection.load();
-
-    const incomingIds = new Set(ids.map(String));
-    for (const id of ids) {
-      collection.attach(id);
+      const items = input.raizes_cnpjs.map(item => ({ id: item.id, pivot: { raiz: item.raiz } }));
+      syncTasks.push(this.syncCollection(acervo.raizesCNPJs, items, options));
     }
 
-    if (replace) {
-      for (const existing of [...collection.getItems()]) {
-        const existingId = (existing as Record<string, unknown>).id as number | string | undefined;
-        if (existingId !== undefined && !incomingIds.has(String(existingId))) {
-          collection.detach(existing);
-        }
-      }
-    }
-  }
-
-  private async syncRaizesCnpjs(
-    acervo: Acervo,
-    items: RaizCnpjInputDto[],
-    replace?: boolean
-  ): Promise<void> {
-    await acervo.raizesCNPJs.load();
-
-    const incomingIds = new Set(items.map(item => String(item.id)));
-    for (const item of items) {
-      acervo.raizesCNPJs.attach(item.id, { raiz: item.raiz });
-    }
-
-    if (replace) {
-      for (const existing of [...acervo.raizesCNPJs.getItems()]) {
-        const existingId = (existing as unknown as Record<string, unknown>).id as number | string | undefined;
-        if (existingId !== undefined && !incomingIds.has(String(existingId))) {
-          acervo.raizesCNPJs.detach(existing);
-        }
-      }
-    }
+    await Promise.all(syncTasks);
   }
 }

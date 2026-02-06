@@ -39,40 +39,52 @@ import type {
   CreateAfastamentoPessoaDto,
   ReplaceAfastamentoPessoaDto,
   UpdateAfastamentoPessoaDto,
-  AfastamentoPessoaSubstitutoInputDto,
-  AfastamentoPessoaFilterFields
+  AfastamentoPessoaSubstitutoInputDto
 } from "../dtos/afastamento-pessoa/afastamento-pessoa.dtos";
 import {
   AfastamentoPessoaRepository,
   AFASTAMENTO_PESSOA_FILTER_MAPPINGS
 } from "../repositories/afastamento-pessoa.repository";
 import { parseSorting } from "../utils/controller-helpers";
+import { BaseService, type ListConfig } from "./base.service";
 
 const FINAL_DE_PROCESSO_NOME = "Final de Processo";
 const SORTABLE_COLUMNS = ["id", "data_inicio", "data_fim", "usuario_id", "tipo_afastamento_id"] as const;
+
 type AfastamentoPessoaQuery = ReturnType<typeof selectFromEntity<AfastamentoPessoa>>;
 type VwAfastamentoPessoaRef = ReturnType<typeof entityRef<VwAfastamentoPessoa>>;
 
-export class AfastamentoPessoaService {
-  private readonly repository: AfastamentoPessoaRepository;
-  private readonly entityName = "afastamento pessoa";
+export class AfastamentoPessoaService extends BaseService<
+  AfastamentoPessoa,
+  AfastamentoPessoaQueryDto,
+  AfastamentoPessoaDetailDto,
+  CreateAfastamentoPessoaDto,
+  ReplaceAfastamentoPessoaDto,
+  UpdateAfastamentoPessoaDto
+> {
+  protected readonly repository: AfastamentoPessoaRepository;
+  protected readonly listConfig: ListConfig<AfastamentoPessoa> = {
+    filterMappings: AFASTAMENTO_PESSOA_FILTER_MAPPINGS,
+    sortableColumns: [...SORTABLE_COLUMNS],
+    defaultSortBy: "data_inicio",
+    defaultSortOrder: "DESC"
+  };
+  protected readonly entityName = "afastamento pessoa";
   private tipoDivisaoFinalProcessoId?: number | null;
 
   constructor(repository?: AfastamentoPessoaRepository) {
+    super();
     this.repository = repository ?? new AfastamentoPessoaRepository();
   }
 
-  async list(query: AfastamentoPessoaQueryDto): Promise<unknown> {
+  override async list(query: AfastamentoPessoaQueryDto): Promise<unknown> {
     const paginationQuery = (query ?? {}) as Record<string, unknown>;
     const { page, pageSize } = parsePagination(paginationQuery);
-    const filters = parseFilter(
-      paginationQuery,
-      AFASTAMENTO_PESSOA_FILTER_MAPPINGS
-    );
+    const filters = parseFilter(paginationQuery, this.listConfig.filterMappings);
     const { sortBy, sortOrder } = parseSorting(paginationQuery, {
-      defaultSortBy: "data_inicio",
-      defaultSortOrder: "DESC",
-      allowedColumns: [...SORTABLE_COLUMNS]
+      defaultSortBy: this.listConfig.defaultSortBy,
+      defaultSortOrder: this.listConfig.defaultSortOrder,
+      allowedColumns: this.listConfig.sortableColumns
     });
 
     return withSession(async (session) => {
@@ -102,35 +114,23 @@ export class AfastamentoPessoaService {
     });
   }
 
-  async getOne(id: number): Promise<AfastamentoPessoaDetailDto> {
-    return withSession(async (session) => {
-      const detail = await this.loadDetail(session, id);
-      return detail;
-    });
-  }
-
-  async create(input: CreateAfastamentoPessoaDto): Promise<AfastamentoPessoaDetailDto> {
+  override async create(input: CreateAfastamentoPessoaDto): Promise<AfastamentoPessoaDetailDto> {
     return withSession(async (session) => {
       const { usuarios, ...rest } = input as Record<string, unknown>;
 
-      const afastamentoPessoa = new AfastamentoPessoa();
-      applyInput(afastamentoPessoa, rest as Partial<AfastamentoPessoa>, { partial: false });
-      afastamentoPessoa.data_criacao = new Date();
-      if (!afastamentoPessoa.tipo_divisao_carga_trabalho_id) {
-        afastamentoPessoa.tipo_divisao_carga_trabalho_id = 1;
+      const entity = new AfastamentoPessoa();
+      applyInput(entity, rest as Partial<AfastamentoPessoa>, { partial: false });
+      entity.data_criacao = new Date();
+      if (!entity.tipo_divisao_carga_trabalho_id) {
+        entity.tipo_divisao_carga_trabalho_id = 1;
       }
 
-      const afastadoInfo = await this.getUsuarioAfastadoInfo(session, afastamentoPessoa.usuario_id);
+      const afastadoInfo = await this.getUsuarioAfastadoInfo(session, entity.usuario_id);
       if (!afastadoInfo) {
         throw new HttpError(404, "Usuario nao encontrado.");
       }
 
-      if (
-        !afastadoInfo.cargo ||
-        !afastadoInfo.lotacao ||
-        afastadoInfo.cargo === "-" ||
-        afastadoInfo.lotacao === "-"
-      ) {
+      if (!afastadoInfo.cargo || !afastadoInfo.lotacao || afastadoInfo.cargo === "-" || afastadoInfo.lotacao === "-") {
         throw new HttpError(400, "Nao e possivel afastar usuario sem cargo ou unidade.");
       }
 
@@ -141,79 +141,50 @@ export class AfastamentoPessoaService {
         throw new HttpError(400, "Insira ao menos um substituto.");
       }
 
-      const validacao = await this.validacaoAfastamento(
-        session,
-        afastamentoPessoa,
-        substitutoIds,
-        afastadoInfo.vinculo,
-        null
-      );
-
+      const validacao = await this.validacaoAfastamento(session, entity, substitutoIds, afastadoInfo.vinculo, null);
       if (!validacao.ok) {
         throw new HttpError(400, validacao.message);
       }
 
       if (substitutoIds.length > 0) {
         const fila = await this.criaFila(session, substitutoIds);
-        if (!fila) {
-          throw new HttpError(400, "Falha ao criar fila circular.");
-        }
-        afastamentoPessoa.fila_circular_id = fila.id;
+        if (!fila) throw new HttpError(400, "Falha ao criar fila circular.");
+        entity.fila_circular_id = fila.id;
       }
 
-      await session.persist(afastamentoPessoa);
+      await session.persist(entity);
       await session.commit();
 
       if (substitutos.length > 0) {
-        await this.syncSubstitutos(
-          session,
-          afastamentoPessoa,
-          substitutos,
-          afastamentoPessoa.tipo_divisao_carga_trabalho_id,
-          { replace: false }
-        );
+        await this.syncSubstitutos(session, entity, substitutos, entity.tipo_divisao_carga_trabalho_id, { replace: false });
         await session.commit();
       }
 
-      return this.loadDetail(session, afastamentoPessoa.id);
+      return (await this.repository.getDetail(session, entity.id)) as AfastamentoPessoaDetailDto;
     });
   }
 
-  async replace(id: number, input: ReplaceAfastamentoPessoaDto): Promise<AfastamentoPessoaDetailDto> {
+  override async replace(id: number, input: ReplaceAfastamentoPessoaDto): Promise<AfastamentoPessoaDetailDto> {
     return this.updateInternal(id, input as UpdateAfastamentoPessoaDto, false);
   }
 
-  async update(id: number, input: UpdateAfastamentoPessoaDto): Promise<AfastamentoPessoaDetailDto> {
+  override async update(id: number, input: UpdateAfastamentoPessoaDto): Promise<AfastamentoPessoaDetailDto> {
     return this.updateInternal(id, input, true);
   }
 
-  async remove(id: number): Promise<void> {
+  override async remove(id: number): Promise<void> {
     return withSession(async (session) => {
-      const afastamentoPessoa = await this.repository.findById(session, id);
-      if (!afastamentoPessoa) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
+      const entity = await this.repository.findById(session, id);
+      if (!entity) throw new HttpError(404, `${this.entityName} not found.`);
 
-      if (this.isEmVigencia(afastamentoPessoa.data_inicio, afastamentoPessoa.data_fim)) {
+      if (this.isEmVigencia(entity.data_inicio, entity.data_fim)) {
         throw new HttpError(400, "Nao e possivel realizar a operacao. Afastamento esta em vigencia.");
       }
 
       await this.removeSubstitutos(session, id);
-      await session.remove(afastamentoPessoa);
+      await session.remove(entity);
       await session.commit();
     });
-  }
-
-  private async loadDetail(session: OrmSession, id: number): Promise<AfastamentoPessoaDetailDto> {
-    const [detail] = await this.repository.buildDetailQuery()
-      .where(eq(this.repository.entityRef.id, id))
-      .execute(session);
-
-    if (!detail) {
-      throw new HttpError(404, `${this.entityName} not found.`);
-    }
-
-    return detail as AfastamentoPessoaDetailDto;
   }
 
   private async updateInternal(
@@ -222,64 +193,44 @@ export class AfastamentoPessoaService {
     partial: boolean
   ): Promise<AfastamentoPessoaDetailDto> {
     return withSession(async (session) => {
-      const afastamentoPessoa = await this.repository.findById(session, id);
-      if (!afastamentoPessoa) {
-        throw new HttpError(404, `${this.entityName} not found.`);
-      }
+      const entity = await this.repository.findById(session, id);
+      if (!entity) throw new HttpError(404, `${this.entityName} not found.`);
 
-      const emVigencia = this.isEmVigencia(afastamentoPessoa.data_inicio, afastamentoPessoa.data_fim);
+      const emVigencia = this.isEmVigencia(entity.data_inicio, entity.data_fim);
       const rawInput = input as Record<string, unknown>;
       const hasUsuarios = Object.prototype.hasOwnProperty.call(rawInput, "usuarios");
       const { usuarios, ...rest } = rawInput;
 
-      applyInput(afastamentoPessoa, rest as Partial<AfastamentoPessoa>, { partial });
+      applyInput(entity, rest as Partial<AfastamentoPessoa>, { partial });
 
-      if (!afastamentoPessoa.tipo_divisao_carga_trabalho_id) {
-        afastamentoPessoa.tipo_divisao_carga_trabalho_id = 1;
+      if (!entity.tipo_divisao_carga_trabalho_id) {
+        entity.tipo_divisao_carga_trabalho_id = 1;
       }
 
-      const afastadoInfo = await this.getUsuarioAfastadoInfo(session, afastamentoPessoa.usuario_id);
-      if (!afastadoInfo) {
-        throw new HttpError(404, "Usuario nao encontrado.");
-      }
+      const afastadoInfo = await this.getUsuarioAfastadoInfo(session, entity.usuario_id);
+      if (!afastadoInfo) throw new HttpError(404, "Usuario nao encontrado.");
 
       let substitutos = this.normalizeSubstitutosInput(usuarios);
       if (!hasUsuarios || (emVigencia && substitutos.length === 0)) {
-        substitutos = await this.getSubstitutosExistentes(afastamentoPessoa);
+        substitutos = await this.getSubstitutosExistentes(entity);
       }
 
       const substitutoIds = substitutos.map(item => item.id);
-
       if (this.necessitaSubstitutos(afastadoInfo.vinculo) && substitutoIds.length === 0) {
         throw new HttpError(400, "Insira ao menos um substituto.");
       }
 
-      const validacao = await this.validacaoAfastamento(
-        session,
-        afastamentoPessoa,
-        substitutoIds,
-        afastadoInfo.vinculo,
-        id
-      );
-
-      if (!validacao.ok) {
-        throw new HttpError(400, validacao.message);
-      }
+      const validacao = await this.validacaoAfastamento(session, entity, substitutoIds, afastadoInfo.vinculo, id);
+      if (!validacao.ok) throw new HttpError(400, validacao.message);
 
       await session.commit();
 
       if (!emVigencia && hasUsuarios) {
-        await this.syncSubstitutos(
-          session,
-          afastamentoPessoa,
-          substitutos,
-          afastamentoPessoa.tipo_divisao_carga_trabalho_id,
-          { replace: true }
-        );
+        await this.syncSubstitutos(session, entity, substitutos, entity.tipo_divisao_carga_trabalho_id, { replace: true });
         await session.commit();
       }
 
-      return this.loadDetail(session, id);
+      return (await this.repository.getDetail(session, id)) as AfastamentoPessoaDetailDto;
     });
   }
 
@@ -561,46 +512,18 @@ export class AfastamentoPessoaService {
     tipoDivisaoCargaTrabalhoId: number,
     options: { replace?: boolean } = {}
   ): Promise<void> {
-    await afastamentoPessoa.substitutos.load();
-
-    if (!substitutos.length) {
-      if (options.replace) {
-        for (const existing of [...afastamentoPessoa.substitutos.getItems()]) {
-          afastamentoPessoa.substitutos.detach(existing);
-        }
-      }
-      return;
-    }
-
     const finalProcessoId = await this.getTipoDivisaoFinalProcessoId(session);
     const usaFinal = finalProcessoId != null && tipoDivisaoCargaTrabalhoId === finalProcessoId;
 
-    const incomingIds = new Set(substitutos.map(item => String(item.id)));
-    for (const substituto of substitutos) {
-      const pivotPayload = this.buildSubstitutoPivotPayload(substituto, usaFinal);
-      afastamentoPessoa.substitutos.attach(substituto.id, pivotPayload);
-    }
-
-    if (options.replace) {
-      for (const existing of [...afastamentoPessoa.substitutos.getItems()]) {
-        const existingId = (existing as unknown as Record<string, unknown>).id as number | string | undefined;
-        if (existingId === undefined) continue;
-        if (!incomingIds.has(String(existingId))) {
-          afastamentoPessoa.substitutos.detach(existing);
-        }
+    const items = substitutos.map(s => ({
+      id: s.id,
+      pivot: {
+        usa_equipe_acervo_substituto: Boolean(s.usa_equipe_acervo_substituto),
+        final_codigo_pa: usaFinal ? (this.normalizeFinalCodigoPa(s.final_codigo_pa) ?? null) : null
       }
-    }
-  }
+    }));
 
-  private buildSubstitutoPivotPayload(
-    substituto: AfastamentoPessoaSubstitutoInputDto,
-    usaFinal: boolean
-  ): Record<string, unknown> {
-    const normalizedFinal = usaFinal ? this.normalizeFinalCodigoPa(substituto.final_codigo_pa) : undefined;
-    return {
-      usa_equipe_acervo_substituto: Boolean(substituto.usa_equipe_acervo_substituto),
-      final_codigo_pa: usaFinal ? (normalizedFinal ?? null) : null
-    };
+    await this.syncCollection(afastamentoPessoa.substitutos, items, options);
   }
 
   private normalizeFinalCodigoPa(value: unknown): string | undefined {
@@ -626,57 +549,31 @@ export class AfastamentoPessoaService {
     const items = await afastamentoPessoa.substitutos.load();
     return items.map((item) => {
       const usuario = item as unknown as Record<string, unknown>;
-      const { usaEquipe, finalCodigoPa } = this.getSubstitutoPivotValues(usuario);
+      const pivot = (usuario._pivot as Record<string, unknown> | undefined) ?? {};
       return {
         id: usuario.id as number,
-        usa_equipe_acervo_substituto: usaEquipe,
-        final_codigo_pa: finalCodigoPa
+        usa_equipe_acervo_substituto: (usuario.usa_equipe_acervo_substituto ?? pivot.usa_equipe_acervo_substituto) as boolean | undefined,
+        final_codigo_pa: (usuario.final_codigo_pa ?? pivot.final_codigo_pa) as string | null | undefined
       };
     });
   }
 
-  private getSubstitutoPivotValues(
-    usuario: Record<string, unknown>
-  ): { usaEquipe?: boolean; finalCodigoPa?: string | null } {
-    const pivot = (usuario._pivot as Record<string, unknown> | undefined) ?? {};
-    const usaEquipe =
-      usuario.usa_equipe_acervo_substituto !== undefined
-        ? usuario.usa_equipe_acervo_substituto
-        : pivot.usa_equipe_acervo_substituto;
-    const finalCodigoPa =
-      usuario.final_codigo_pa !== undefined
-        ? usuario.final_codigo_pa
-        : pivot.final_codigo_pa;
-
-    return {
-      usaEquipe: usaEquipe as boolean | undefined,
-      finalCodigoPa: (finalCodigoPa as string | null | undefined) ?? null
-    };
-  }
-
   private async criaFila(session: OrmSession, substitutoIds: number[]): Promise<FilaCircular | null> {
     if (!substitutoIds.length) return null;
-
     const fila = new FilaCircular();
     fila.ultimo_elemento = Math.min(...substitutoIds);
-
     await session.persist(fila);
     await session.commit();
-
     return fila;
   }
 
   private async getTipoDivisaoFinalProcessoId(session: OrmSession): Promise<number | null> {
-    if (this.tipoDivisaoFinalProcessoId !== undefined) {
-      return this.tipoDivisaoFinalProcessoId;
-    }
-
+    if (this.tipoDivisaoFinalProcessoId !== undefined) return this.tipoDivisaoFinalProcessoId;
     const ref = entityRef(TipoDivisaoCargaTrabalho);
     const [id] = await selectFromEntity(TipoDivisaoCargaTrabalho)
       .select("id")
       .where(eq(ref.nome, FINAL_DE_PROCESSO_NOME))
       .pluck("id", session);
-
     this.tipoDivisaoFinalProcessoId = (id as number | undefined) ?? null;
     return this.tipoDivisaoFinalProcessoId;
   }
@@ -691,23 +588,18 @@ export class AfastamentoPessoaService {
       .includePick("especializada", ["nome"])
       .where(eq(usuarioRef.id, usuarioId))
       .executePlain(session)) as Array<{
-      id: number;
-      cargo?: string;
-      vinculo?: string | null;
-      especializada_id?: number | null;
-      especializada?: { nome?: string };
-    }>;
+        id: number;
+        cargo?: string;
+        vinculo?: string | null;
+        especializada?: { nome?: string };
+      }>;
 
     const usuario = rows[0];
     if (!usuario) return null;
-
-    const lotacao = (usuario.especializada?.nome as string | undefined) ?? null;
-
     return {
-      cargo: usuario.cargo as string | undefined,
-      vinculo: (usuario.vinculo as string | undefined) ?? null,
-      lotacao
+      cargo: usuario.cargo,
+      vinculo: usuario.vinculo ?? null,
+      lotacao: usuario.especializada?.nome ?? null
     };
   }
-
 }
