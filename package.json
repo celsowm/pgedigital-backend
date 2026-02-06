@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/celsowm/pgedigital-backend#readme",
   "dependencies": {
-    "adorn-api": "^1.0.44",
+    "adorn-api": "^1.0.45",
     "es-abstract": "^1.24.1",
     "jsonwebtoken": "^9.0.2",
     "ldapts": "^8.1.5",
