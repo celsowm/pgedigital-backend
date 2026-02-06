@@ -16,6 +16,7 @@ import { MniTribunalController } from "./controllers/mni-tribunal.controller";
 import { NaturezaIncidenteController } from "./controllers/natureza-incidente.controller";
 import { NotaVersaoController } from "./controllers/nota-versao.controller";
 import { PessoaController } from "./controllers/pessoa.controller";
+import { PalavraChaveController } from "./controllers/palavra-chave.controller";
 import { TemaController } from "./controllers/tema.controller";
 import { TestController } from "./controllers/test.controller";
 import { TipoAcervoController } from "./controllers/tipo-acervo.controller";
@@ -36,7 +37,7 @@ export async function createApp(): Promise<Express> {
     .filter(Boolean);
 
   const app = await createExpressApp({
-    controllers: [AfastamentoPessoaController, AuthController, AcervoController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FeriadoController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, PessoaController, TemaController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
+    controllers: [AfastamentoPessoaController, AuthController, AcervoController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FeriadoController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, PessoaController, PalavraChaveController, TemaController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
     cors: {
       origin: corsOrigins.length ? corsOrigins : "*",
       credentials: true
