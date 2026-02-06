@@ -4,6 +4,8 @@ import {
   Params,
   Query,
   Returns,
+  ok,
+  noContent,
   parseIdOrThrow,
   type RequestContext
 } from "adorn-api";
@@ -44,17 +46,18 @@ export class UsuarioController {
   @Params(UsuarioParamsDto)
   @Returns({ status: 200, schema: UsuarioThumbnailDto, description: "Thumbnail found" })
   @Returns({ status: 204, description: "No thumbnail available for user" })
-  async getThumbnail(ctx: RequestContext<unknown, undefined, UsuarioParamsDto>): Promise<void> {
+  async getThumbnail(ctx: RequestContext<unknown, undefined, UsuarioParamsDto>) {
     const id = parseIdOrThrow(ctx.params.id, "usuario");
-    await withSession(async (session) => {
+    return withSession(async (session) => {
       const thumbnail = await this.thumbnailRepository.findByUsuarioId(session, id);
       if (!thumbnail || !thumbnail.thumbnail) {
-        ctx.res.status(204).end();
-        return;
+        return noContent();
       }
-      ctx.res.status(200).json({
-        thumbnail: thumbnail.thumbnail.toString("base64")
+      return ok({
+        thumbnail: thumbnail.thumbnail
       });
     });
   }
 }
+
+
