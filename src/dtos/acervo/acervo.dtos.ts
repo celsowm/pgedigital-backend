@@ -35,18 +35,70 @@ const acervoCrud = createMetalCrudDtoClasses(Acervo, {
 
 export const {
   response: AcervoDto,
-  create: CreateAcervoDto,
-  replace: ReplaceAcervoDto,
-  update: UpdateAcervoDto,
+  create: BaseCreateAcervoDto,
+  replace: BaseReplaceAcervoDto,
+  update: BaseUpdateAcervoDto,
   params: AcervoParamsDto
 } = acervoCrud;
 
 export type AcervoDto = Acervo;
-type AcervoMutationDto = CreateDto<AcervoDto>;
+export type AcervoParamsDto = InstanceType<typeof AcervoParamsDto>;
+
+// ============ N:N Input DTOs ============
+@Dto({ description: "Raiz de CNPJ para associar ao acervo." })
+export class RaizCnpjInputDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.string({ minLength: 1, maxLength: 8 }))
+  raiz!: string;
+}
+
+@Dto({ description: "Campos N:N do acervo." })
+export class AcervoRelationsInputDto {
+  @Field(t.optional(t.array(t.integer())))
+  classificacoes?: number[];
+
+  @Field(t.optional(t.array(t.integer())))
+  temas?: number[];
+
+  @Field(t.optional(t.array(t.integer())))
+  equipes_apoio?: number[];
+
+  @Field(t.optional(t.array(t.integer())))
+  destinatarios?: number[];
+
+  @Field(t.optional(t.array(t.ref(RaizCnpjInputDto))))
+  raizes_cnpjs?: RaizCnpjInputDto[];
+}
+
+@MergeDto([BaseCreateAcervoDto, AcervoRelationsInputDto], {
+  name: "CreateAcervoDto",
+  description: "Dados para criar acervo."
+})
+class CreateAcervoDtoClass {}
+
+@MergeDto([BaseReplaceAcervoDto, AcervoRelationsInputDto], {
+  name: "ReplaceAcervoDto",
+  description: "Dados para substituir acervo."
+})
+class ReplaceAcervoDtoClass {}
+
+@MergeDto([BaseUpdateAcervoDto, AcervoRelationsInputDto], {
+  name: "UpdateAcervoDto",
+  description: "Dados para atualizar acervo."
+})
+class UpdateAcervoDtoClass {}
+
+const CreateAcervoDto = CreateAcervoDtoClass;
+const ReplaceAcervoDto = ReplaceAcervoDtoClass;
+const UpdateAcervoDto = UpdateAcervoDtoClass;
+export { CreateAcervoDto, ReplaceAcervoDto, UpdateAcervoDto };
+
+type AcervoMutationDto = CreateDto<AcervoDto> & Partial<AcervoRelationsInputDto>;
 export type CreateAcervoDto = AcervoMutationDto;
 export type ReplaceAcervoDto = AcervoMutationDto;
-export type UpdateAcervoDto = UpdateDto<AcervoDto>;
-export type AcervoParamsDto = InstanceType<typeof AcervoParamsDto>;
+export type UpdateAcervoDto = UpdateDto<AcervoDto> & Partial<AcervoRelationsInputDto>;
 
 // ============ Specialized Resumo DTOs (unique to acervo) ============
 @Dto({ description: "Resumo da matéria." })
