@@ -44,17 +44,17 @@ export class UsuarioController {
   @Params(UsuarioParamsDto)
   @Returns({ status: 200, schema: UsuarioThumbnailDto, description: "Thumbnail found" })
   @Returns({ status: 204, description: "No thumbnail available for user" })
-  async getThumbnail(ctx: RequestContext<unknown, undefined, UsuarioParamsDto>): Promise<UsuarioThumbnailDto | null> {
+  async getThumbnail(ctx: RequestContext<unknown, undefined, UsuarioParamsDto>): Promise<void> {
     const id = parseIdOrThrow(ctx.params.id, "usuario");
-    return withSession(async (session) => {
+    await withSession(async (session) => {
       const thumbnail = await this.thumbnailRepository.findByUsuarioId(session, id);
-      if (!thumbnail) {
-        return null;
+      if (!thumbnail || !thumbnail.thumbnail) {
+        ctx.res.status(204).end();
+        return;
       }
-      return {
-        id: thumbnail.id,
-        thumbnail: thumbnail.thumbnail?.toString("base64")
-      };
+      ctx.res.status(200).json({
+        thumbnail: thumbnail.thumbnail.toString("base64")
+      });
     });
   }
 }
