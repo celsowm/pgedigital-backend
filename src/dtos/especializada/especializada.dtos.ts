@@ -15,6 +15,7 @@ import {
   type CreateDto,
   type UpdateDto,
   createPagedFilterSortingQueryDtoClass,
+  createFilterOnlySortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
 
@@ -66,6 +67,25 @@ export const EspecializadaQueryDtoClass = createPagedFilterSortingQueryDtoClass(
 export interface EspecializadaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+  siglaContains?: string;
+  responsavelNomeContains?: string;
+}
+
+export const EspecializadaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "EspecializadaOptionsQueryDto",
+  sortableColumns: ["id", "nome", "sigla", "codigo_ad"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    responsavelNomeContains: {
+      schema: t.string({ minLength: 1 }),
+      operator: "contains"
+    }
+  }
+});
+
+export interface EspecializadaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   siglaContains?: string;
   responsavelNomeContains?: string;

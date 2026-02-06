@@ -20,6 +20,8 @@ import {
   EspecializadaQueryDto,
   EspecializadaQueryDtoClass,
   EspecializadaOptionsDto,
+  EspecializadaOptionsQueryDtoClass,
+  type EspecializadaOptionsQueryDto,
   EspecializadaSiglasDto,
   EspecializadaWithResponsavelDto,
   EspecializadaOptionDto,
@@ -46,9 +48,9 @@ export class EspecializadaController {
   }
 
   @Get("/options")
-  @Query(EspecializadaQueryDtoClass)
+  @Query(EspecializadaOptionsQueryDtoClass)
   @Returns(EspecializadaOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, EspecializadaQueryDto>): Promise<EspecializadaOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, EspecializadaOptionsQueryDto>): Promise<EspecializadaOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

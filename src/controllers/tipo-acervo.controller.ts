@@ -21,6 +21,8 @@ import {
   TipoAcervoPagedResponseDto,
   TipoAcervoQueryDto,
   TipoAcervoQueryDtoClass,
+  TipoAcervoOptionsQueryDto,
+  TipoAcervoOptionsQueryDtoClass,
   TipoAcervoErrors,
   TipoAcervoOptionsDto,
   TipoAcervoOptionDto
@@ -39,9 +41,9 @@ export class TipoAcervoController {
   }
 
   @Get("/options")
-  @Query(TipoAcervoQueryDtoClass)
+  @Query(TipoAcervoOptionsQueryDtoClass)
   @Returns(TipoAcervoOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, TipoAcervoQueryDto>): Promise<TipoAcervoOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, TipoAcervoOptionsQueryDto>): Promise<TipoAcervoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

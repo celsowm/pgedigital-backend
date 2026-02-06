@@ -21,6 +21,8 @@ import {
   AcervoParamsDto,
   AcervoQueryDto,
   AcervoQueryDtoClass,
+  AcervoOptionsQueryDto,
+  AcervoOptionsQueryDtoClass,
   CreateAcervoDto,
   ReplaceAcervoDto,
   UpdateAcervoDto
@@ -39,9 +41,9 @@ export class AcervoController {
   }
 
   @Get("/options")
-  @Query(AcervoQueryDtoClass)
+  @Query(AcervoOptionsQueryDtoClass)
   @Returns(AcervoOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, AcervoQueryDto>): Promise<AcervoOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, AcervoOptionsQueryDto>): Promise<AcervoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

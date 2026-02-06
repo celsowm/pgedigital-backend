@@ -9,6 +9,7 @@ import {
   createOptionsArraySchema,
   createOptionDto,
   createPagedFilterSortingQueryDtoClass,
+  createFilterOnlySortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -45,6 +46,18 @@ export const ClassificacaoQueryDtoClass = createPagedFilterSortingQueryDtoClass(
 export interface ClassificacaoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+}
+
+export const ClassificacaoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "ClassificacaoOptionsQueryDto",
+  sortableColumns: ["id", "nome", "peso"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
+  }
+});
+
+export interface ClassificacaoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 

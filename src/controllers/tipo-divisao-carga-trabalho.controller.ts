@@ -21,6 +21,8 @@ import {
   TipoDivisaoCargaTrabalhoPagedResponseDto,
   TipoDivisaoCargaTrabalhoQueryDto,
   TipoDivisaoCargaTrabalhoQueryDtoClass,
+  TipoDivisaoCargaTrabalhoOptionsQueryDto,
+  TipoDivisaoCargaTrabalhoOptionsQueryDtoClass,
   TipoDivisaoCargaTrabalhoErrors,
   TipoDivisaoCargaTrabalhoOptionsDto,
   TipoDivisaoCargaTrabalhoOptionDto
@@ -32,10 +34,10 @@ export class TipoDivisaoCargaTrabalhoController {
   private readonly service = new TipoDivisaoCargaTrabalhoService();
 
   @Get("/options")
-  @Query(TipoDivisaoCargaTrabalhoQueryDtoClass)
+  @Query(TipoDivisaoCargaTrabalhoOptionsQueryDtoClass)
   @Returns(TipoDivisaoCargaTrabalhoOptionsDto)
   async listOptions(
-    ctx: RequestContext<unknown, TipoDivisaoCargaTrabalhoQueryDto>
+    ctx: RequestContext<unknown, TipoDivisaoCargaTrabalhoOptionsQueryDto>
   ): Promise<TipoDivisaoCargaTrabalhoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }

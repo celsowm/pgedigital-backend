@@ -9,6 +9,7 @@ import {
   createOptionsArraySchema,
   createOptionDto,
   createPagedFilterSortingQueryDtoClass,
+  createFilterOnlySortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -45,6 +46,18 @@ export const ExitoSucumbenciaQueryDtoClass = createPagedFilterSortingQueryDtoCla
 export interface ExitoSucumbenciaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+}
+
+export const ExitoSucumbenciaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "ExitoSucumbenciaOptionsQueryDto",
+  sortableColumns: ["id", "nome"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
+  }
+});
+
+export interface ExitoSucumbenciaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 

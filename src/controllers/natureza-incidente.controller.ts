@@ -21,6 +21,8 @@ import {
   NaturezaIncidentePagedResponseDto,
   NaturezaIncidenteQueryDto,
   NaturezaIncidenteQueryDtoClass,
+  NaturezaIncidenteOptionsQueryDto,
+  NaturezaIncidenteOptionsQueryDtoClass,
   NaturezaIncidenteErrors,
   NaturezaIncidenteOptionsDto,
   NaturezaIncidenteOptionDto
@@ -39,10 +41,10 @@ export class NaturezaIncidenteController {
   }
 
   @Get("/options")
-  @Query(NaturezaIncidenteQueryDtoClass)
+  @Query(NaturezaIncidenteOptionsQueryDtoClass)
   @Returns(NaturezaIncidenteOptionsDto)
   async listOptions(
-    ctx: RequestContext<unknown, NaturezaIncidenteQueryDto>
+    ctx: RequestContext<unknown, NaturezaIncidenteOptionsQueryDto>
   ): Promise<NaturezaIncidenteOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }

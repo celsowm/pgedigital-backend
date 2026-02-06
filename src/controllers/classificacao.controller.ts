@@ -21,6 +21,8 @@ import {
   ClassificacaoPagedResponseDto,
   ClassificacaoQueryDto,
   ClassificacaoQueryDtoClass,
+  ClassificacaoOptionsQueryDto,
+  ClassificacaoOptionsQueryDtoClass,
   ClassificacaoErrors,
   ClassificacaoOptionsDto,
   ClassificacaoOptionDto
@@ -39,9 +41,9 @@ export class ClassificacaoController {
   }
 
   @Get("/options")
-  @Query(ClassificacaoQueryDtoClass)
+  @Query(ClassificacaoOptionsQueryDtoClass)
   @Returns(ClassificacaoOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, ClassificacaoQueryDto>): Promise<ClassificacaoOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, ClassificacaoOptionsQueryDto>): Promise<ClassificacaoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

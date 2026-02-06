@@ -21,6 +21,8 @@ import {
   TipoAfastamentoPagedResponseDto,
   TipoAfastamentoQueryDto,
   TipoAfastamentoQueryDtoClass,
+  TipoAfastamentoOptionsQueryDto,
+  TipoAfastamentoOptionsQueryDtoClass,
   TipoAfastamentoErrors,
   TipoAfastamentoOptionsDto,
   TipoAfastamentoOptionDto
@@ -39,10 +41,10 @@ export class TipoAfastamentoController {
   }
 
   @Get("/options")
-  @Query(TipoAfastamentoQueryDtoClass)
+  @Query(TipoAfastamentoOptionsQueryDtoClass)
   @Returns(TipoAfastamentoOptionsDto)
   async listOptions(
-    ctx: RequestContext<unknown, TipoAfastamentoQueryDto>
+    ctx: RequestContext<unknown, TipoAfastamentoOptionsQueryDto>
   ): Promise<TipoAfastamentoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }

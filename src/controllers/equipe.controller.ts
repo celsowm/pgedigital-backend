@@ -20,6 +20,8 @@ import {
   EquipeQueryDto,
   EquipeQueryDtoClass,
   EquipeOptionsDto,
+  EquipeOptionsQueryDtoClass,
+  type EquipeOptionsQueryDto,
   EquipeWithEspecializadaDto,
   EquipeOptionDto,
   ReplaceEquipeDto,
@@ -39,9 +41,9 @@ export class EquipeController {
   }
 
   @Get("/options")
-  @Query(EquipeQueryDtoClass)
+  @Query(EquipeOptionsQueryDtoClass)
   @Returns(EquipeOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, EquipeQueryDto>): Promise<EquipeOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, EquipeOptionsQueryDto>): Promise<EquipeOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

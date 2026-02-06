@@ -2,6 +2,7 @@ import { t } from "adorn-api";
 import {
   createOptionDto,
   createOptionsArraySchema,
+  createFilterOnlySortingQueryDtoClass,
   createPagedFilterSortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
@@ -23,6 +24,17 @@ export const TipoProvidenciaJuridicaQueryDtoClass = createPagedFilterSortingQuer
 export interface TipoProvidenciaJuridicaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+}
+
+export const TipoProvidenciaJuridicaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "TipoProvidenciaJuridicaOptionsQueryDto",
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
+  }
+});
+
+export interface TipoProvidenciaJuridicaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 

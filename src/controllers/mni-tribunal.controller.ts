@@ -21,6 +21,8 @@ import {
   MniTribunalPagedResponseDto,
   MniTribunalQueryDto,
   MniTribunalQueryDtoClass,
+  MniTribunalOptionsQueryDto,
+  MniTribunalOptionsQueryDtoClass,
   MniTribunalErrors,
   MniTribunalOptionsDto,
   MniTribunalOptionDto
@@ -39,10 +41,10 @@ export class MniTribunalController {
   }
 
   @Get("/options")
-  @Query(MniTribunalQueryDtoClass)
+  @Query(MniTribunalOptionsQueryDtoClass)
   @Returns(MniTribunalOptionsDto)
   async listOptions(
-    ctx: RequestContext<unknown, MniTribunalQueryDto>
+    ctx: RequestContext<unknown, MniTribunalOptionsQueryDto>
   ): Promise<MniTribunalOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }

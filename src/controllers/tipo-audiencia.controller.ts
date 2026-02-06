@@ -4,7 +4,9 @@ import {
   TipoAudienciaOptionsDto,
   TipoAudienciaPagedResponseDto,
   TipoAudienciaQueryDto,
-  TipoAudienciaQueryDtoClass
+  TipoAudienciaQueryDtoClass,
+  TipoAudienciaOptionsQueryDto,
+  TipoAudienciaOptionsQueryDtoClass
 } from "../dtos/tipo-audiencia/tipo-audiencia.dtos";
 import { TipoAudienciaService } from "../services/tipo-audiencia.service";
 
@@ -20,9 +22,9 @@ export class TipoAudienciaController {
   }
 
   @Get("/options")
-  @Query(TipoAudienciaQueryDtoClass)
+  @Query(TipoAudienciaOptionsQueryDtoClass)
   @Returns(TipoAudienciaOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, TipoAudienciaQueryDto>): Promise<TipoAudienciaOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, TipoAudienciaOptionsQueryDto>): Promise<TipoAudienciaOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 }

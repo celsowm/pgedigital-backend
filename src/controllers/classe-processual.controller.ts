@@ -23,6 +23,8 @@ import {
   ClasseProcessualQueryDtoClass,
   ClasseProcessualErrors,
   ClasseProcessualOptionsDto,
+  ClasseProcessualOptionsQueryDtoClass,
+  type ClasseProcessualOptionsQueryDto,
   ClasseProcessualOptionDto
 } from "../dtos/classe-processual/classe-processual.dtos";
 import { ClasseProcessualService } from "../services/classe-processual.service";
@@ -39,10 +41,10 @@ export class ClasseProcessualController {
   }
 
   @Get("/options")
-  @Query(ClasseProcessualQueryDtoClass)
+  @Query(ClasseProcessualOptionsQueryDtoClass)
   @Returns(ClasseProcessualOptionsDto)
   async listOptions(
-    ctx: RequestContext<unknown, ClasseProcessualQueryDto>
+    ctx: RequestContext<unknown, ClasseProcessualOptionsQueryDto>
   ): Promise<ClasseProcessualOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }

@@ -7,6 +7,7 @@ import { TipoAudiencia } from "../../entities/TipoAudiencia";
 import {
   createOptionsArraySchema,
   createOptionDto,
+  createFilterOnlySortingQueryDtoClass,
   createPagedFilterSortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
@@ -31,6 +32,20 @@ export const TipoAudienciaQueryDtoClass = createPagedFilterSortingQueryDtoClass(
 export interface TipoAudienciaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  descricaoContains?: string;
+  tipoProcessoAdministrativoId?: number;
+}
+
+export const TipoAudienciaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "TipoAudienciaOptionsQueryDto",
+  sortableColumns: ["id", "descricao"],
+  filters: {
+    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    tipoProcessoAdministrativoId: { schema: t.number(), operator: "equals" }
+  }
+});
+
+export interface TipoAudienciaOptionsQueryDto extends SortingQueryParams {
   descricaoContains?: string;
   tipoProcessoAdministrativoId?: number;
 }

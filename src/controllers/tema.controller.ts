@@ -24,6 +24,8 @@ import {
   TemaParamsDto,
   TemaQueryDto,
   TemaQueryDtoClass,
+  TemaOptionsQueryDto,
+  TemaOptionsQueryDtoClass,
   TemaWithRelationsDto,
   TemaTreeQueryDto,
   TemaTreeQueryDtoClass,
@@ -68,9 +70,9 @@ export class TemaController {
   }
 
   @Get("/options")
-  @Query(TemaQueryDtoClass)
+  @Query(TemaOptionsQueryDtoClass)
   @Returns(TemaOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, TemaQueryDto>): Promise<TemaOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, TemaOptionsQueryDto>): Promise<TemaOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

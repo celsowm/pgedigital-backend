@@ -21,6 +21,8 @@ import {
   FeriadoPagedResponseDto,
   FeriadoQueryDto,
   FeriadoQueryDtoClass,
+  FeriadoOptionsQueryDto,
+  FeriadoOptionsQueryDtoClass,
   FeriadoErrors,
   FeriadoOptionsDto,
   FeriadoOptionDto
@@ -39,9 +41,9 @@ export class FeriadoController {
   }
 
   @Get("/options")
-  @Query(FeriadoQueryDtoClass)
+  @Query(FeriadoOptionsQueryDtoClass)
   @Returns(FeriadoOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, FeriadoQueryDto>): Promise<FeriadoOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, FeriadoOptionsQueryDto>): Promise<FeriadoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

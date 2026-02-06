@@ -21,6 +21,8 @@ import {
   PessoaPagedResponseDto,
   PessoaQueryDto,
   PessoaQueryDtoClass,
+  PessoaOptionsQueryDto,
+  PessoaOptionsQueryDtoClass,
   PessoaErrors,
   PessoaOptionsDto,
   PessoaOptionDto
@@ -39,9 +41,9 @@ export class PessoaController {
   }
 
   @Get("/options")
-  @Query(PessoaQueryDtoClass)
+  @Query(PessoaOptionsQueryDtoClass)
   @Returns(PessoaOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, PessoaQueryDto>): Promise<PessoaOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, PessoaOptionsQueryDto>): Promise<PessoaOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

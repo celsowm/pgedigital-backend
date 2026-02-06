@@ -9,7 +9,9 @@ import {
   UsuarioPagedResponseDto,
   UsuarioQueryDto,
   UsuarioQueryDtoClass,
-  UsuarioOptionsDto
+  UsuarioOptionsDto,
+  UsuarioOptionsQueryDtoClass,
+  type UsuarioOptionsQueryDto
 } from "../dtos/usuario/usuario.dtos";
 import { UsuarioService } from "../services/usuario.service";
 
@@ -25,9 +27,9 @@ export class UsuarioController {
   }
 
   @Get("/options")
-  @Query(UsuarioQueryDtoClass)
+  @Query(UsuarioOptionsQueryDtoClass)
   @Returns(UsuarioOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, UsuarioQueryDto>): Promise<Array<{ id: number; nome: string }>> {
+  async listOptions(ctx: RequestContext<unknown, UsuarioOptionsQueryDto>): Promise<Array<{ id: number; nome: string }>> {
     return this.service.listOptions(ctx.query ?? {});
   }
 }

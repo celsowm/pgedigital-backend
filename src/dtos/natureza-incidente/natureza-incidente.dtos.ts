@@ -9,6 +9,7 @@ import {
   createOptionsArraySchema,
   createOptionDto,
   createPagedFilterSortingQueryDtoClass,
+  createFilterOnlySortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -45,6 +46,18 @@ export const NaturezaIncidenteQueryDtoClass = createPagedFilterSortingQueryDtoCl
 export interface NaturezaIncidenteQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+}
+
+export const NaturezaIncidenteOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "NaturezaIncidenteOptionsQueryDto",
+  sortableColumns: ["id", "nome"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
+  }
+});
+
+export interface NaturezaIncidenteOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 

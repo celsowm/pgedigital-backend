@@ -3,6 +3,8 @@ import {
   TipoProvidenciaJuridicaOptionDto,
   TipoProvidenciaJuridicaQueryDto,
   TipoProvidenciaJuridicaQueryDtoClass,
+  TipoProvidenciaJuridicaOptionsQueryDto,
+  TipoProvidenciaJuridicaOptionsQueryDtoClass,
   TipoProvidenciaJuridicaOptionsDto
 } from "../dtos/tipo-providencia-juridica/tipo-providencia-juridica.dtos";
 import { TipoProvidenciaJuridicaService } from "../services/tipo-providencia-juridica.service";
@@ -12,10 +14,10 @@ export class TipoProvidenciaJuridicaController {
   private readonly service = new TipoProvidenciaJuridicaService();
 
   @Get("/options")
-  @Query(TipoProvidenciaJuridicaQueryDtoClass)
+  @Query(TipoProvidenciaJuridicaOptionsQueryDtoClass)
   @Returns(TipoProvidenciaJuridicaOptionsDto)
   async listOptions(
-    ctx: RequestContext<unknown, TipoProvidenciaJuridicaQueryDto>
+    ctx: RequestContext<unknown, TipoProvidenciaJuridicaOptionsQueryDto>
   ): Promise<TipoProvidenciaJuridicaOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }

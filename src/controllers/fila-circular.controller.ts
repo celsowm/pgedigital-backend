@@ -21,6 +21,8 @@ import {
   FilaCircularPagedResponseDto,
   FilaCircularQueryDto,
   FilaCircularQueryDtoClass,
+  FilaCircularOptionsQueryDto,
+  FilaCircularOptionsQueryDtoClass,
   FilaCircularErrors,
   FilaCircularOptionsDto,
   FilaCircularOptionDto
@@ -39,9 +41,9 @@ export class FilaCircularController {
   }
 
   @Get("/options")
-  @Query(FilaCircularQueryDtoClass)
+  @Query(FilaCircularOptionsQueryDtoClass)
   @Returns(FilaCircularOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, FilaCircularQueryDto>): Promise<FilaCircularOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, FilaCircularOptionsQueryDto>): Promise<FilaCircularOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

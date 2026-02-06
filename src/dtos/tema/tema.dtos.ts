@@ -13,6 +13,7 @@ import {
   createOptionsArraySchema,
   createOptionDto,
   createPagedFilterSortingQueryDtoClass,
+  createFilterOnlySortingQueryDtoClass,
   createTreeDtoClasses,
   type SortingQueryParams,
   type CreateDto,
@@ -81,6 +82,22 @@ export const TemaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
 export interface TemaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+  materiaId?: number;
+  parentId?: number;
+}
+
+export const TemaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "TemaOptionsQueryDto",
+  sortableColumns: ["id", "nome", "materia_id", "parent_id", "peso"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    materiaId: { schema: t.number(), operator: "equals" },
+    parentId: { schema: t.number(), operator: "equals" }
+  }
+});
+
+export interface TemaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   materiaId?: number;
   parentId?: number;

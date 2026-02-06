@@ -4,7 +4,9 @@ import {
   TipoSolicitacaoOptionsDto,
   TipoSolicitacaoPagedResponseDto,
   TipoSolicitacaoQueryDto,
-  TipoSolicitacaoQueryDtoClass
+  TipoSolicitacaoQueryDtoClass,
+  TipoSolicitacaoOptionsQueryDto,
+  TipoSolicitacaoOptionsQueryDtoClass
 } from "../dtos/tipo-solicitacao/tipo-solicitacao.dtos";
 import { TipoSolicitacaoService } from "../services/tipo-solicitacao.service";
 
@@ -20,9 +22,9 @@ export class TipoSolicitacaoController {
   }
 
   @Get("/options")
-  @Query(TipoSolicitacaoQueryDtoClass)
+  @Query(TipoSolicitacaoOptionsQueryDtoClass)
   @Returns(TipoSolicitacaoOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, TipoSolicitacaoQueryDto>): Promise<TipoSolicitacaoOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, TipoSolicitacaoOptionsQueryDto>): Promise<TipoSolicitacaoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 }

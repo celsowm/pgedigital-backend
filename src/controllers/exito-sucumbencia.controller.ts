@@ -21,6 +21,8 @@ import {
   ExitoSucumbenciaPagedResponseDto,
   ExitoSucumbenciaQueryDto,
   ExitoSucumbenciaQueryDtoClass,
+  ExitoSucumbenciaOptionsQueryDto,
+  ExitoSucumbenciaOptionsQueryDtoClass,
   ExitoSucumbenciaErrors,
   ExitoSucumbenciaOptionsDto,
   ExitoSucumbenciaOptionDto
@@ -39,9 +41,9 @@ export class ExitoSucumbenciaController {
   }
 
   @Get("/options")
-  @Query(ExitoSucumbenciaQueryDtoClass)
+  @Query(ExitoSucumbenciaOptionsQueryDtoClass)
   @Returns(ExitoSucumbenciaOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, ExitoSucumbenciaQueryDto>): Promise<ExitoSucumbenciaOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, ExitoSucumbenciaOptionsQueryDto>): Promise<ExitoSucumbenciaOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

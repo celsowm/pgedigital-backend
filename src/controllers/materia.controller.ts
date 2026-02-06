@@ -21,6 +21,8 @@ import {
   MateriaPagedResponseDto,
   MateriaQueryDto,
   MateriaQueryDtoClass,
+  MateriaOptionsQueryDto,
+  MateriaOptionsQueryDtoClass,
   MateriaErrors,
   MateriaOptionsDto,
   MateriaOptionDto
@@ -39,9 +41,9 @@ export class MateriaController {
   }
 
   @Get("/options")
-  @Query(MateriaQueryDtoClass)
+  @Query(MateriaOptionsQueryDtoClass)
   @Returns(MateriaOptionsDto)
-  async listOptions(ctx: RequestContext<unknown, MateriaQueryDto>): Promise<MateriaOptionDto[]> {
+  async listOptions(ctx: RequestContext<unknown, MateriaOptionsQueryDto>): Promise<MateriaOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }
 

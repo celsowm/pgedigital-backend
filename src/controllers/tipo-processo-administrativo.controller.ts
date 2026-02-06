@@ -3,6 +3,8 @@ import {
   TipoProcessoAdministrativoOptionDto,
   TipoProcessoAdministrativoQueryDto,
   TipoProcessoAdministrativoQueryDtoClass,
+  TipoProcessoAdministrativoOptionsQueryDto,
+  TipoProcessoAdministrativoOptionsQueryDtoClass,
   TipoProcessoAdministrativoOptionsDto
 } from "../dtos/tipo-processo-administrativo/tipo-processo-administrativo.dtos";
 import { TipoProcessoAdministrativoService } from "../services/tipo-processo-administrativo.service";
@@ -12,10 +14,10 @@ export class TipoProcessoAdministrativoController {
   private readonly service = new TipoProcessoAdministrativoService();
 
   @Get("/options")
-  @Query(TipoProcessoAdministrativoQueryDtoClass)
+  @Query(TipoProcessoAdministrativoOptionsQueryDtoClass)
   @Returns(TipoProcessoAdministrativoOptionsDto)
   async listOptions(
-    ctx: RequestContext<unknown, TipoProcessoAdministrativoQueryDto>
+    ctx: RequestContext<unknown, TipoProcessoAdministrativoOptionsQueryDto>
   ): Promise<TipoProcessoAdministrativoOptionDto[]> {
     return this.service.listOptions(ctx.query ?? {});
   }

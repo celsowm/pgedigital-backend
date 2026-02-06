@@ -7,6 +7,7 @@ import { TipoSolicitacao } from "../../entities/TipoSolicitacao";
 import {
   createOptionsArraySchema,
   createOptionDto,
+  createFilterOnlySortingQueryDtoClass,
   createPagedFilterSortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
@@ -31,6 +32,20 @@ export const TipoSolicitacaoQueryDtoClass = createPagedFilterSortingQueryDtoClas
 export interface TipoSolicitacaoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+  solicitacaoExterna?: boolean;
+}
+
+export const TipoSolicitacaoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "TipoSolicitacaoOptionsQueryDto",
+  sortableColumns: ["id", "nome"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    solicitacaoExterna: { schema: t.boolean(), operator: "equals" }
+  }
+});
+
+export interface TipoSolicitacaoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   solicitacaoExterna?: boolean;
 }

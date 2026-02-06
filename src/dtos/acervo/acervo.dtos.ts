@@ -23,6 +23,7 @@ import {
   type CreateDto,
   type UpdateDto,
   createPagedFilterSortingQueryDtoClass,
+  createFilterOnlySortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
 
@@ -213,6 +214,28 @@ export const AcervoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
 export interface AcervoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+  especializadaId?: number;
+  tipoAcervoId?: number;
+  procuradorTitularNomeContains?: string;
+  procuradorTitularId?: number;
+  ativo?: number;
+}
+
+export const AcervoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "AcervoOptionsQueryDto",
+  sortableColumns: ["id", "nome", "ativo", "created", "modified"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    especializadaId: { schema: t.integer(), operator: "equals" },
+    tipoAcervoId: { schema: t.integer(), operator: "equals" },
+    procuradorTitularNomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    procuradorTitularId: { schema: t.integer(), operator: "equals" },
+    ativo: { schema: t.integer(), operator: "equals" }
+  }
+});
+
+export interface AcervoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   especializadaId?: number;
   tipoAcervoId?: number;

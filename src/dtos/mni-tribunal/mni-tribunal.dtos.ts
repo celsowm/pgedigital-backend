@@ -8,6 +8,7 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
+  createFilterOnlySortingQueryDtoClass,
   createPagedFilterSortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
@@ -47,6 +48,22 @@ export const MniTribunalQueryDtoClass = createPagedFilterSortingQueryDtoClass({
 export interface MniTribunalQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  descricaoContains?: string;
+  siglaContains?: string;
+  identificadorCnjEquals?: string;
+}
+
+export const MniTribunalOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "MniTribunalOptionsQueryDto",
+  sortableColumns: ["id", "sigla", "descricao", "identificador_cnj"],
+  filters: {
+    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    identificadorCnjEquals: { schema: t.string({ minLength: 1 }), operator: "equals" }
+  }
+});
+
+export interface MniTribunalOptionsQueryDto extends SortingQueryParams {
   descricaoContains?: string;
   siglaContains?: string;
   identificadorCnjEquals?: string;

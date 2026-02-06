@@ -9,6 +9,7 @@ import {
   createOptionsArraySchema,
   createOptionDto,
   createPagedFilterSortingQueryDtoClass,
+  createFilterOnlySortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -44,6 +45,14 @@ export interface FilaCircularQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
 }
+
+export const FilaCircularOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "FilaCircularOptionsQueryDto",
+  sortableColumns: ["id", "ultimo_elemento"],
+  filters: {}
+});
+
+export interface FilaCircularOptionsQueryDto extends SortingQueryParams {}
 
 export const FilaCircularPagedResponseDto = createPagedResponseDtoClass({
   name: "FilaCircularPagedResponseDto",

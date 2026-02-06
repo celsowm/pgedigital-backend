@@ -8,6 +8,7 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
+  createFilterOnlySortingQueryDtoClass,
   createPagedFilterSortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
@@ -45,6 +46,18 @@ export const TipoAfastamentoQueryDtoClass = createPagedFilterSortingQueryDtoClas
 export interface TipoAfastamentoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  nomeContains?: string;
+}
+
+export const TipoAfastamentoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "TipoAfastamentoOptionsQueryDto",
+  sortableColumns: ["id", "nome"],
+  filters: {
+    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
+  }
+});
+
+export interface TipoAfastamentoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 

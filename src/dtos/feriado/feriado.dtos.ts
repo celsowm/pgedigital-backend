@@ -10,6 +10,7 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
+  createFilterOnlySortingQueryDtoClass,
   createPagedFilterSortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
@@ -62,6 +63,24 @@ export const FeriadoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
 export interface FeriadoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
+  descricaoContains?: string;
+  dataInicioGte?: string;
+  dataFimLte?: string;
+  tribunalId?: number;
+}
+
+export const FeriadoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
+  name: "FeriadoOptionsQueryDto",
+  sortableColumns: ["id", "data_inicio", "data_fim", "descricao"],
+  filters: {
+    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+    dataInicioGte: { schema: t.string({ minLength: 1 }), operator: "gte" },
+    dataFimLte: { schema: t.string({ minLength: 1 }), operator: "lte" },
+    tribunalId: { schema: t.integer(), operator: "equals" }
+  }
+});
+
+export interface FeriadoOptionsQueryDto extends SortingQueryParams {
   descricaoContains?: string;
   dataInicioGte?: string;
   dataFimLte?: string;
