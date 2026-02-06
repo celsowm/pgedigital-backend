@@ -19,12 +19,12 @@ export class EspecializadaRepository extends BaseRepository<Especializada> {
 
   override buildListQuery(): ReturnType<typeof selectFromEntity<Especializada>> {
     return selectFromEntity(Especializada)
-      .include("responsavel", { columns: ["id", "nome"], include: { usuarioThumbnail: { columns: ["id", "thumbnail"] } } });
+      .include("responsavel", { columns: ["id", "nome"] });
   }
 
   async getWithResponsavel(session: OrmSession, id: number): Promise<Especializada | null> {
     const [especializada] = await selectFromEntity(Especializada)
-      .include("responsavel", { columns: ["id", "nome"], include: { usuarioThumbnail: { columns: ["id", "thumbnail"] } } })
+      .include("responsavel", { columns: ["id", "nome"] })
       .where(eq(this.entityRef.id, id))
       .execute(session);
     return especializada ?? null;

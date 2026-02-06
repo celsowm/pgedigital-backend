@@ -15,14 +15,12 @@ export class UsuarioRepository extends BaseRepository<Usuario> {
 
   override buildListQuery(): ReturnType<typeof selectFromEntity<Usuario>> {
     return selectFromEntity(Usuario)
-      .includePick("especializada", ["nome", "sigla"])
-      .includePick("usuarioThumbnail", ["id", "thumbnail"]);
+      .includePick("especializada", ["nome", "sigla"]);
   }
 
   async findByLogin(session: OrmSession, login: string): Promise<Usuario | null> {
     const [usuario] = await selectFromEntity(Usuario)
       .includePick("especializada", ["nome", "sigla"])
-      .includePick("usuarioThumbnail", ["id", "thumbnail"])
       .where(eq(this.entityRef.login, login))
       .execute(session);
     return usuario ?? null;

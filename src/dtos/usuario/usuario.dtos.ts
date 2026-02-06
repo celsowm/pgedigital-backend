@@ -51,14 +51,11 @@ export class UsuarioThumbnailDto {
 export class UsuarioRelationsDto {
   @Field(t.optional(t.ref(EspecializadaResumoDto)))
   especializada?: EspecializadaResumoDto | null;
-
-  @Field(t.optional(t.ref(UsuarioThumbnailDto)))
-  usuarioThumbnail?: UsuarioThumbnailDto | null;
 }
 
 @MergeDto([UsuarioDto, UsuarioRelationsDto], {
   name: "UsuarioWithRelationsDto",
-  description: "Usuário com especializada e thumbnail."
+  description: "Usuário com especializada."
 })
 export class UsuarioWithRelationsDto {}
 
