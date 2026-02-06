@@ -4,6 +4,7 @@ import { col, Entity, Column, PrimaryKey, HasMany, BelongsToMany, HasManyCollect
 import { AssuntoLocal } from './AssuntoLocal';
 import { Competencia } from './Competencia';
 import { ContatoMniTribunal } from './ContatoMniTribunal';
+import { Feriado } from './Feriado';
 import { Instancia } from './Instancia';
 import { InstanciaMniTribunal } from './InstanciaMniTribunal';
 import { Localidade } from './Localidade';
@@ -162,6 +163,9 @@ export class MniTribunal {
 
   @HasMany({ target: () => Competencia, foreignKey: 'tribunal_id' })
   competencias!: HasManyCollection<Competencia>;
+
+  @HasMany({ target: () => Feriado, foreignKey: 'tribunal_id' })
+  feriados!: HasManyCollection<Feriado>;
 
   @HasMany({ target: () => TipoDocumentoProvidencia, foreignKey: 'mni_tribunal_id' })
   tiposDocumentosProvidencias!: HasManyCollection<TipoDocumentoProvidencia>;

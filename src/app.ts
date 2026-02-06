@@ -9,6 +9,7 @@ import { ClassificacaoController } from "./controllers/classificacao.controller"
 import { EquipeController } from "./controllers/equipe.controller";
 import { EspecializadaController } from "./controllers/especializada.controller";
 import { ExitoSucumbenciaController } from "./controllers/exito-sucumbencia.controller";
+import { FeriadoController } from "./controllers/feriado.controller";
 import { FilaCircularController } from "./controllers/fila-circular.controller";
 import { MateriaController } from "./controllers/materia.controller";
 import { MniTribunalController } from "./controllers/mni-tribunal.controller";
@@ -35,7 +36,7 @@ export async function createApp(): Promise<Express> {
     .filter(Boolean);
 
   const app = await createExpressApp({
-    controllers: [AfastamentoPessoaController, AuthController, AcervoController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, PessoaController, TemaController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
+    controllers: [AfastamentoPessoaController, AuthController, AcervoController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FeriadoController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, PessoaController, TemaController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
     cors: {
       origin: corsOrigins.length ? corsOrigins : "*",
       credentials: true

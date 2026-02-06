@@ -63,6 +63,9 @@ export class DocumentoAcordoContencioso {
   @Column(col.int())
   rght?: number;
 
+  @Column(col.int())
+  assinado?: number;
+
   @HasMany({ target: () => Manifestacao, foreignKey: 'documento_acordo_contencioso_id' })
   manifestacoes!: HasManyCollection<Manifestacao>;
 
