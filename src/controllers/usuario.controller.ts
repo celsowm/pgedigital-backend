@@ -3,12 +3,13 @@ import {
   Get,
   Params,
   Query,
+  Raw,
   Returns,
+  HttpResponse,
   ok,
   noContent,
   parseIdOrThrow,
-  type RequestContext,
-  HttpResponse
+  type RequestContext
 } from "adorn-api";
 import { withSession } from "../db/mssql";
 import {
@@ -63,7 +64,7 @@ export class UsuarioController {
 
   @Get("/:id/thumbnail/image")
   @Params(UsuarioParamsDto)
-  @Returns({ status: 200, description: "Thumbnail image" })
+  @Raw({ description: "Thumbnail image" })
   @Returns({ status: 204, description: "No thumbnail available for user" })
   async getThumbnailImage(ctx: RequestContext<unknown, undefined, UsuarioParamsDto>) {
     const id = parseIdOrThrow(ctx.params.id, "usuario");
