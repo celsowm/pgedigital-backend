@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Pessoa } from "../../entities/Pessoa";
@@ -8,11 +7,14 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
-  type SortingQueryParams
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
+  type SortingQueryParams,
+  type CreateDto,
+  type UpdateDto
 } from "../common";
-import type { CreateDto, UpdateDto } from "../common";
 
 const pessoaCrud = createMetalCrudDtoClasses(Pessoa, {
   response: { description: "Pessoa retornada pela API." },
@@ -28,21 +30,25 @@ export const {
 } = pessoaCrud;
 
 export type PessoaDto = Pessoa;
-
-type PessoaMutationDto = CreateDto<PessoaDto>;
-export type CreatePessoaDto = PessoaMutationDto;
-export type ReplacePessoaDto = PessoaMutationDto;
+export type CreatePessoaDto = CreateDto<PessoaDto>;
+export type ReplacePessoaDto = CreateDto<PessoaDto>;
 export type UpdatePessoaDto = UpdateDto<PessoaDto>;
 export type PessoaParamsDto = InstanceType<typeof PessoaParamsDto>;
 
-export const PessoaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "PessoaQueryDto",
-  sortableColumns: ["id", "nome", "numero_documento_principal", "tipo_pessoa"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    numeroDocumentoPrincipalContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const pessoaFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains,
+  numeroDocumentoPrincipalContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
 });
+
+const { paged: PessoaQueryDtoClass, options: PessoaOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "Pessoa",
+    sortableColumns: ["id", "nome", "numero_documento_principal", "tipo_pessoa"],
+    filters: pessoaFilters
+  });
+
+export { PessoaQueryDtoClass, PessoaOptionsQueryDtoClass };
 
 export interface PessoaQueryDto extends SortingQueryParams {
   page?: number;
@@ -51,25 +57,17 @@ export interface PessoaQueryDto extends SortingQueryParams {
   numeroDocumentoPrincipalContains?: string;
 }
 
-export const PessoaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "PessoaOptionsQueryDto",
-  sortableColumns: ["id", "nome", "numero_documento_principal", "tipo_pessoa"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    numeroDocumentoPrincipalContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface PessoaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   numeroDocumentoPrincipalContains?: string;
 }
 
-export const PessoaPagedResponseDto = createPagedResponseDtoClass({
-  name: "PessoaPagedResponseDto",
-  itemDto: PessoaDto,
-  description: "Paged pessoa list response."
-});
+// ============ Response DTOs ============
+export const PessoaPagedResponseDto = createCrudPagedResponseDto(
+  "Pessoa",
+  PessoaDto,
+  "pessoa"
+);
 
 export const PessoaErrors = createCrudErrors("pessoa");
 

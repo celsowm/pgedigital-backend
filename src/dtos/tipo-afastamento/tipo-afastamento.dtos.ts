@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { TipoAfastamento } from "../../entities/TipoAfastamento";
@@ -8,8 +7,10 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -28,20 +29,24 @@ export const {
 } = tipoAfastamentoCrud;
 
 export type TipoAfastamentoDto = TipoAfastamento;
-
-type TipoAfastamentoMutationDto = CreateDto<TipoAfastamentoDto>;
-export type CreateTipoAfastamentoDto = TipoAfastamentoMutationDto;
-export type ReplaceTipoAfastamentoDto = TipoAfastamentoMutationDto;
+export type CreateTipoAfastamentoDto = CreateDto<TipoAfastamentoDto>;
+export type ReplaceTipoAfastamentoDto = CreateDto<TipoAfastamentoDto>;
 export type UpdateTipoAfastamentoDto = UpdateDto<TipoAfastamentoDto>;
 export type TipoAfastamentoParamsDto = InstanceType<typeof TipoAfastamentoParamsDto>;
 
-export const TipoAfastamentoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TipoAfastamentoQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const tipoAfastamentoFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: TipoAfastamentoQueryDtoClass, options: TipoAfastamentoOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "TipoAfastamento",
+    sortableColumns: ["id", "nome"],
+    filters: tipoAfastamentoFilters
+  });
+
+export { TipoAfastamentoQueryDtoClass, TipoAfastamentoOptionsQueryDtoClass };
 
 export interface TipoAfastamentoQueryDto extends SortingQueryParams {
   page?: number;
@@ -49,23 +54,16 @@ export interface TipoAfastamentoQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const TipoAfastamentoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TipoAfastamentoOptionsQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface TipoAfastamentoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const TipoAfastamentoPagedResponseDto = createPagedResponseDtoClass({
-  name: "TipoAfastamentoPagedResponseDto",
-  itemDto: TipoAfastamentoDto,
-  description: "Paged tipo afastamento list response."
-});
+// ============ Response DTOs ============
+export const TipoAfastamentoPagedResponseDto = createCrudPagedResponseDto(
+  "TipoAfastamento",
+  TipoAfastamentoDto,
+  "tipo afastamento"
+);
 
 export const TipoAfastamentoErrors = createCrudErrors("tipo afastamento");
 

@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { TipoDivisaoCargaTrabalho } from "../../entities/TipoDivisaoCargaTrabalho";
@@ -8,8 +7,10 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -28,19 +29,24 @@ export const {
 } = tipoDivisaoCargaTrabalhoCrud;
 
 export type TipoDivisaoCargaTrabalhoDto = TipoDivisaoCargaTrabalho;
-
-type TipoDivisaoCargaTrabalhoMutationDto = CreateDto<TipoDivisaoCargaTrabalhoDto>;
-export type CreateTipoDivisaoCargaTrabalhoDto = TipoDivisaoCargaTrabalhoMutationDto;
-export type ReplaceTipoDivisaoCargaTrabalhoDto = TipoDivisaoCargaTrabalhoMutationDto;
+export type CreateTipoDivisaoCargaTrabalhoDto = CreateDto<TipoDivisaoCargaTrabalhoDto>;
+export type ReplaceTipoDivisaoCargaTrabalhoDto = CreateDto<TipoDivisaoCargaTrabalhoDto>;
 export type UpdateTipoDivisaoCargaTrabalhoDto = UpdateDto<TipoDivisaoCargaTrabalhoDto>;
 export type TipoDivisaoCargaTrabalhoParamsDto = InstanceType<typeof TipoDivisaoCargaTrabalhoParamsDto>;
 
-export const TipoDivisaoCargaTrabalhoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TipoDivisaoCargaTrabalhoQueryDto",
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const tipoDivisaoCargaTrabalhoFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: TipoDivisaoCargaTrabalhoQueryDtoClass, options: TipoDivisaoCargaTrabalhoOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "TipoDivisaoCargaTrabalho",
+    sortableColumns: ["id", "nome"],
+    filters: tipoDivisaoCargaTrabalhoFilters
+  });
+
+export { TipoDivisaoCargaTrabalhoQueryDtoClass, TipoDivisaoCargaTrabalhoOptionsQueryDtoClass };
 
 export interface TipoDivisaoCargaTrabalhoQueryDto extends SortingQueryParams {
   page?: number;
@@ -48,22 +54,16 @@ export interface TipoDivisaoCargaTrabalhoQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const TipoDivisaoCargaTrabalhoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TipoDivisaoCargaTrabalhoOptionsQueryDto",
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface TipoDivisaoCargaTrabalhoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const TipoDivisaoCargaTrabalhoPagedResponseDto = createPagedResponseDtoClass({
-  name: "TipoDivisaoCargaTrabalhoPagedResponseDto",
-  itemDto: TipoDivisaoCargaTrabalhoDto,
-  description: "Paged tipo divisao carga trabalho list response."
-});
+// ============ Response DTOs ============
+export const TipoDivisaoCargaTrabalhoPagedResponseDto = createCrudPagedResponseDto(
+  "TipoDivisaoCargaTrabalho",
+  TipoDivisaoCargaTrabalhoDto,
+  "tipo divisao carga trabalho"
+);
 
 export const TipoDivisaoCargaTrabalhoErrors = createCrudErrors("tipo divisao carga trabalho");
 

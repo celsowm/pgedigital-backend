@@ -2,7 +2,6 @@ import {
   Dto,
   Field,
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Feriado } from "../../entities/Feriado";
@@ -10,8 +9,10 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -30,10 +31,8 @@ export const {
 } = feriadoCrud;
 
 export type FeriadoDto = Feriado;
-
-type FeriadoMutationDto = CreateDto<FeriadoDto>;
-export type CreateFeriadoDto = FeriadoMutationDto;
-export type ReplaceFeriadoDto = FeriadoMutationDto;
+export type CreateFeriadoDto = CreateDto<FeriadoDto>;
+export type ReplaceFeriadoDto = CreateDto<FeriadoDto>;
 export type UpdateFeriadoDto = UpdateDto<FeriadoDto>;
 export type FeriadoParamsDto = InstanceType<typeof FeriadoParamsDto>;
 
@@ -49,16 +48,22 @@ export class TribunalResumoDto {
   sigla?: string;
 }
 
-export const FeriadoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "FeriadoQueryDto",
-  sortableColumns: ["id", "data_inicio", "data_fim", "descricao"],
-  filters: {
-    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    dataInicioGte: { schema: t.string({ minLength: 1 }), operator: "gte" },
-    dataFimLte: { schema: t.string({ minLength: 1 }), operator: "lte" },
-    tribunalId: { schema: t.integer(), operator: "equals" }
-  }
+// ============ Query DTOs (DRY) ============
+const feriadoFilters = buildFilters({
+  descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  dataInicioGte: { schema: t.string({ minLength: 1 }), operator: "gte" },
+  dataFimLte: { schema: t.string({ minLength: 1 }), operator: "lte" },
+  tribunalId: CommonFilters.id
 });
+
+const { paged: FeriadoQueryDtoClass, options: FeriadoOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "Feriado",
+    sortableColumns: ["id", "data_inicio", "data_fim", "descricao"],
+    filters: feriadoFilters
+  });
+
+export { FeriadoQueryDtoClass, FeriadoOptionsQueryDtoClass };
 
 export interface FeriadoQueryDto extends SortingQueryParams {
   page?: number;
@@ -69,17 +74,6 @@ export interface FeriadoQueryDto extends SortingQueryParams {
   tribunalId?: number;
 }
 
-export const FeriadoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "FeriadoOptionsQueryDto",
-  sortableColumns: ["id", "data_inicio", "data_fim", "descricao"],
-  filters: {
-    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    dataInicioGte: { schema: t.string({ minLength: 1 }), operator: "gte" },
-    dataFimLte: { schema: t.string({ minLength: 1 }), operator: "lte" },
-    tribunalId: { schema: t.integer(), operator: "equals" }
-  }
-});
-
 export interface FeriadoOptionsQueryDto extends SortingQueryParams {
   descricaoContains?: string;
   dataInicioGte?: string;
@@ -87,11 +81,12 @@ export interface FeriadoOptionsQueryDto extends SortingQueryParams {
   tribunalId?: number;
 }
 
-export const FeriadoPagedResponseDto = createPagedResponseDtoClass({
-  name: "FeriadoPagedResponseDto",
-  itemDto: FeriadoDto,
-  description: "Paged feriado list response."
-});
+// ============ Response DTOs ============
+export const FeriadoPagedResponseDto = createCrudPagedResponseDto(
+  "Feriado",
+  FeriadoDto,
+  "feriado"
+);
 
 export const FeriadoErrors = createCrudErrors("feriado");
 

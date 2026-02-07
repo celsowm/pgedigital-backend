@@ -1,14 +1,15 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { TipoAudiencia } from "../../entities/TipoAudiencia";
 import {
   createOptionsArraySchema,
   createOptionDto,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 
@@ -20,14 +21,20 @@ const tipoAudienciaCrud = createMetalCrudDtoClasses(TipoAudiencia, {
 export const { response: TipoAudienciaDto } = tipoAudienciaCrud;
 export type TipoAudienciaDto = TipoAudiencia;
 
-export const TipoAudienciaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TipoAudienciaQueryDto",
-  sortableColumns: ["id", "descricao"],
-  filters: {
-    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    tipoProcessoAdministrativoId: { schema: t.number(), operator: "equals" }
-  }
+// ============ Query DTOs (DRY) ============
+const tipoAudienciaFilters = buildFilters({
+  descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  tipoProcessoAdministrativoId: { schema: t.number(), operator: "equals" }
 });
+
+const { paged: TipoAudienciaQueryDtoClass, options: TipoAudienciaOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "TipoAudiencia",
+    sortableColumns: ["id", "descricao"],
+    filters: tipoAudienciaFilters
+  });
+
+export { TipoAudienciaQueryDtoClass, TipoAudienciaOptionsQueryDtoClass };
 
 export interface TipoAudienciaQueryDto extends SortingQueryParams {
   page?: number;
@@ -36,25 +43,17 @@ export interface TipoAudienciaQueryDto extends SortingQueryParams {
   tipoProcessoAdministrativoId?: number;
 }
 
-export const TipoAudienciaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TipoAudienciaOptionsQueryDto",
-  sortableColumns: ["id", "descricao"],
-  filters: {
-    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    tipoProcessoAdministrativoId: { schema: t.number(), operator: "equals" }
-  }
-});
-
 export interface TipoAudienciaOptionsQueryDto extends SortingQueryParams {
   descricaoContains?: string;
   tipoProcessoAdministrativoId?: number;
 }
 
-export const TipoAudienciaPagedResponseDto = createPagedResponseDtoClass({
-  name: "TipoAudienciaPagedResponseDto",
-  itemDto: TipoAudienciaDto,
-  description: "Paged tipo audiencia list response."
-});
+// ============ Response DTOs ============
+export const TipoAudienciaPagedResponseDto = createCrudPagedResponseDto(
+  "TipoAudiencia",
+  TipoAudienciaDto,
+  "tipo audiencia"
+);
 
 const TipoAudienciaOptionDtoClass = createOptionDto(
   "TipoAudienciaOptionDto",

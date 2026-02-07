@@ -1,14 +1,15 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { TipoSolicitacao } from "../../entities/TipoSolicitacao";
 import {
   createOptionsArraySchema,
   createOptionDto,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 
@@ -20,14 +21,20 @@ const tipoSolicitacaoCrud = createMetalCrudDtoClasses(TipoSolicitacao, {
 export const { response: TipoSolicitacaoDto } = tipoSolicitacaoCrud;
 export type TipoSolicitacaoDto = TipoSolicitacao;
 
-export const TipoSolicitacaoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TipoSolicitacaoQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    solicitacaoExterna: { schema: t.boolean(), operator: "equals" }
-  }
+// ============ Query DTOs (DRY) ============
+const tipoSolicitacaoFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains,
+  solicitacaoExterna: { schema: t.boolean(), operator: "equals" }
 });
+
+const { paged: TipoSolicitacaoQueryDtoClass, options: TipoSolicitacaoOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "TipoSolicitacao",
+    sortableColumns: ["id", "nome"],
+    filters: tipoSolicitacaoFilters
+  });
+
+export { TipoSolicitacaoQueryDtoClass, TipoSolicitacaoOptionsQueryDtoClass };
 
 export interface TipoSolicitacaoQueryDto extends SortingQueryParams {
   page?: number;
@@ -36,25 +43,17 @@ export interface TipoSolicitacaoQueryDto extends SortingQueryParams {
   solicitacaoExterna?: boolean;
 }
 
-export const TipoSolicitacaoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TipoSolicitacaoOptionsQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    solicitacaoExterna: { schema: t.boolean(), operator: "equals" }
-  }
-});
-
 export interface TipoSolicitacaoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   solicitacaoExterna?: boolean;
 }
 
-export const TipoSolicitacaoPagedResponseDto = createPagedResponseDtoClass({
-  name: "TipoSolicitacaoPagedResponseDto",
-  itemDto: TipoSolicitacaoDto,
-  description: "Paged tipo solicitacao list response."
-});
+// ============ Response DTOs ============
+export const TipoSolicitacaoPagedResponseDto = createCrudPagedResponseDto(
+  "TipoSolicitacao",
+  TipoSolicitacaoDto,
+  "tipo solicitacao"
+);
 
 const TipoSolicitacaoOptionDtoClass = createOptionDto(
   "TipoSolicitacaoOptionDto",

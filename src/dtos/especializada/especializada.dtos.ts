@@ -3,7 +3,6 @@ import {
   Field,
   MergeDto,
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Especializada } from "../../entities/Especializada";
@@ -12,11 +11,13 @@ import {
   createOptionsArraySchema,
   createOptionDto,
   ResponsavelResumoDto,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
+  type SortingQueryParams,
   type CreateDto,
-  type UpdateDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
-  type SortingQueryParams
+  type UpdateDto
 } from "../common";
 
 const especializadaCrud = createMetalCrudDtoClasses(Especializada, {
@@ -33,9 +34,8 @@ export const {
 } = especializadaCrud;
 
 export type EspecializadaDto = Especializada;
-type EspecializadaMutationDto = CreateDto<EspecializadaDto>;
-export type CreateEspecializadaDto = EspecializadaMutationDto;
-export type ReplaceEspecializadaDto = EspecializadaMutationDto;
+export type CreateEspecializadaDto = CreateDto<EspecializadaDto>;
+export type ReplaceEspecializadaDto = CreateDto<EspecializadaDto>;
 export type UpdateEspecializadaDto = UpdateDto<EspecializadaDto>;
 export type EspecializadaParamsDto = InstanceType<typeof EspecializadaParamsDto>;
 
@@ -51,18 +51,21 @@ export class EspecializadaResponsavelDto {
 })
 export class EspecializadaWithResponsavelDto {}
 
-export const EspecializadaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "EspecializadaQueryDto",
-  sortableColumns: ["id", "nome", "sigla", "codigo_ad"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    responsavelNomeContains: {
-      schema: t.string({ minLength: 1 }),
-      operator: "contains"
-    }
-  }
+// ============ Query DTOs (DRY) ============
+const especializadaFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains,
+  siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  responsavelNomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
 });
+
+const { paged: EspecializadaQueryDtoClass, options: EspecializadaOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "Especializada",
+    sortableColumns: ["id", "nome", "sigla", "codigo_ad"],
+    filters: especializadaFilters
+  });
+
+export { EspecializadaQueryDtoClass, EspecializadaOptionsQueryDtoClass };
 
 export interface EspecializadaQueryDto extends SortingQueryParams {
   page?: number;
@@ -72,30 +75,18 @@ export interface EspecializadaQueryDto extends SortingQueryParams {
   responsavelNomeContains?: string;
 }
 
-export const EspecializadaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "EspecializadaOptionsQueryDto",
-  sortableColumns: ["id", "nome", "sigla", "codigo_ad"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    responsavelNomeContains: {
-      schema: t.string({ minLength: 1 }),
-      operator: "contains"
-    }
-  }
-});
-
 export interface EspecializadaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   siglaContains?: string;
   responsavelNomeContains?: string;
 }
 
-export const EspecializadaPagedResponseDto = createPagedResponseDtoClass({
-  name: "EspecializadaPagedResponseDto",
-  itemDto: EspecializadaWithResponsavelDto,
-  description: "Paged especializada list response."
-});
+// ============ Response DTOs ============
+export const EspecializadaPagedResponseDto = createCrudPagedResponseDto(
+  "Especializada",
+  EspecializadaWithResponsavelDto,
+  "especializada"
+);
 
 export const EspecializadaErrors = createCrudErrors("especializada");
 

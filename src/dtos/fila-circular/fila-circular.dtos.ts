@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { FilaCircular } from "../../entities/FilaCircular";
@@ -8,11 +7,13 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
-  type SortingQueryParams
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  buildFilters,
+  type SortingQueryParams,
+  type CreateDto,
+  type UpdateDto
 } from "../common";
-import type { CreateDto, UpdateDto } from "../common";
 
 const filaCircularCrud = createMetalCrudDtoClasses(FilaCircular, {
   response: { description: "Fila Circular retornada pela API." },
@@ -28,37 +29,36 @@ export const {
 } = filaCircularCrud;
 
 export type FilaCircularDto = FilaCircular;
-
-type FilaCircularMutationDto = CreateDto<FilaCircularDto>;
-export type CreateFilaCircularDto = FilaCircularMutationDto;
-export type ReplaceFilaCircularDto = FilaCircularMutationDto;
+export type CreateFilaCircularDto = CreateDto<FilaCircularDto>;
+export type ReplaceFilaCircularDto = CreateDto<FilaCircularDto>;
 export type UpdateFilaCircularDto = UpdateDto<FilaCircularDto>;
 export type FilaCircularParamsDto = InstanceType<typeof FilaCircularParamsDto>;
 
-export const FilaCircularQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "FilaCircularQueryDto",
-  sortableColumns: ["id", "ultimo_elemento"],
-  filters: {}
-});
+// ============ Query DTOs (DRY) ============
+const filaCircularFilters = buildFilters({}); // No filters defined
+
+const { paged: FilaCircularQueryDtoClass, options: FilaCircularOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "FilaCircular",
+    sortableColumns: ["id", "ultimo_elemento"],
+    filters: filaCircularFilters
+  });
+
+export { FilaCircularQueryDtoClass, FilaCircularOptionsQueryDtoClass };
 
 export interface FilaCircularQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
 }
 
-export const FilaCircularOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "FilaCircularOptionsQueryDto",
-  sortableColumns: ["id", "ultimo_elemento"],
-  filters: {}
-});
-
 export interface FilaCircularOptionsQueryDto extends SortingQueryParams {}
 
-export const FilaCircularPagedResponseDto = createPagedResponseDtoClass({
-  name: "FilaCircularPagedResponseDto",
-  itemDto: FilaCircularDto,
-  description: "Paged fila circular list response."
-});
+// ============ Response DTOs ============
+export const FilaCircularPagedResponseDto = createCrudPagedResponseDto(
+  "FilaCircular",
+  FilaCircularDto,
+  "fila circular"
+);
 
 export const FilaCircularErrors = createCrudErrors("fila circular");
 

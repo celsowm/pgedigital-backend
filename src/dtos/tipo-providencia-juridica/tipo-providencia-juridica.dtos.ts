@@ -2,8 +2,9 @@ import { t } from "adorn-api";
 import {
   createOptionDto,
   createOptionsArraySchema,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 
@@ -14,25 +15,25 @@ const TipoProvidenciaJuridicaOptionDtoClass = createOptionDto(
 export { TipoProvidenciaJuridicaOptionDtoClass as TipoProvidenciaJuridicaOptionDto };
 export type TipoProvidenciaJuridicaOptionDto = InstanceType<typeof TipoProvidenciaJuridicaOptionDtoClass>;
 
-export const TipoProvidenciaJuridicaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TipoProvidenciaJuridicaQueryDto",
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const tipoProvidenciaJuridicaFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: TipoProvidenciaJuridicaQueryDtoClass, options: TipoProvidenciaJuridicaOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "TipoProvidenciaJuridica",
+    sortableColumns: ["id", "nome"],
+    filters: tipoProvidenciaJuridicaFilters
+  });
+
+export { TipoProvidenciaJuridicaQueryDtoClass, TipoProvidenciaJuridicaOptionsQueryDtoClass };
 
 export interface TipoProvidenciaJuridicaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;
 }
-
-export const TipoProvidenciaJuridicaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TipoProvidenciaJuridicaOptionsQueryDto",
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
 
 export interface TipoProvidenciaJuridicaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;

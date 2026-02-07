@@ -3,7 +3,6 @@ import {
   Field,
   MergeDto,
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Equipe } from "../../entities/Equipe";
@@ -12,12 +11,13 @@ import {
   createOptionsArraySchema,
   createOptionDto,
   EspecializadaResumoDto,
-  type CreateDto,
-  type UpdateDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
+import type { CreateDto, UpdateDto } from "../common";
 
 const equipeCrud = createMetalCrudDtoClasses(Equipe, {
   response: { description: "Equipe retornada pela API." },
@@ -33,9 +33,8 @@ export const {
 } = equipeCrud;
 
 export type EquipeDto = Equipe;
-type EquipeMutationDto = CreateDto<EquipeDto>;
-export type CreateEquipeDto = EquipeMutationDto;
-export type ReplaceEquipeDto = EquipeMutationDto;
+export type CreateEquipeDto = CreateDto<EquipeDto>;
+export type ReplaceEquipeDto = CreateDto<EquipeDto>;
 export type UpdateEquipeDto = UpdateDto<EquipeDto>;
 export type EquipeParamsDto = InstanceType<typeof EquipeParamsDto>;
 
@@ -51,14 +50,20 @@ export class EquipeEspecializadaDto {
 })
 export class EquipeWithEspecializadaDto {}
 
-export const EquipeQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "EquipeQueryDto",
-  sortableColumns: ["id", "nome", "especializada_id"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    especializadaId: { schema: t.integer(), operator: "equals" }
-  }
+// ============ Query DTOs (DRY) ============
+const equipeFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains,
+  especializadaId: CommonFilters.id
 });
+
+const { paged: EquipeQueryDtoClass, options: EquipeOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "Equipe",
+    sortableColumns: ["id", "nome", "especializada_id"],
+    filters: equipeFilters
+  });
+
+export { EquipeQueryDtoClass, EquipeOptionsQueryDtoClass };
 
 export interface EquipeQueryDto extends SortingQueryParams {
   page?: number;
@@ -67,25 +72,17 @@ export interface EquipeQueryDto extends SortingQueryParams {
   especializadaId?: number;
 }
 
-export const EquipeOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "EquipeOptionsQueryDto",
-  sortableColumns: ["id", "nome", "especializada_id"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    especializadaId: { schema: t.integer(), operator: "equals" }
-  }
-});
-
 export interface EquipeOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   especializadaId?: number;
 }
 
-export const EquipePagedResponseDto = createPagedResponseDtoClass({
-  name: "EquipePagedResponseDto",
-  itemDto: EquipeWithEspecializadaDto,
-  description: "Paged equipe list response."
-});
+// ============ Response DTOs ============
+export const EquipePagedResponseDto = createCrudPagedResponseDto(
+  "Equipe",
+  EquipeWithEspecializadaDto,
+  "equipe"
+);
 
 export const EquipeErrors = createCrudErrors("equipe");
 

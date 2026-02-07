@@ -25,7 +25,10 @@ import {
   AcervoOptionsQueryDtoClass,
   CreateAcervoDto,
   ReplaceAcervoDto,
-  UpdateAcervoDto
+  UpdateAcervoDto,
+  type ICreateAcervoDto,
+  type IReplaceAcervoDto,
+  type IUpdateAcervoDto
 } from "../dtos/acervo/acervo.dtos";
 import { AcervoService } from "../services/acervo.service";
 
@@ -61,8 +64,8 @@ export class AcervoController {
   @Post("/")
   @Body(CreateAcervoDto)
   @Returns({ status: 201, schema: AcervoDetailDto })
-  async create(ctx: RequestContext<CreateAcervoDto>): Promise<AcervoDetailDto> {
-    return this.service.create(ctx.body as CreateAcervoDto);
+  async create(ctx: RequestContext<ICreateAcervoDto>): Promise<AcervoDetailDto> {
+    return this.service.create(ctx.body);
   }
 
   @Put("/:id")
@@ -70,9 +73,9 @@ export class AcervoController {
   @Body(ReplaceAcervoDto)
   @Returns(AcervoDetailDto)
   @AcervoErrors
-  async replace(ctx: RequestContext<ReplaceAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoDetailDto> {
+  async replace(ctx: RequestContext<IReplaceAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoDetailDto> {
     const id = parseIdOrThrow(ctx.params.id, "acervo");
-    return this.service.replace(id, ctx.body as ReplaceAcervoDto);
+    return this.service.replace(id, ctx.body);
   }
 
   @Patch("/:id")
@@ -80,9 +83,9 @@ export class AcervoController {
   @Body(UpdateAcervoDto)
   @Returns(AcervoDetailDto)
   @AcervoErrors
-  async update(ctx: RequestContext<UpdateAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoDetailDto> {
+  async update(ctx: RequestContext<IUpdateAcervoDto, undefined, AcervoParamsDto>): Promise<AcervoDetailDto> {
     const id = parseIdOrThrow(ctx.params.id, "acervo");
-    return this.service.update(id, ctx.body as UpdateAcervoDto);
+    return this.service.update(id, ctx.body);
   }
 
   @Delete("/:id")

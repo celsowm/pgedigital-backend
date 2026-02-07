@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { MniTribunal } from "../../entities/MniTribunal";
@@ -8,11 +7,14 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
-  type SortingQueryParams
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
+  type SortingQueryParams,
+  type CreateDto,
+  type UpdateDto
 } from "../common";
-import type { CreateDto, UpdateDto } from "../common";
 
 const mniTribunalCrud = createMetalCrudDtoClasses(MniTribunal, {
   response: { description: "MNI Tribunal retornado pela API." },
@@ -28,22 +30,26 @@ export const {
 } = mniTribunalCrud;
 
 export type MniTribunalDto = MniTribunal;
-
-type MniTribunalMutationDto = CreateDto<MniTribunalDto>;
-export type CreateMniTribunalDto = MniTribunalMutationDto;
-export type ReplaceMniTribunalDto = MniTribunalMutationDto;
+export type CreateMniTribunalDto = CreateDto<MniTribunalDto>;
+export type ReplaceMniTribunalDto = CreateDto<MniTribunalDto>;
 export type UpdateMniTribunalDto = UpdateDto<MniTribunalDto>;
 export type MniTribunalParamsDto = InstanceType<typeof MniTribunalParamsDto>;
 
-export const MniTribunalQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "MniTribunalQueryDto",
-  sortableColumns: ["id", "sigla", "descricao", "identificador_cnj"],
-  filters: {
-    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    identificadorCnjEquals: { schema: t.string({ minLength: 1 }), operator: "equals" }
-  }
+// ============ Query DTOs (DRY) ============
+const mniTribunalFilters = buildFilters({
+  descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  identificadorCnjEquals: { schema: t.string({ minLength: 1 }), operator: "equals" }
 });
+
+const { paged: MniTribunalQueryDtoClass, options: MniTribunalOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "MniTribunal",
+    sortableColumns: ["id", "sigla", "descricao", "identificador_cnj"],
+    filters: mniTribunalFilters
+  });
+
+export { MniTribunalQueryDtoClass, MniTribunalOptionsQueryDtoClass };
 
 export interface MniTribunalQueryDto extends SortingQueryParams {
   page?: number;
@@ -53,27 +59,18 @@ export interface MniTribunalQueryDto extends SortingQueryParams {
   identificadorCnjEquals?: string;
 }
 
-export const MniTribunalOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "MniTribunalOptionsQueryDto",
-  sortableColumns: ["id", "sigla", "descricao", "identificador_cnj"],
-  filters: {
-    descricaoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    siglaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    identificadorCnjEquals: { schema: t.string({ minLength: 1 }), operator: "equals" }
-  }
-});
-
 export interface MniTribunalOptionsQueryDto extends SortingQueryParams {
   descricaoContains?: string;
   siglaContains?: string;
   identificadorCnjEquals?: string;
 }
 
-export const MniTribunalPagedResponseDto = createPagedResponseDtoClass({
-  name: "MniTribunalPagedResponseDto",
-  itemDto: MniTribunalDto,
-  description: "Paged MNI Tribunal list response."
-});
+// ============ Response DTOs ============
+export const MniTribunalPagedResponseDto = createCrudPagedResponseDto(
+  "MniTribunal",
+  MniTribunalDto,
+  "MNI Tribunal"
+);
 
 export const MniTribunalErrors = createCrudErrors("MNI Tribunal");
 

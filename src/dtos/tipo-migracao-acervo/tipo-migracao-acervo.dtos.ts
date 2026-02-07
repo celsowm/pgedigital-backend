@@ -1,4 +1,11 @@
-import { createOptionDto, createOptionsArraySchema } from "../common";
+import {
+  createOptionDto,
+  createOptionsArraySchema,
+  createCrudQueryDtoPair,
+  CommonFilters,
+  buildFilters,
+  type SortingQueryParams
+} from "../common";
 
 const TipoMigracaoAcervoOptionDtoClass = createOptionDto(
   "TipoMigracaoAcervoOptionDto",

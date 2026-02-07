@@ -2,10 +2,12 @@ import {
   Dto,
   Field,
   MergeDto,
+  PickDto,
   createMetalCrudDtoClasses,
   createPagedResponseDtoClass,
   t
 } from "adorn-api";
+import type { FilterFieldDef } from "adorn-api/dist/adapter/metal-orm/types";
 import { Acervo } from "../../entities/Acervo";
 import {
   createCrudErrors,
@@ -20,12 +22,22 @@ import {
   ProcuradorTitularResumoDto,
   ClassificacaoResumoDto,
   TemaResumoDto,
-  type CreateDto,
-  type UpdateDto,
   createPagedFilterSortingQueryDtoClass,
   createFilterOnlySortingQueryDtoClass,
   type SortingQueryParams
 } from "../common";
+
+// ============ Shared Filter Configuration ============
+const ACERVO_FILTERS: Record<string, FilterFieldDef> = {
+  nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  especializadaId: { schema: t.integer(), operator: "equals" },
+  tipoAcervoId: { schema: t.integer(), operator: "equals" },
+  procuradorTitularNomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  procuradorTitularId: { schema: t.integer(), operator: "equals" },
+  ativo: { schema: t.integer(), operator: "equals" }
+};
+
+const ACERVO_SORTABLE = ["id", "nome", "ativo", "created", "modified"] as const;
 
 // ============ CRUD DTOs ============
 const acervoCrud = createMetalCrudDtoClasses(Acervo, {
@@ -90,15 +102,12 @@ class ReplaceAcervoDtoClass {}
 })
 class UpdateAcervoDtoClass {}
 
-const CreateAcervoDto = CreateAcervoDtoClass;
-const ReplaceAcervoDto = ReplaceAcervoDtoClass;
-const UpdateAcervoDto = UpdateAcervoDtoClass;
-export { CreateAcervoDto, ReplaceAcervoDto, UpdateAcervoDto };
-
-type AcervoMutationDto = CreateDto<AcervoDto> & Partial<AcervoRelationsInputDto>;
-export type CreateAcervoDto = AcervoMutationDto;
-export type ReplaceAcervoDto = AcervoMutationDto;
-export type UpdateAcervoDto = UpdateDto<AcervoDto> & Partial<AcervoRelationsInputDto>;
+export { CreateAcervoDtoClass as CreateAcervoDto };
+export { ReplaceAcervoDtoClass as ReplaceAcervoDto };
+export { UpdateAcervoDtoClass as UpdateAcervoDto };
+export type ICreateAcervoDto = InstanceType<typeof CreateAcervoDtoClass>;
+export type IReplaceAcervoDto = InstanceType<typeof ReplaceAcervoDtoClass>;
+export type IUpdateAcervoDto = InstanceType<typeof UpdateAcervoDtoClass>;
 
 // ============ Specialized Resumo DTOs (unique to acervo) ============
 @Dto({ description: "Resumo da matéria." })
@@ -192,17 +201,8 @@ export class AcervoRelationsDto {
 })
 export class AcervoWithRelationsDto {}
 
-@Dto({ description: "Relacionamentos resumidos do acervo para listagem." })
-export class AcervoListRelationsDto {
-  @Field(t.optional(t.ref(EspecializadaResumoDto)))
-  especializada?: InstanceType<typeof EspecializadaResumoDto>;
-
-  @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procuradorTitular?: InstanceType<typeof ProcuradorTitularResumoDto>;
-
-  @Field(t.optional(t.ref(TipoAcervoResumoDto)))
-  tipoAcervo?: InstanceType<typeof TipoAcervoResumoDto>;
-}
+@PickDto(AcervoRelationsDto, ["especializada", "procuradorTitular", "tipoAcervo"])
+export class AcervoListRelationsDto {}
 
 @MergeDto([AcervoDto, AcervoListRelationsDto], {
   name: "AcervoListItemDto",
@@ -210,26 +210,8 @@ export class AcervoListRelationsDto {
 })
 export class AcervoListItemDto {}
 
-@Dto({ description: "Detalhes completos do acervo." })
-export class AcervoDetailDto {
-  @Field(t.optional(t.ref(EspecializadaResumoDto)))
-  especializada?: InstanceType<typeof EspecializadaResumoDto>;
-
-  @Field(t.optional(t.ref(ProcuradorTitularResumoDto)))
-  procuradorTitular?: InstanceType<typeof ProcuradorTitularResumoDto>;
-
-  @Field(t.optional(t.ref(TipoAcervoResumoDto)))
-  tipoAcervo?: InstanceType<typeof TipoAcervoResumoDto>;
-
-  @Field(t.optional(t.ref(TipoMigracaoAcervoResumoDto)))
-  tipoMigracaoAcervo?: InstanceType<typeof TipoMigracaoAcervoResumoDto>;
-
-  @Field(t.optional(t.ref(EquipeResponsavelResumoDto)))
-  equipeResponsavel?: InstanceType<typeof EquipeResponsavelResumoDto>;
-
-  @Field(t.optional(t.ref(TipoDivisaoCargaTrabalhoResumoDto)))
-  tipoDivisaoCargaTrabalho?: InstanceType<typeof TipoDivisaoCargaTrabalhoResumoDto>;
-
+@Dto({ description: "Campos adicionais para detalhes do acervo." })
+export class AcervoDetailExtraDto {
   @Field(t.optional(t.boolean()))
   rotina_sob_demanda?: boolean;
 
@@ -249,18 +231,17 @@ export class AcervoDetailDto {
   raizesCNPJs!: RaizCnpjResumoDto[];
 }
 
+@MergeDto([AcervoDto, AcervoRelationsDto, AcervoDetailExtraDto], {
+  name: "AcervoDetailDto",
+  description: "Detalhes completos do acervo."
+})
+export class AcervoDetailDto {}
+
 // ============ Query/Response DTOs ============
 export const AcervoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
   name: "AcervoQueryDto",
-  sortableColumns: ["id", "nome", "ativo", "created", "modified"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    especializadaId: { schema: t.integer(), operator: "equals" },
-    tipoAcervoId: { schema: t.integer(), operator: "equals" },
-    procuradorTitularNomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    procuradorTitularId: { schema: t.integer(), operator: "equals" },
-    ativo: { schema: t.integer(), operator: "equals" }
-  }
+  sortableColumns: [...ACERVO_SORTABLE],
+  filters: ACERVO_FILTERS
 });
 
 export interface AcervoQueryDto extends SortingQueryParams {
@@ -276,15 +257,8 @@ export interface AcervoQueryDto extends SortingQueryParams {
 
 export const AcervoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
   name: "AcervoOptionsQueryDto",
-  sortableColumns: ["id", "nome", "ativo", "created", "modified"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    especializadaId: { schema: t.integer(), operator: "equals" },
-    tipoAcervoId: { schema: t.integer(), operator: "equals" },
-    procuradorTitularNomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    procuradorTitularId: { schema: t.integer(), operator: "equals" },
-    ativo: { schema: t.integer(), operator: "equals" }
-  }
+  sortableColumns: [...ACERVO_SORTABLE],
+  filters: ACERVO_FILTERS
 });
 
 export interface AcervoOptionsQueryDto extends SortingQueryParams {

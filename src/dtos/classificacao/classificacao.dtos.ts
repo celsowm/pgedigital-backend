@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Classificacao } from "../../entities/Classificacao";
@@ -8,8 +7,10 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -29,19 +30,24 @@ export const {
 
 export type ClassificacaoDto = Classificacao;
 
-type ClassificacaoMutationDto = CreateDto<ClassificacaoDto>;
-export type CreateClassificacaoDto = ClassificacaoMutationDto;
-export type ReplaceClassificacaoDto = ClassificacaoMutationDto;
+export type CreateClassificacaoDto = CreateDto<ClassificacaoDto>;
+export type ReplaceClassificacaoDto = CreateDto<ClassificacaoDto>;
 export type UpdateClassificacaoDto = UpdateDto<ClassificacaoDto>;
 export type ClassificacaoParamsDto = InstanceType<typeof ClassificacaoParamsDto>;
 
-export const ClassificacaoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "ificacaoQueryDto",
-  sortableColumns: ["id", "nome", "peso"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const classificacaoFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: ClassificacaoQueryDtoClass, options: ClassificacaoOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "Classificacao",
+    sortableColumns: ["id", "nome", "peso"],
+    filters: classificacaoFilters
+  });
+
+export { ClassificacaoQueryDtoClass, ClassificacaoOptionsQueryDtoClass };
 
 export interface ClassificacaoQueryDto extends SortingQueryParams {
   page?: number;
@@ -49,23 +55,16 @@ export interface ClassificacaoQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const ClassificacaoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "ClassificacaoOptionsQueryDto",
-  sortableColumns: ["id", "nome", "peso"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface ClassificacaoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const ClassificacaoPagedResponseDto = createPagedResponseDtoClass({
-  name: "ClassificacaoPagedResponseDto",
-  itemDto: ClassificacaoDto,
-  description: "Paged classificação list response."
-});
+// ============ Response DTOs ============
+export const ClassificacaoPagedResponseDto = createCrudPagedResponseDto(
+  "Classificacao",
+  ClassificacaoDto,
+  "classificação"
+);
 
 export const ClassificacaoErrors = createCrudErrors("classificação");
 

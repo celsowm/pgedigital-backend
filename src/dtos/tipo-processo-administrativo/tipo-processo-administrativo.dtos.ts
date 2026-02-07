@@ -2,8 +2,9 @@ import { t } from "adorn-api";
 import {
   createOptionDto,
   createOptionsArraySchema,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 
@@ -14,25 +15,25 @@ const TipoProcessoAdministrativoOptionDtoClass = createOptionDto(
 export { TipoProcessoAdministrativoOptionDtoClass as TipoProcessoAdministrativoOptionDto };
 export type TipoProcessoAdministrativoOptionDto = InstanceType<typeof TipoProcessoAdministrativoOptionDtoClass>;
 
-export const TipoProcessoAdministrativoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TipoProcessoAdministrativoQueryDto",
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const tipoPAFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: TipoProcessoAdministrativoQueryDtoClass, options: TipoProcessoAdministrativoOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "TipoProcessoAdministrativo",
+    sortableColumns: ["id", "nome"],
+    filters: tipoPAFilters
+  });
+
+export { TipoProcessoAdministrativoQueryDtoClass, TipoProcessoAdministrativoOptionsQueryDtoClass };
 
 export interface TipoProcessoAdministrativoQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
   nomeContains?: string;
 }
-
-export const TipoProcessoAdministrativoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TipoProcessoAdministrativoOptionsQueryDto",
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
 
 export interface TipoProcessoAdministrativoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;

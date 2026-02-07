@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   Dto,
   Field,
   MergeDto,
@@ -12,9 +11,11 @@ import {
   createIdNomeResumoDto,
   createOptionsArraySchema,
   createOptionDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
   createTreeDtoClasses,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams,
   type CreateDto,
   type UpdateDto
@@ -34,10 +35,8 @@ export const {
 } = temaCrud;
 
 export type TemaDto = Tema;
-
-type TemaMutationDto = CreateDto<TemaDto, "lft" | "rght" | "cod_nivel">;
-export type CreateTemaDto = TemaMutationDto;
-export type ReplaceTemaDto = TemaMutationDto;
+export type CreateTemaDto = CreateDto<TemaDto, "lft" | "rght" | "cod_nivel">;
+export type ReplaceTemaDto = CreateDto<TemaDto, "lft" | "rght" | "cod_nivel">;
 export type UpdateTemaDto = UpdateDto<TemaDto, "lft" | "rght" | "cod_nivel">;
 export type TemaParamsDto = InstanceType<typeof TemaParamsDto>;
 
@@ -58,6 +57,7 @@ export class TemaRelationsDto {
 })
 export class TemaWithRelationsDto {}
 
+// Tree DTOs
 export const {
   node: TemaNodeDto,
   nodeResult: TemaNodeResultDto,
@@ -69,15 +69,21 @@ export const {
   parentSchema: t.nullable(t.integer())
 });
 
-export const TemaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TemaQueryDto",
-  sortableColumns: ["id", "nome", "materia_id", "parent_id", "peso"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    materiaId: { schema: t.number(), operator: "equals" },
-    parentId: { schema: t.number(), operator: "equals" }
-  }
+// ============ Query DTOs (DRY) ============
+const temaFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains,
+  materiaId: { schema: t.number(), operator: "equals" },
+  parentId: { schema: t.number(), operator: "equals" }
 });
+
+const { paged: TemaQueryDtoClass, options: TemaOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "Tema",
+    sortableColumns: ["id", "nome", "materia_id", "parent_id", "peso"],
+    filters: temaFilters
+  });
+
+export { TemaQueryDtoClass, TemaOptionsQueryDtoClass };
 
 export interface TemaQueryDto extends SortingQueryParams {
   page?: number;
@@ -87,22 +93,13 @@ export interface TemaQueryDto extends SortingQueryParams {
   parentId?: number;
 }
 
-export const TemaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TemaOptionsQueryDto",
-  sortableColumns: ["id", "nome", "materia_id", "parent_id", "peso"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
-    materiaId: { schema: t.number(), operator: "equals" },
-    parentId: { schema: t.number(), operator: "equals" }
-  }
-});
-
 export interface TemaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   materiaId?: number;
   parentId?: number;
 }
 
+// Tree Query DTO
 @Dto({ name: "TemaTreeQueryDto", description: "Optional filters for tema tree routes." })
 export class TemaTreeQueryDtoClass {
   @Field(t.optional(t.integer()))
@@ -121,11 +118,12 @@ export interface TemaTreeQueryDto {
   depth?: number;
 }
 
-export const TemaPagedResponseDto = createPagedResponseDtoClass({
-  name: "TemaPagedResponseDto",
-  itemDto: TemaDto,
-  description: "Paged tema list response."
-});
+// ============ Response DTOs ============
+export const TemaPagedResponseDto = createCrudPagedResponseDto(
+  "Tema",
+  TemaDto,
+  "tema"
+);
 
 export const TemaErrors = createCrudErrors("tema");
 

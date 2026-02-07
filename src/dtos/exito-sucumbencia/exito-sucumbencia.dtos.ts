@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { ExitoSucumbencia } from "../../entities/ExitoSucumbencia";
@@ -8,11 +7,14 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
-  type SortingQueryParams
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
+  type SortingQueryParams,
+  type CreateDto,
+  type UpdateDto
 } from "../common";
-import type { CreateDto, UpdateDto } from "../common";
 
 const exitoSucumbenciaCrud = createMetalCrudDtoClasses(ExitoSucumbencia, {
   response: { description: "Êxito de Sucumbência retornada pela API." },
@@ -28,20 +30,24 @@ export const {
 } = exitoSucumbenciaCrud;
 
 export type ExitoSucumbenciaDto = ExitoSucumbencia;
-
-type ExitoSucumbenciaMutationDto = CreateDto<ExitoSucumbenciaDto>;
-export type CreateExitoSucumbenciaDto = ExitoSucumbenciaMutationDto;
-export type ReplaceExitoSucumbenciaDto = ExitoSucumbenciaMutationDto;
+export type CreateExitoSucumbenciaDto = CreateDto<ExitoSucumbenciaDto>;
+export type ReplaceExitoSucumbenciaDto = CreateDto<ExitoSucumbenciaDto>;
 export type UpdateExitoSucumbenciaDto = UpdateDto<ExitoSucumbenciaDto>;
 export type ExitoSucumbenciaParamsDto = InstanceType<typeof ExitoSucumbenciaParamsDto>;
 
-export const ExitoSucumbenciaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "ExitoSucumbenciaQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const exitoSucumbenciaFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: ExitoSucumbenciaQueryDtoClass, options: ExitoSucumbenciaOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "ExitoSucumbencia",
+    sortableColumns: ["id", "nome"],
+    filters: exitoSucumbenciaFilters
+  });
+
+export { ExitoSucumbenciaQueryDtoClass, ExitoSucumbenciaOptionsQueryDtoClass };
 
 export interface ExitoSucumbenciaQueryDto extends SortingQueryParams {
   page?: number;
@@ -49,23 +55,16 @@ export interface ExitoSucumbenciaQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const ExitoSucumbenciaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "ExitoSucumbenciaOptionsQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface ExitoSucumbenciaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const ExitoSucumbenciaPagedResponseDto = createPagedResponseDtoClass({
-  name: "ExitoSucumbenciaPagedResponseDto",
-  itemDto: ExitoSucumbenciaDto,
-  description: "Paged êxito de sucumbência list response."
-});
+// ============ Response DTOs ============
+export const ExitoSucumbenciaPagedResponseDto = createCrudPagedResponseDto(
+  "ExitoSucumbencia",
+  ExitoSucumbenciaDto,
+  "êxito de sucumbência"
+);
 
 export const ExitoSucumbenciaErrors = createCrudErrors("êxito de sucumbência");
 

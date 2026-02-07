@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { Materia } from "../../entities/Materia";
@@ -8,8 +7,10 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
@@ -28,20 +29,24 @@ export const {
 } = materiaCrud;
 
 export type MateriaDto = Materia;
-
-type MateriaMutationDto = CreateDto<MateriaDto>;
-export type CreateMateriaDto = MateriaMutationDto;
-export type ReplaceMateriaDto = MateriaMutationDto;
+export type CreateMateriaDto = CreateDto<MateriaDto>;
+export type ReplaceMateriaDto = CreateDto<MateriaDto>;
 export type UpdateMateriaDto = UpdateDto<MateriaDto>;
 export type MateriaParamsDto = InstanceType<typeof MateriaParamsDto>;
 
-export const MateriaQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "MateriaQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const materiaFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: MateriaQueryDtoClass, options: MateriaOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "Materia",
+    sortableColumns: ["id", "nome"],
+    filters: materiaFilters
+  });
+
+export { MateriaQueryDtoClass, MateriaOptionsQueryDtoClass };
 
 export interface MateriaQueryDto extends SortingQueryParams {
   page?: number;
@@ -49,23 +54,16 @@ export interface MateriaQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const MateriaOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "MateriaOptionsQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface MateriaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const MateriaPagedResponseDto = createPagedResponseDtoClass({
-  name: "MateriaPagedResponseDto",
-  itemDto: MateriaDto,
-  description: "Paged materia list response."
-});
+// ============ Response DTOs ============
+export const MateriaPagedResponseDto = createCrudPagedResponseDto(
+  "Materia",
+  MateriaDto,
+  "materia"
+);
 
 export const MateriaErrors = createCrudErrors("matéria");
 

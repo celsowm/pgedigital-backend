@@ -8,12 +8,15 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createFilterOnlySortingQueryDtoClass,
-  createPagedFilterSortingQueryDtoClass,
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
   type SortingQueryParams
 } from "../common";
 import type { CreateDto, UpdateDto } from "../common";
 
+// ============ CRUD DTOs ============
 const tipoAcervoCrud = createMetalCrudDtoClasses(TipoAcervo, {
   response: { description: "Tipo de acervo retornado pela API." },
   mutationExclude: ["id"]
@@ -29,19 +32,25 @@ export const {
 
 export type TipoAcervoDto = TipoAcervo;
 
-type TipoAcervoMutationDto = CreateDto<TipoAcervoDto>;
-export type CreateTipoAcervoDto = TipoAcervoMutationDto;
-export type ReplaceTipoAcervoDto = TipoAcervoMutationDto;
+// Type exports using the class types directly
+export type CreateTipoAcervoDto = CreateDto<TipoAcervoDto>;
+export type ReplaceTipoAcervoDto = CreateDto<TipoAcervoDto>;
 export type UpdateTipoAcervoDto = UpdateDto<TipoAcervoDto>;
 export type TipoAcervoParamsDto = InstanceType<typeof TipoAcervoParamsDto>;
 
-export const TipoAcervoQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "TipoAcervoQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY: single filter config, generates both) ============
+const tipoAcervoFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: TipoAcervoQueryDtoClass, options: TipoAcervoOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "TipoAcervo",
+    sortableColumns: ["id", "nome"],
+    filters: tipoAcervoFilters
+  });
+
+export { TipoAcervoQueryDtoClass, TipoAcervoOptionsQueryDtoClass };
 
 export interface TipoAcervoQueryDto extends SortingQueryParams {
   page?: number;
@@ -49,24 +58,18 @@ export interface TipoAcervoQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const TipoAcervoOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "TipoAcervoOptionsQueryDto",
-  sortableColumns: ["id", "nome"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface TipoAcervoOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const TipoAcervoPagedResponseDto = createPagedResponseDtoClass({
-  name: "TipoAcervoPagedResponseDto",
-  itemDto: TipoAcervoDto,
-  description: "Paged tipo acervo list response."
-});
+// ============ Response DTOs ============
+export const TipoAcervoPagedResponseDto = createCrudPagedResponseDto(
+  "TipoAcervo",
+  TipoAcervoDto,
+  "tipo acervo"
+);
 
+// ============ Errors & Options ============
 export const TipoAcervoErrors = createCrudErrors("tipo acervo");
 
 const TipoAcervoOptionDtoClass = createOptionDto(
@@ -80,4 +83,3 @@ export const TipoAcervoOptionsDto = createOptionsArraySchema(
   TipoAcervoOptionDtoClass,
   "Lista de tipos de acervo com id e nome."
 );
-

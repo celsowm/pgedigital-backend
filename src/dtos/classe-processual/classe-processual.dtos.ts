@@ -1,6 +1,5 @@
 import {
   createMetalCrudDtoClasses,
-  createPagedResponseDtoClass,
   t
 } from "adorn-api";
 import { ClasseProcessual } from "../../entities/ClasseProcessual";
@@ -8,11 +7,14 @@ import {
   createCrudErrors,
   createOptionsArraySchema,
   createOptionDto,
-  createPagedFilterSortingQueryDtoClass,
-  createFilterOnlySortingQueryDtoClass,
-  type SortingQueryParams
+  createCrudQueryDtoPair,
+  createCrudPagedResponseDto,
+  CommonFilters,
+  buildFilters,
+  type SortingQueryParams,
+  type CreateDto,
+  type UpdateDto
 } from "../common";
-import type { CreateDto, UpdateDto } from "../common";
 
 const classeProcessualCrud = createMetalCrudDtoClasses(ClasseProcessual, {
   response: { description: "Classe processual retornada pela API." },
@@ -28,20 +30,24 @@ export const {
 } = classeProcessualCrud;
 
 export type ClasseProcessualDto = ClasseProcessual;
-
-type ClasseProcessualMutationDto = CreateDto<ClasseProcessualDto>;
-export type CreateClasseProcessualDto = ClasseProcessualMutationDto;
-export type ReplaceClasseProcessualDto = ClasseProcessualMutationDto;
+export type CreateClasseProcessualDto = CreateDto<ClasseProcessualDto>;
+export type ReplaceClasseProcessualDto = CreateDto<ClasseProcessualDto>;
 export type UpdateClasseProcessualDto = UpdateDto<ClasseProcessualDto>;
 export type ClasseProcessualParamsDto = InstanceType<typeof ClasseProcessualParamsDto>;
 
-export const ClasseProcessualQueryDtoClass = createPagedFilterSortingQueryDtoClass({
-  name: "eProcessualQueryDto",
-  sortableColumns: ["id", "nome", "situacao"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
+// ============ Query DTOs (DRY) ============
+const classeProcessualFilters = buildFilters({
+  nomeContains: CommonFilters.nomeContains
 });
+
+const { paged: ClasseProcessualQueryDtoClass, options: ClasseProcessualOptionsQueryDtoClass } = 
+  createCrudQueryDtoPair({
+    name: "ClasseProcessual",
+    sortableColumns: ["id", "nome", "situacao"],
+    filters: classeProcessualFilters
+  });
+
+export { ClasseProcessualQueryDtoClass, ClasseProcessualOptionsQueryDtoClass };
 
 export interface ClasseProcessualQueryDto extends SortingQueryParams {
   page?: number;
@@ -49,23 +55,16 @@ export interface ClasseProcessualQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const ClasseProcessualOptionsQueryDtoClass = createFilterOnlySortingQueryDtoClass({
-  name: "ClasseProcessualOptionsQueryDto",
-  sortableColumns: ["id", "nome", "situacao"],
-  filters: {
-    nomeContains: { schema: t.string({ minLength: 1 }), operator: "contains" }
-  }
-});
-
 export interface ClasseProcessualOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
 }
 
-export const ClasseProcessualPagedResponseDto = createPagedResponseDtoClass({
-  name: "ClasseProcessualPagedResponseDto",
-  itemDto: ClasseProcessualDto,
-  description: "Paged classe processual list response."
-});
+// ============ Response DTOs ============
+export const ClasseProcessualPagedResponseDto = createCrudPagedResponseDto(
+  "ClasseProcessual",
+  ClasseProcessualDto,
+  "classe processual"
+);
 
 export const ClasseProcessualErrors = createCrudErrors("classe processual");
 
