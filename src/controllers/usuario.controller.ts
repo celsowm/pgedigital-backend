@@ -7,7 +7,8 @@ import {
   ok,
   noContent,
   parseIdOrThrow,
-  type RequestContext
+  type RequestContext,
+  HttpResponse
 } from "adorn-api";
 import { withSession } from "../db/mssql";
 import {
@@ -22,6 +23,7 @@ import {
 } from "../dtos/usuario/usuario.dtos";
 import { UsuarioService } from "../services/usuario.service";
 import { UsuarioThumbnailRepository } from "../repositories/usuario-thumbnail.repository";
+import imageType from "image-type";
 
 @Controller("/usuario")
 export class UsuarioController {
@@ -56,6 +58,34 @@ export class UsuarioController {
       return ok({
         thumbnail: thumbnail.thumbnail
       });
+    });
+  }
+
+  @Get("/:id/thumbnail/image")
+  @Params(UsuarioParamsDto)
+  @Returns({ status: 200, description: "Thumbnail image" })
+  @Returns({ status: 204, description: "No thumbnail available for user" })
+  async getThumbnailImage(ctx: RequestContext<unknown, undefined, UsuarioParamsDto>) {
+    const id = parseIdOrThrow(ctx.params.id, "usuario");
+    return withSession(async (session) => {
+      const thumbnail = await this.thumbnailRepository.findByUsuarioId(session, id);
+      if (!thumbnail || !thumbnail.thumbnail) {
+        return noContent();
+      }
+
+      const result = await imageType(thumbnail.thumbnail);
+      const mimeType = result?.mime ?? "application/octet-stream";
+
+      const headers: Record<string, string> = {
+        "Content-Type": mimeType,
+        "Cache-Control": "public, max-age=86400, immutable"
+      };
+
+      if (thumbnail.data_atualizacao) {
+        headers["Last-Modified"] = thumbnail.data_atualizacao.toUTCString();
+      }
+
+      return new HttpResponse(200, thumbnail.thumbnail, headers);
     });
   }
 }

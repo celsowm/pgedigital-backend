@@ -68,4 +68,35 @@ describeDb("Usuario database reads", () => {
       expect(item.especializada_id).toBe(especializadaId);
     }
   });
+
+  it("returns 204 when user has no thumbnail", async () => {
+    const response = await request(app).get(`/usuario/999999/thumbnail/image`);
+
+    expect(response.status).toBe(204);
+    expect(response.body).toEqual({});
+  });
+
+  it("returns thumbnail image with correct headers when user has thumbnail", async () => {
+    const usersResponse = await request(app).get(`/usuario?page=1&pageSize=1`);
+    expect(usersResponse.status).toBe(200);
+
+    const items = usersResponse.body.items as Array<{ id: number }>;
+    if (!items.length) {
+      return;
+    }
+
+    const userId = items[0].id;
+    const response = await request(app).get(`/usuario/${userId}/thumbnail/image`);
+
+    if (response.status === 204) {
+      return;
+    }
+
+    expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/^image\/(jpeg|png|gif|webp|bmp)/i);
+    expect(response.headers["cache-control"]).toBe("public, max-age=86400, immutable");
+    expect(response.headers["last-modified"]).toBeDefined();
+    expect(Buffer.isBuffer(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
+  });
 });

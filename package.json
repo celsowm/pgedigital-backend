@@ -30,6 +30,7 @@
   "dependencies": {
     "adorn-api": "^1.0.45",
     "es-abstract": "^1.24.1",
+    "image-type": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "ldapts": "^8.1.5",
     "metal-orm": "^1.1.0"
