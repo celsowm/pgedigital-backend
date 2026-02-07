@@ -45,7 +45,7 @@ export type AcervoDto = Acervo;
 export type AcervoParamsDto = InstanceType<typeof AcervoParamsDto>;
 
 // ============ N:N Input DTOs ============
-@Dto({ description: "Raiz de CNPJ para associar ao acervo." })
+@Dto({ description: "Raiz de CNPJ com pivot data para associar ao acervo." })
 export class RaizCnpjInputDto {
   @Field(t.integer())
   id!: number;
@@ -60,16 +60,16 @@ export class AcervoRelationsInputDto {
   classificacoes?: number[];
 
   @Field(t.optional(t.array(t.integer())))
-  temas?: number[];
+  temasRelacionados?: number[];
 
   @Field(t.optional(t.array(t.integer())))
-  equipes_apoio?: number[];
+  equipes?: number[];
 
   @Field(t.optional(t.array(t.integer())))
   destinatarios?: number[];
 
   @Field(t.optional(t.array(t.ref(RaizCnpjInputDto))))
-  raizes_cnpjs?: RaizCnpjInputDto[];
+  raizesCNPJs?: RaizCnpjInputDto[];
 }
 
 @MergeDto([BaseCreateAcervoDto, AcervoRelationsInputDto], {

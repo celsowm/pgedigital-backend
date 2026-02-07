@@ -16,20 +16,6 @@ import { BaseService, type ListConfig } from "./base.service";
 
 const SORTABLE_COLUMNS = ["id", "nome", "procurador_titular_id"] as const;
 
-import type { AcervoRelationsInputDto } from "../dtos/acervo/acervo.dtos";
-
-function mapRelations(input: Partial<AcervoRelationsInputDto>): Record<string, unknown> {
-  const payload: Record<string, unknown> = {};
-  if (input.classificacoes !== undefined) payload.classificacoes = input.classificacoes;
-  if (input.temas !== undefined) payload.temasRelacionados = input.temas;
-  if (input.equipes_apoio !== undefined) payload.equipes = input.equipes_apoio;
-  if (input.destinatarios !== undefined) payload.destinatarios = input.destinatarios;
-  if (input.raizes_cnpjs !== undefined) {
-    payload.raizesCNPJs = input.raizes_cnpjs.map(item => ({ id: item.id, pivot: { raiz: item.raiz } }));
-  }
-  return payload;
-}
-
 export class AcervoService extends BaseService<
   Acervo,
   AcervoQueryDto,
@@ -55,10 +41,7 @@ export class AcervoService extends BaseService<
 
   override async create(input: CreateAcervoDto): Promise<AcervoDetailDto> {
     return withSession(async (session) => {
-      const acervo = await session.saveGraph(Acervo, {
-        ...input,
-        ...mapRelations(input)
-      } as Record<string, unknown>, { transactional: false });
+      const acervo = await session.saveGraph(Acervo, input as Record<string, unknown>, { transactional: false });
       await session.commit();
       return (await this.repository.getDetail(session, acervo.id)) as AcervoDetailDto;
     });
@@ -68,8 +51,7 @@ export class AcervoService extends BaseService<
     return withSession(async (session) => {
       const result = await session.updateGraph(Acervo, {
         id,
-        ...input,
-        ...mapRelations(input)
+        ...input
       } as Record<string, unknown>, { pruneMissing: true, transactional: false });
       if (!result) {
         throw new HttpError(404, `${this.entityName} not found.`);
@@ -83,8 +65,7 @@ export class AcervoService extends BaseService<
     return withSession(async (session) => {
       const result = await session.patchGraph(Acervo, {
         id,
-        ...input,
-        ...mapRelations(input)
+        ...input
       } as Record<string, unknown>, { transactional: false });
       if (!result) {
         throw new HttpError(404, `${this.entityName} not found.`);
