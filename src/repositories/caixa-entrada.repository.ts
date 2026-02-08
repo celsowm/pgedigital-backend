@@ -66,7 +66,7 @@ export class CaixaEntradaRepository extends BaseRepository<Carga, CaixaEntradaDt
         columns: ["id", "codigo_pa", "especializada_id", "acervo_id", "classificacao_id", "processo_judicial_id", "valor_causa"],
         include: {
           classificacao: { columns: ["id", "nome"] },
-          especializada: { columns: ["id", "nome"] },
+          especializada: { columns: ["id", "nome", "sigla"] },
           acervo: { columns: ["id", "nome"] },
           processoJudicial: {
             columns: ["id", "numero"],

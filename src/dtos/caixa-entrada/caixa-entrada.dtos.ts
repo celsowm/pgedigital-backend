@@ -68,6 +68,9 @@ export class EspecializadaResumoDto {
 
   @Field(t.string())
   nome!: string;
+
+  @Field(t.optional(t.string()))
+  sigla?: string;
 }
 
 @Dto({ description: "Acervo resumido." })
