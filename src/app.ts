@@ -18,6 +18,7 @@ import { NaturezaIncidenteController } from "./controllers/natureza-incidente.co
 import { NotaVersaoController } from "./controllers/nota-versao.controller";
 import { PessoaController } from "./controllers/pessoa.controller";
 import { PalavraChaveController } from "./controllers/palavra-chave.controller";
+import { ProcessoAdministrativoController } from "./controllers/processo-administrativo.controller";
 import { TemaController } from "./controllers/tema.controller";
 import { TestController } from "./controllers/test.controller";
 import { TipoAcervoController } from "./controllers/tipo-acervo.controller";
@@ -38,7 +39,7 @@ export async function createApp(): Promise<Express> {
     .filter(Boolean);
 
   const app = await createExpressApp({
-controllers: [AfastamentoPessoaController, AuthController, AcervoController, CaixaEntradaController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FeriadoController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, PessoaController, PalavraChaveController, TemaController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
+controllers: [AfastamentoPessoaController, AuthController, AcervoController, CaixaEntradaController, ClasseProcessualController, ClassificacaoController, EquipeController, EspecializadaController, ExitoSucumbenciaController, FeriadoController, FilaCircularController, MateriaController, MniTribunalController, NaturezaIncidenteController, NotaVersaoController, PessoaController, PalavraChaveController, ProcessoAdministrativoController, TemaController, TestController, TipoAcervoController, TipoAfastamentoController, TipoAudienciaController, TipoDivisaoCargaTrabalhoController, TipoMigracaoAcervoController, TipoProcessoAdministrativoController, TipoProvidenciaJuridicaController, TipoSolicitacaoController, UsuarioController],
     cors: {
       origin: corsOrigins.length ? corsOrigins : "*",
       credentials: true
