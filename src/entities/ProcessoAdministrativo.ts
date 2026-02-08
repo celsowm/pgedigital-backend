@@ -8,6 +8,7 @@ import { Carga } from './Carga';
 import { Classificacao } from './Classificacao';
 import { CodigoExterno } from './CodigoExterno';
 import { CodigoExternoProcessoAdministrativo } from './CodigoExternoProcessoAdministrativo';
+import { Comunicacao } from './Comunicacao';
 import { DocumentoAcordoContencioso } from './DocumentoAcordoContencioso';
 import { DocumentoAnexoRascunho } from './DocumentoAnexoRascunho';
 import { DocumentoProcessoAdministrativo } from './DocumentoProcessoAdministrativo';
@@ -369,6 +370,9 @@ export class ProcessoAdministrativo {
 
   @HasMany({ target: () => Audiencia, foreignKey: 'processo_administrativo_id' })
   audiencias!: HasManyCollection<Audiencia>;
+
+  @HasMany({ target: () => Comunicacao, foreignKey: 'processo_administrativo_id' })
+  comunicacoes!: HasManyCollection<Comunicacao>;
 
   @HasMany({ target: () => ProcessoFisicoAssociado, foreignKey: 'processo_administrativo_id' })
   processosFisicosAssociados!: HasManyCollection<ProcessoFisicoAssociado>;

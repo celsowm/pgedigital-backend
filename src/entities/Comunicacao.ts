@@ -10,6 +10,7 @@ import { DocumentoComunicacao } from './DocumentoComunicacao';
 import { Estado } from './Estado';
 import { NivelSigilo } from './NivelSigilo';
 import { OutroParametroComunicacao } from './OutroParametroComunicacao';
+import { ProcessoAdministrativo } from './ProcessoAdministrativo';
 import { ProcessoJudicial } from './ProcessoJudicial';
 import { ProvidenciaJuridica } from './ProvidenciaJuridica';
 import { RegistroEnvioComunicacao } from './RegistroEnvioComunicacao';
@@ -126,8 +127,9 @@ export class Comunicacao {
 
   /**
    * Informa a chave identificadora do processo administrativo.
+   * @remarks References dbo.processo_administrativo.id (on delete NO ACTION, on update NO ACTION)
    */
-  @Column(col.int())
+  @Column(col.references(col.int(), { table: 'processo_administrativo', column: 'id', onDelete: 'NO ACTION', onUpdate: 'NO ACTION' }))
   processo_administrativo_id?: number;
 
   /**
@@ -220,6 +222,9 @@ export class Comunicacao {
 
   @BelongsTo({ target: () => ProcessoJudicial, foreignKey: 'processo_judicial_id' })
   processoJudicial!: BelongsToReference<ProcessoJudicial>;
+
+  @BelongsTo({ target: () => ProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
+  processoAdministrativo!: BelongsToReference<ProcessoAdministrativo>;
 
   @BelongsTo({ target: () => Estado, foreignKey: 'estado_id' })
   estado!: BelongsToReference<Estado>;

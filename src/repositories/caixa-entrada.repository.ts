@@ -39,6 +39,9 @@ export class CaixaEntradaRepository extends BaseRepository<Carga, CaixaEntradaDt
                 }
               }
             }
+          },
+          comunicacoes: {
+            columns: ["id", "data_recebimento", "prazo", "tipo_comunicacao_id"]
           }
         }
       });
