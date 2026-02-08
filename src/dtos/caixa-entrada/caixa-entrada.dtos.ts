@@ -79,6 +79,27 @@ export class AcervoResumoDto {
   nome!: string;
 }
 
+@Dto({ description: "Pessoa resumida para parte." })
+export class PessoaResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.string())
+  nome!: string;
+}
+
+@Dto({ description: "Parte resumida com tipo polo e pessoa." })
+export class ParteResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.optional(t.string()))
+  tipo_polo_id?: string;
+
+  @Field(t.optional(t.ref(PessoaResumoDto)))
+  pessoa?: PessoaResumoDto;
+}
+
 @Dto({ description: "Processo judicial resumido." })
 export class ProcessoJudicialResumoDto {
   @Field(t.integer())
@@ -86,6 +107,9 @@ export class ProcessoJudicialResumoDto {
 
   @Field(t.string())
   numero!: string;
+
+  @Field(t.optional(t.array(t.ref(ParteResumoDto))))
+  partes?: ParteResumoDto[];
 }
 
 @Dto({ description: "Processo administrativo resumido para caixa de entrada." })

@@ -29,7 +29,17 @@ export class CaixaEntradaRepository extends BaseRepository<Carga, CaixaEntradaDt
           classificacao: { columns: ["id", "nome"] },
           especializada: { columns: ["id", "nome"] },
           acervo: { columns: ["id", "nome"] },
-          processoJudicial: { columns: ["id", "numero"] }
+          processoJudicial: {
+            columns: ["id", "numero"],
+            include: {
+              partes: {
+                columns: ["id", "tipo_polo_id"],
+                include: {
+                  pessoa: { columns: ["id", "nome"] }
+                }
+              }
+            }
+          }
         }
       });
   }
