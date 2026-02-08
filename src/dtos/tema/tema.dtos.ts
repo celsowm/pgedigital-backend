@@ -73,7 +73,8 @@ export const {
 const temaFilters = buildFilters({
   nomeContains: CommonFilters.nomeContains,
   materiaId: { schema: t.number(), operator: "equals" },
-  parentId: { schema: t.number(), operator: "equals" }
+  parentId: { schema: t.number(), operator: "equals" },
+  especializadaId: CommonFilters.id
 });
 
 const { paged: TemaQueryDtoClass, options: TemaOptionsQueryDtoClass } = 
@@ -91,12 +92,14 @@ export interface TemaQueryDto extends SortingQueryParams {
   nomeContains?: string;
   materiaId?: number;
   parentId?: number;
+  especializadaId?: number;
 }
 
 export interface TemaOptionsQueryDto extends SortingQueryParams {
   nomeContains?: string;
   materiaId?: number;
   parentId?: number;
+  especializadaId?: number;
 }
 
 // Tree Query DTO
@@ -108,6 +111,9 @@ export class TemaTreeQueryDtoClass {
   @Field(t.optional(t.integer()))
   materiaId?: number;
 
+  @Field(t.optional(t.integer()))
+  especializadaId?: number;
+
   @Field(t.optional(t.integer({ minimum: 0 })))
   depth?: number;
 }
@@ -115,6 +121,7 @@ export class TemaTreeQueryDtoClass {
 export interface TemaTreeQueryDto {
   rootId?: number;
   materiaId?: number;
+  especializadaId?: number;
   depth?: number;
 }
 

@@ -1,16 +1,25 @@
-import { HttpError, applyInput } from "adorn-api";
+import { HttpError, applyInput, parseFilter, parsePagination } from "adorn-api";
 import {
+  applyFilter,
   eq,
+  entityRef,
+  getColumn,
+  inSubquery,
+  selectFromEntity,
   createTreeManager,
   formatTreeList,
   getTableDefFromEntity,
   getTreeConfig,
+  toPagedResponse,
+  type ColumnDef,
   type OrmSession,
+  type WhereInput,
   threadResults,
   treeQuery
 } from "metal-orm";
 import { withSession } from "../db/mssql";
 import { Tema } from "../entities/Tema";
+import { EspecializadaTema } from "../entities/EspecializadaTema";
 import type {
   CreateTemaDto,
   ReplaceTemaDto,
@@ -26,6 +35,7 @@ import {
   type TemaFilterFields
 } from "../repositories/tema.repository";
 import { BaseService, type ListConfig } from "./base.service";
+import { parseSorting } from "../utils/controller-helpers";
 
 const SORTABLE_COLUMNS = ["id", "nome", "materia_id", "parent_id", "peso"] as const;
 
@@ -61,6 +71,63 @@ export class TemaService extends BaseService<
   constructor(repository?: TemaRepository) {
     super();
     this.repository = repository ?? new TemaRepository();
+  }
+
+  override async list(query: TemaQueryDto): Promise<unknown> {
+    const paginationQuery = (query ?? {}) as Record<string, unknown>;
+    const { page, pageSize } = parsePagination(paginationQuery);
+    const filters = parseFilter(paginationQuery, this.listConfig.filterMappings);
+    const { sortBy, sortOrder } = parseSorting(paginationQuery, {
+      defaultSortBy: this.listConfig.defaultSortBy,
+      defaultSortOrder: this.listConfig.defaultSortOrder,
+      allowedColumns: this.listConfig.sortableColumns
+    });
+
+    return withSession(async (session) => {
+      let baseQuery = this.repository.buildListQuery();
+      if (filters) {
+        baseQuery = applyFilter(
+          baseQuery,
+          this.repository.entityClass,
+          filters as WhereInput<typeof this.repository.entityClass>
+        );
+      }
+
+      baseQuery = this.applyEspecializadaFilter(baseQuery, query);
+
+      if (sortBy) {
+        const ref = entityRef(Tema);
+        const sortColumn = getColumn(ref, sortBy as keyof Tema) as ColumnDef;
+        baseQuery = baseQuery.orderBy(sortColumn, sortOrder);
+        if (sortBy !== "id") {
+          const idColumn = getColumn(ref, "id") as ColumnDef;
+          baseQuery = baseQuery.orderBy(idColumn, "ASC");
+        }
+      }
+
+      const paged = await baseQuery.executePaged(session, { page, pageSize });
+      return toPagedResponse(paged);
+    });
+  }
+
+  override async listOptions(query?: TemaQueryDto): Promise<Array<{ id: number; nome: string }>> {
+    const paginationQuery = (query ?? {}) as Record<string, unknown>;
+    const filters = parseFilter(paginationQuery, this.listConfig.filterMappings);
+
+    return withSession(async (session) => {
+      let optionsQuery = this.repository.buildOptionsQuery();
+      if (filters) {
+        optionsQuery = applyFilter(
+          optionsQuery,
+          this.repository.entityClass,
+          filters as WhereInput<typeof this.repository.entityClass>
+        );
+      }
+
+      optionsQuery = this.applyEspecializadaFilter(optionsQuery, query ?? {});
+
+      return optionsQuery.executePlain(session) as unknown as Array<{ id: number; nome: string }>;
+    });
   }
 
   async listTree(query: TemaTreeQueryDto = {}): Promise<unknown> {
@@ -211,6 +278,13 @@ export class TemaService extends BaseService<
       qb = qb.where(eq(temaTable.columns.materia_id, query.materiaId));
     }
 
+    if (query.especializadaId !== undefined && query.especializadaId !== null) {
+      qb = qb.where(inSubquery(
+        temaTable.columns.id,
+        this.buildEspecializadaSubquery(query.especializadaId)
+      ));
+    }
+
     return (await qb.execute(session)) as Record<string, unknown>[];
   }
 
@@ -221,6 +295,27 @@ export class TemaService extends BaseService<
       throw new HttpError(404, `${this.entityName} not found.`);
     }
     return tree.findSubtree({ lft: node.lft, rght: node.rght });
+  }
+
+  private applyEspecializadaFilter<T>(
+    query: T,
+    params: { especializadaId?: number }
+  ): T {
+    if (params.especializadaId !== undefined && params.especializadaId !== null) {
+      const ref = entityRef(Tema);
+      return (query as any).where(inSubquery(
+        ref.id,
+        this.buildEspecializadaSubquery(params.especializadaId)
+      )) as T;
+    }
+    return query;
+  }
+
+  private buildEspecializadaSubquery(especializadaId: number) {
+    const etRef = entityRef(EspecializadaTema);
+    return selectFromEntity(EspecializadaTema)
+      .select({ tema_id: etRef.tema_id })
+      .where(eq(etRef.especializada_id, especializadaId));
   }
 
   private limitThreadedDepth<T extends { children: T[] }>(
