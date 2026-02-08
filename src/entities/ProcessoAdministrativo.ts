@@ -33,6 +33,7 @@ import { ProcessoAdministrativoProcessoAdministrativo } from './ProcessoAdminist
 import { ProcessoAdministrativoTema } from './ProcessoAdministrativoTema';
 import { ProcessoFisicoAssociado } from './ProcessoFisicoAssociado';
 import { ProcessoJudicial } from './ProcessoJudicial';
+import { ProvidenciaJuridica } from './ProvidenciaJuridica';
 import { RegistroTramitacao } from './RegistroTramitacao';
 import { RetornoProgramado } from './RetornoProgramado';
 import { Solicitacao } from './Solicitacao';
@@ -367,6 +368,9 @@ export class ProcessoAdministrativo {
 
   @HasMany({ target: () => ProcessoAdministrativoProcessoAdministrativo, foreignKey: 'processo_administrativo_associado_id' })
   processosAdministrativosProcessosAdministrativos!: HasManyCollection<ProcessoAdministrativoProcessoAdministrativo>;
+
+  @HasMany({ target: () => ProvidenciaJuridica, foreignKey: 'processo_administrativo_id' })
+  providenciasJuridicas!: HasManyCollection<ProvidenciaJuridica>;
 
   @HasMany({ target: () => Audiencia, foreignKey: 'processo_administrativo_id' })
   audiencias!: HasManyCollection<Audiencia>;

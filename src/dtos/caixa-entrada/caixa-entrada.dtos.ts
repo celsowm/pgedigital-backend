@@ -112,6 +112,33 @@ export class ProcessoJudicialResumoDto {
   partes?: ParteResumoDto[];
 }
 
+@Dto({ description: "Estado resumido." })
+export class EstadoResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.string())
+  nome!: string;
+}
+
+@Dto({ description: "Providência jurídica resumida." })
+export class ProvidenciaJuridicaResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.optional(t.dateTime()))
+  prazo?: Date;
+
+  @Field(t.optional(t.integer()))
+  comunicacao_id?: number;
+
+  @Field(t.optional(t.integer()))
+  estado_id?: number;
+
+  @Field(t.optional(t.ref(EstadoResumoDto)))
+  estado?: EstadoResumoDto;
+}
+
 @Dto({ description: "Processo administrativo resumido para caixa de entrada." })
 export class ProcessoAdministrativoResumoDto {
   @Field(t.integer())
@@ -146,6 +173,9 @@ export class ProcessoAdministrativoResumoDto {
 
   @Field(t.optional(t.ref(ProcessoJudicialResumoDto)))
   processoJudicial?: ProcessoJudicialResumoDto;
+
+  @Field(t.optional(t.array(t.ref(ProvidenciaJuridicaResumoDto))))
+  providenciasJuridicas?: ProvidenciaJuridicaResumoDto[];
 }
 
 // ============ Main DTO ============

@@ -8,6 +8,7 @@ import { DocumentoRascunho } from './DocumentoRascunho';
 import { DocumentoRascunhoProvidenciaJuridica } from './DocumentoRascunhoProvidenciaJuridica';
 import { Estado } from './Estado';
 import { HistoricoPrazo } from './HistoricoPrazo';
+import { ProcessoAdministrativo } from './ProcessoAdministrativo';
 import { ProvidenciaJuridicaSolicitacao } from './ProvidenciaJuridicaSolicitacao';
 import { Solicitacao } from './Solicitacao';
 import { TipoProvidenciaJuridica } from './TipoProvidenciaJuridica';
@@ -44,8 +45,9 @@ export class ProvidenciaJuridica {
 
   /**
    * Se refere a um código ou número exclusivo atribuído a um processo administrativo específico.
+   * @remarks References dbo.processo_administrativo.id (on delete NO ACTION, on update NO ACTION)
    */
-  @Column(col.int())
+  @Column(col.references(col.int(), { table: 'processo_administrativo', column: 'id', onDelete: 'NO ACTION', onUpdate: 'NO ACTION' }))
   processo_administrativo_id?: number;
 
   /**
@@ -107,6 +109,9 @@ export class ProvidenciaJuridica {
 
   @BelongsTo({ target: () => TipoProvidenciaJuridica, foreignKey: 'tipo_providencia_juridica_id' })
   tipoProvidenciaJuridica!: BelongsToReference<TipoProvidenciaJuridica>;
+
+  @BelongsTo({ target: () => ProcessoAdministrativo, foreignKey: 'processo_administrativo_id' })
+  processoAdministrativo!: BelongsToReference<ProcessoAdministrativo>;
 
   @BelongsTo({ target: () => Estado, foreignKey: 'estado_id' })
   estado!: BelongsToReference<Estado>;
