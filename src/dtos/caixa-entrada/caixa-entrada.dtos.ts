@@ -52,13 +52,34 @@ export class RegistroTramitacaoResumoDto {
   remetente?: RemetenteResumoDto;
 }
 
-@Dto({ description: "Classificação resumida." })
-export class ClassificacaoResumoDto {
+@Dto({ description: "Classificação relevância resumida." })
+export class ClassificacaoRelevanciaResumoDto {
   @Field(t.integer())
   id!: number;
 
   @Field(t.string())
   nome!: string;
+}
+
+@Dto({ description: "Classificação recorrência resumida." })
+export class ClassificacaoRecorrenciaResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.string())
+  nome!: string;
+}
+
+@Dto({ description: "Classificação resumida." })
+export class ClassificacaoResumoDto {
+  @Field(t.integer())
+  id!: number;
+
+  @Field(t.optional(t.ref(ClassificacaoRelevanciaResumoDto)))
+  classificacaoRelevancia?: ClassificacaoRelevanciaResumoDto;
+
+  @Field(t.optional(t.ref(ClassificacaoRecorrenciaResumoDto)))
+  classificacaoRecorrencia?: ClassificacaoRecorrenciaResumoDto;
 }
 
 @Dto({ description: "Especializada resumida." })
