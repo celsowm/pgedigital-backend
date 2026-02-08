@@ -3,12 +3,51 @@ import { Carga } from "../entities/Carga";
 import type { CaixaEntradaDto } from "../dtos/caixa-entrada/caixa-entrada.dtos";
 import { BaseRepository, createFilterMappings } from "./base.repository";
 
-export type CaixaEntradaFilterFields = "usuarioId" | "lido" | "pastaId";
+export type CaixaEntradaFilterFields =
+  | "usuarioId"
+  | "lido"
+  | "pastaId"
+  | "tipoProcessoAdministrativoId"
+  | "tipoEntrada"
+  | "classificacaoId"
+  | "temaPrincipalId"
+  | "substituicao"
+  | "acervoId"
+  | "especializadaId"
+  | "urgenciaId"
+  | "numeroJudicialContains"
+  | "numeroPaContains"
+  | "autorContains"
+  | "reuContains"
+  | "interessadoContains"
+  | "dataInicioGte"
+  | "dataFimLte"
+  | "origemDemanda"
+  | "comPrazo"
+  | "comPrazoDefinido";
 
 export const CAIXA_ENTRADA_FILTER_MAPPINGS = createFilterMappings<Record<string, unknown>>({
   usuarioId: { field: "usuario_id", operator: "equals" },
   lido: { field: "lido", operator: "equals" },
-  pastaId: { field: "pasta_id", operator: "equals" }
+  pastaId: { field: "pasta_id", operator: "equals" },
+  tipoProcessoAdministrativoId: { field: "processoAdministrativo.tipo_processo_administrativo_id", operator: "equals" },
+  tipoEntrada: { field: "registroTramitacao.tramitacao.codigo", operator: "equals" },
+  classificacaoId: { field: "processoAdministrativo.classificacao_id", operator: "equals" },
+  temaPrincipalId: { field: "processoAdministrativo.tema_principal_id", operator: "equals" },
+  substituicao: { field: "registroTramitacao.substituicao", operator: "equals" },
+  acervoId: { field: "processoAdministrativo.acervo_id", operator: "equals" },
+  especializadaId: { field: "processoAdministrativo.especializada_id", operator: "equals" },
+  urgenciaId: { field: "processoAdministrativo.urgencia_id", operator: "equals" },
+  numeroJudicialContains: { field: "processoAdministrativo.processoJudicial.numero", operator: "contains" },
+  numeroPaContains: { field: "processoAdministrativo.codigo_pa", operator: "contains" },
+  autorContains: { field: "processoAdministrativo.processoJudicial.partes.some.pessoa.nome", operator: "contains" },
+  reuContains: { field: "processoAdministrativo.processoJudicial.partes.some.pessoa.nome", operator: "contains" },
+  interessadoContains: { field: "processoAdministrativo.interessados.some.pessoa.nome", operator: "contains" },
+  dataInicioGte: { field: "registroTramitacao.data_hora_tramitacao", operator: "gte" },
+  dataFimLte: { field: "registroTramitacao.data_hora_tramitacao", operator: "lte" },
+  origemDemanda: { field: "processoAdministrativo.comunicacoes.some.tipo_comunicacao_id", operator: "equals" },
+  comPrazo: { field: "processoAdministrativo.comunicacoes.some.prazo", operator: "equals" },
+  comPrazoDefinido: { field: "processoAdministrativo.providenciasJuridicas.some.prazo", operator: "equals" }
 });
 
 export class CaixaEntradaRepository extends BaseRepository<Carga, CaixaEntradaDto> {

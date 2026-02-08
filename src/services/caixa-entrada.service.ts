@@ -16,7 +16,7 @@ import {
 } from "../repositories/caixa-entrada.repository";
 import { parseSorting } from "../utils/controller-helpers";
 
-const SORTABLE_COLUMNS = ["id", "lido"] as const;
+const SORTABLE_COLUMNS = ["id", "lido", "registro_tramitacao.data_hora_tramitacao"] as const;
 
 export class CaixaEntradaService {
   private readonly repository: CaixaEntradaRepository;

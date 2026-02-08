@@ -212,12 +212,30 @@ export class CaixaEntradaDto {
 const caixaEntradaFilters = buildFilters({
   usuarioId: { schema: t.integer(), operator: "equals" },
   lido: { schema: t.boolean(), operator: "equals" },
-  pastaId: { schema: t.integer(), operator: "equals" }
+  pastaId: { schema: t.integer(), operator: "equals" },
+  tipoProcessoAdministrativoId: { schema: t.integer(), operator: "equals" },
+  tipoEntrada: { schema: t.string({ minLength: 1 }), operator: "equals" },
+  classificacaoId: { schema: t.integer(), operator: "equals" },
+  temaPrincipalId: { schema: t.integer(), operator: "equals" },
+  substituicao: { schema: t.string({ minLength: 1 }), operator: "equals" },
+  acervoId: { schema: t.integer(), operator: "equals" },
+  especializadaId: { schema: t.integer(), operator: "equals" },
+  urgenciaId: { schema: t.integer(), operator: "equals" },
+  numeroJudicialContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  numeroPaContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  autorContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  reuContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  interessadoContains: { schema: t.string({ minLength: 1 }), operator: "contains" },
+  dataInicioGte: { schema: t.string({ minLength: 1 }), operator: "gte" },
+  dataFimLte: { schema: t.string({ minLength: 1 }), operator: "lte" },
+  origemDemanda: { schema: t.integer(), operator: "equals" },
+  comPrazo: { schema: t.boolean(), operator: "equals" },
+  comPrazoDefinido: { schema: t.boolean(), operator: "equals" }
 });
 
 const { paged: CaixaEntradaQueryDtoClass } = createCrudQueryDtoPair({
   name: "CaixaEntrada",
-  sortableColumns: ["id", "lido"],
+  sortableColumns: ["id", "lido", "registro_tramitacao.data_hora_tramitacao"],
   filters: caixaEntradaFilters
 });
 
@@ -226,9 +244,27 @@ export { CaixaEntradaQueryDtoClass };
 export interface CaixaEntradaQueryDto extends SortingQueryParams {
   page?: number;
   pageSize?: number;
-  usuarioId: number; // Mandatory - userId filter
+  usuarioId: number;
   lido?: boolean;
   pastaId?: number;
+  tipoProcessoAdministrativoId?: number;
+  tipoEntrada?: string;
+  classificacaoId?: number;
+  temaPrincipalId?: number;
+  substituicao?: string;
+  acervoId?: number;
+  especializadaId?: number;
+  urgenciaId?: number;
+  numeroJudicialContains?: string;
+  numeroPaContains?: string;
+  autorContains?: string;
+  reuContains?: string;
+  interessadoContains?: string;
+  dataInicioGte?: string;
+  dataFimLte?: string;
+  origemDemanda?: number;
+  comPrazo?: boolean;
+  comPrazoDefinido?: boolean;
 }
 
 // ============ Response DTOs ============
