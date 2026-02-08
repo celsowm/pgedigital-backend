@@ -3,8 +3,10 @@ import {
   applyFilter,
   entityRef,
   getColumn,
+  getTableDefFromEntity,
   toPagedResponse,
   type ColumnDef,
+  type TableDef,
   type WhereInput
 } from "metal-orm";
 import { withSession } from "../db/mssql";
@@ -16,7 +18,7 @@ import {
 } from "../repositories/caixa-entrada.repository";
 import { parseSorting } from "../utils/controller-helpers";
 
-const SORTABLE_COLUMNS = ["id", "lido", "registro_tramitacao.data_hora_tramitacao"] as const;
+const SORTABLE_COLUMNS = ["id", "lido", "registroTramitacao.data_hora_tramitacao"] as const;
 
 export class CaixaEntradaService {
   private readonly repository: CaixaEntradaRepository;
@@ -53,10 +55,10 @@ export class CaixaEntradaService {
       );
 
       if (sortBy) {
-        const ref = entityRef(Carga);
-        const sortColumn = getColumn(ref, sortBy) as ColumnDef;
+        const sortColumn = this.resolveSortColumn(sortBy);
         queryBuilder = queryBuilder.orderBy(sortColumn, sortOrder);
         if (sortBy !== "id") {
+          const ref = entityRef(Carga);
           const idColumn = getColumn(ref, "id") as ColumnDef;
           queryBuilder = queryBuilder.orderBy(idColumn, "DESC");
         }
@@ -79,5 +81,19 @@ export class CaixaEntradaService {
       }
       return detail;
     });
+  }
+
+  private resolveSortColumn(sortBy: string): ColumnDef {
+    const parts = sortBy.split(".");
+    if (parts.length === 1) {
+      return getColumn(entityRef(Carga), sortBy) as ColumnDef;
+    }
+    const [relationName, columnName] = parts;
+    const tableDef = getTableDefFromEntity(Carga) as TableDef;
+    const relation = tableDef.relations[relationName];
+    if (!relation) {
+      throw new Error(`Relation '${relationName}' not found on entity Carga`);
+    }
+    return getColumn(relation.target, columnName) as ColumnDef;
   }
 }
