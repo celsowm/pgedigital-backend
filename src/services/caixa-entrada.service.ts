@@ -63,11 +63,7 @@ export class CaixaEntradaService {
       }
 
       const paged = await queryBuilder.executePaged(session, { page, pageSize });
-      const response = toPagedResponse(paged);
-      // Serialize to JSON and parse back to ensure all nested includes are resolved
-      // This is needed because adorn-api's serialization doesn't pick up non-enumerable
-      // properties that metal-orm uses for lazy-loaded relationships
-      return JSON.parse(JSON.stringify(response));
+      return toPagedResponse(paged);
     });
   }
 
