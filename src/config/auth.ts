@@ -88,7 +88,7 @@ export function getAuthConfigFromEnv(): AuthConfig {
     ? true
     : parseBoolean(process.env.PGE_DIGITAL_AUTH_COOKIE_SECURE, false);
   const COOKIE_DOMAIN = process.env.PGE_DIGITAL_AUTH_COOKIE_DOMAIN?.trim() || undefined;
-  const COOKIE_PATH = (process.env.PGE_DIGITAL_AUTH_COOKIE_PATH ?? "/auth").trim();
+  const COOKIE_PATH = (process.env.PGE_DIGITAL_AUTH_COOKIE_PATH ?? "/").trim();
 
   return {
     JWT_SECRET,
